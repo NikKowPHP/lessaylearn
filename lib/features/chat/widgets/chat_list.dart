@@ -11,17 +11,29 @@ class ChatList extends StatelessWidget {
   Widget build(BuildContext context) {
     final chats = chatService.getChats();
 
-    return CupertinoScrollbar(
-      child: ListView.separated(
-        itemCount: chats.length,
-         separatorBuilder: (context, index) => Container(
-          height: 1,
-          color: CupertinoColors.separator,
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () async {
+            // Implement refresh logic here
+          },
         ),
-        itemBuilder: (context, index) {
-          return ChatListItem(chat: chats[index]);
-        },
-      ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index.isOdd) {
+                return Container(
+                  height: 1,
+                  color: CupertinoColors.separator,
+                );
+              }
+              final chatIndex = index ~/ 2;
+              return ChatListItem(chat: chats[chatIndex]);
+            },
+            childCount: chats.length * 2 - 1,
+          ),
+        ),
+      ],
     );
   }
 }

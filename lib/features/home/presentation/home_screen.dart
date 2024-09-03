@@ -7,7 +7,7 @@ import 'package:lessay_learn/features/chat/widgets/chat_list.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
- @override
+@override
   Widget build(BuildContext context, WidgetRef ref) {
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(

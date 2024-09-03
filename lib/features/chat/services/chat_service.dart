@@ -15,6 +15,102 @@ class ChatService {
         time: "9:45 AM",
         avatarUrl: "https://i.pravatar.cc/150?img=3",
       ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
+       ChatModel(
+        name: "Jane Smith",
+        lastMessage: "Meeting at 2 PM",
+        time: "9:45 AM",
+        avatarUrl: "https://i.pravatar.cc/150?img=3",
+      ),
       // Add more mock chats as needed
     ];
   }
