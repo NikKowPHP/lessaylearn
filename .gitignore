@@ -1,0 +1,69 @@
+# Flutter specific
+.flutter-plugins
+.flutter-plugins-dependencies
+.dart_tool/
+.packages
+build/
+.pub-cache/
+.metadata
+.idea/
+
+# Files and directories created by pub
+.packages
+.pub-cache/
+pubspec.lock
+
+# Files and directories created by Android Studio
+.iml
+.idea
+*.iws
+*.ipr
+*.swp
+
+# Files and directories created by VS Code
+.vscode/
+
+# Files and directories created by Xcode
+*.mode1v3
+*.mode2v3
+*.xcworkspace
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+*.xcuserdatad
+*.xcscmblueprint
+
+# macOS
+.DS_Store
+
+# Android
+local.properties
+/android/app/build
+
+# iOS
+Pods/
+/ios/Flutter/App.framework
+/ios/Flutter/Flutter.framework
+
+# Web
+
+# Linux
+.flutter-devtools
+
+# Hidden files
+.*
+!.gitignore
+!.gitattributes
+
+# Credentials
+*.pem
+*.cer
+*.p12
+*.pfx
+
+# API keys and secrets
+*.env
+*.keystore
