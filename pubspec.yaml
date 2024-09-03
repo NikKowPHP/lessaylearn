@@ -1,33 +1,47 @@
 name: lessay_learn
 description: "lessay learn"
 
-publish_to: 'none' 
-
+publish_to: "none"
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.4.0 <4.0.0'
+  sdk: ">=3.4.0 <4.0.0"
 
+  # Core Packages
 dependencies:
-  flutter:
-    sdk: flutter
-  cupertino_icons: ^1.0.2
-  flutter_riverpod: ^2.5.1 
-  http: ^1.2.2
-  firebase_core: ^3.4.0 
-  firebase_auth: ^5.2.0 
-  cloud_firestore: ^5.3.0 
+  flutter_riverpod: 
+  go_router:
+  dio: 
+  json_annotation: 
 
+  # Local Storage
+  hive: 
+  hive_flutter: 
+
+  # Dependency Injection
+  get_it: 
+
+  # Optional Packages (Uncomment as needed)
+  # flutter_staggered_grid_view: ^0.6.2
+  # animations: ^2.0.7
+  # cached_network_image: ^3.2.3
+  # flutter_svg: ^2.0.7
+  # firebase_analytics: ^10.4.0
+  # firebase_crashlytics: ^3.2.0
+  # workmanager: ^0.5.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0 
-  leak_tracker: ^10.0.4
-  leak_tracker_flutter_testing: ^3.0.3 
-  lints: ^4.0.0 
+
+  # Code Generation for JSON Serialization
+  build_runner: ^2.4.6
+  json_serializable: ^6.7.0
+
+  # Optional Dev Dependencies (Uncomment as needed)
+  # mockito: ^5.4.2
+  # integration_test: ^2.1.0
 
 flutter:
-
   uses-material-design: true
