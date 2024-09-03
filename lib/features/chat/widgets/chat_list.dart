@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
+
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/services/chat_service.dart';
-
 class ChatList extends StatelessWidget {
   final ChatService chatService = ChatService();
 
@@ -9,7 +10,8 @@ class ChatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chats = chatService.getChats();
+    final chats = chatService.getChats()
+      ..sort((a, b) => b.date.compareTo(a.date));
 
     return CustomScrollView(
       slivers: [
@@ -28,13 +30,50 @@ class ChatList extends StatelessWidget {
                 );
               }
               final chatIndex = index ~/ 2;
-              return ChatListItem(chat: chats[chatIndex]);
+              final chat = chats[chatIndex];
+              final isFirstOfDay = chatIndex == 0 || 
+                !isSameDay(chat.date, chats[chatIndex - 1].date);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isFirstOfDay)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        formatDate(chat.date),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ),
+                  ChatListItem(chat: chat),
+                ],
+              );
             },
             childCount: chats.length * 2 - 1,
           ),
         ),
       ],
     );
+  }
+
+  String formatDate(DateTime date) {
+    final now = DateTime.now();
+    if (isSameDay(date, now)) {
+      return 'Today';
+    } else if (isSameDay(date, now.subtract(Duration(days: 1)))) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('MMMM d, y').format(date);
+    }
+  }
+
+  bool isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && 
+           date1.month == date2.month && 
+           date1.day == date2.day;
   }
 }
 
