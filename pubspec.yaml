@@ -1,5 +1,5 @@
-name: ai_language_app
-description: "A new Flutter project."
+name: lessay_learn
+description: "lessay learn"
 
 publish_to: 'none' 
 
@@ -12,19 +12,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_riverpod:
-  http: 
-  firebase_core: 
-  firebase_auth: 
-  cloud_firestore: 
-  cupertino_icons: 
+  cupertino_icons: ^1.0.2
+  flutter_riverpod: ^2.5.1 
+  http: ^1.2.2
+  firebase_core: ^3.4.0 
+  firebase_auth: ^5.2.0 
+  cloud_firestore: ^5.3.0 
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-
-  flutter_lints: 
+  flutter_lints: ^4.0.0 
+  leak_tracker: ^10.0.4
+  leak_tracker_flutter_testing: ^3.0.3 
+  lints: ^4.0.0 
 
 flutter:
 
