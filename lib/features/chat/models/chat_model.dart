@@ -12,4 +12,23 @@ class ChatModel {
     required this.avatarUrl,
     required this.date,
   });
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'lastMessage': lastMessage,
+      'time': time,
+      'avatarUrl': avatarUrl,
+      'date': date.toIso8601String(),
+    };
+  }
+
+  factory ChatModel.fromJson(Map<String, dynamic> json) {
+    return ChatModel(
+      name: json['name'],
+      lastMessage: json['lastMessage'],
+      time: json['time'],
+      avatarUrl: json['avatarUrl'],
+      date: DateTime.parse(json['date']),
+    );
+  }
 }
