@@ -22,6 +22,34 @@ class ChatModel {
     required this.sourceLanguage,
     required this.targetLanguage,
   });
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name &&
+          lastMessage == other.lastMessage &&
+          time == other.time &&
+          avatarUrl == other.avatarUrl &&
+          date == other.date &&
+          chatTopic == other.chatTopic &&
+          languageLevel == other.languageLevel &&
+          sourceLanguage == other.sourceLanguage &&
+          targetLanguage == other.targetLanguage;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      name.hashCode ^
+      lastMessage.hashCode ^
+      time.hashCode ^
+      avatarUrl.hashCode ^
+      date.hashCode ^
+      chatTopic.hashCode ^
+      languageLevel.hashCode ^
+      sourceLanguage.hashCode ^
+      targetLanguage.hashCode;
 
   Map<String, dynamic> toJson() {
     return {
@@ -40,16 +68,17 @@ class ChatModel {
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
     return ChatModel(
-      id: json['id'],
-      name: json['name'],
-      lastMessage: json['lastMessage'],
-      time: json['time'],
-      avatarUrl: json['avatarUrl'],
-      date: DateTime.parse(json['date']),
-      chatTopic: json['chatTopic'],
-      languageLevel: json['languageLevel'],
-      sourceLanguage: json['sourceLanguage'],
-      targetLanguage: json['targetLanguage'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      lastMessage: json['lastMessage'] ?? '',
+      time: json['time'] ?? '',
+      avatarUrl: json['avatarUrl'] ?? '',
+      date:
+          json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
+      chatTopic: json['chatTopic'] ?? '',
+      languageLevel: json['languageLevel'] ?? '',
+      sourceLanguage: json['sourceLanguage'] ?? '',
+      targetLanguage: json['targetLanguage'] ?? '',
     );
   }
 }
