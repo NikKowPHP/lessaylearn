@@ -15,59 +15,15 @@ final ChatService chatService = ChatService(LocalStorageService());
       future: chatService.getChats(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CupertinoActivityIndicator());
+          return _buildLoadingIndicator();
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return _buildErrorWidget(snapshot.error.toString());
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No chats available'));
+          return _buildEmptyListWidget();
         }
 
         final chats = snapshot.data!..sort((a, b) => b.date.compareTo(a.date));
-
-        return CustomScrollView(
-          slivers: [
-            CupertinoSliverRefreshControl(
-              onRefresh: () async {
-                // Implement refresh logic here
-              },
-            ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index.isOdd) {
-                    return Container(
-                      height: 1,
-                      color: CupertinoColors.separator,
-                    );
-                  }
-                  final chatIndex = index ~/ 2;
-                  final chat = chats[chatIndex];
-                  final isFirstOfDay = chatIndex == 0 || 
-                    !isSameDay(chat.date, chats[chatIndex - 1].date);
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (isFirstOfDay)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            formatDate(chat.date),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: CupertinoColors.systemGrey,
-                            ),
-                          ),
-                        ),
-                      ChatListItem(chat: chat),
-                    ],
-                  );
-                },
-                childCount: chats.length * 2 - 1,
-              ),
-            ),
-          ],
-        );
+        return _buildChatListView(chats);
       },
     );
   }
@@ -88,6 +44,90 @@ final ChatService chatService = ChatService(LocalStorageService());
            date1.day == date2.day;
   }
 }
+
+Widget _buildLoadingIndicator() {
+    return Center(child: CupertinoActivityIndicator());
+  }
+
+  Widget _buildErrorWidget(String error) {
+    return Center(child: Text('Error: $error'));
+  }
+
+  Widget _buildEmptyListWidget() {
+    return Center(child: Text('No chats available'));
+  }
+
+  Widget _buildChatListView(List<ChatModel> chats) {
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () async {
+            // Implement refresh logic here
+          },
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => _buildChatListItem(chats, index),
+            childCount: chats.length * 2 - 1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChatListItem(List<ChatModel> chats, int index) {
+    if (index.isOdd) {
+      return _buildSeparator();
+    }
+    final chatIndex = index ~/ 2;
+    final chat = chats[chatIndex];
+    final isFirstOfDay = chatIndex == 0 || 
+      !_isSameDay(chat.date, chats[chatIndex - 1].date);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isFirstOfDay) _buildDateHeader(chat.date),
+        ChatListItem(chat: chat),
+      ],
+    );
+  }
+
+  Widget _buildSeparator() {
+    return Container(
+      height: 1,
+      color: CupertinoColors.separator,
+    );
+  }
+
+  Widget _buildDateHeader(DateTime date) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        _formatDate(date),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: CupertinoColors.systemGrey,
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    if (_isSameDay(date, now)) {
+      return 'Today';
+    } else if (_isSameDay(date, now.subtract(Duration(days: 1)))) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('MMMM d, y').format(date);
+    }
+  }
+   bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && 
+           date1.month == date2.month && 
+           date1.day == date2.day;
+  }
 
 class ChatListItem extends StatelessWidget {
   final ChatModel chat;
