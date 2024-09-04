@@ -5,8 +5,10 @@ import 'package:lessay_learn/services/api_service.dart';
 final getIt = GetIt.instance;
 
 Future<void> configureDependencies() async {
-  // Register API Service
-  getIt.registerLazySingleton<ApiService>(() => ApiService());
+  // Register API Service only if it's not already registered
+  if (!getIt.isRegistered<ApiService>()) {
+    getIt.registerLazySingleton<ApiService>(() => ApiService());
+  }
 
-  // Register other services or repositories here
+  // Register other services or repositories here, using the same pattern
 }

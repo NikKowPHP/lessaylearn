@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
-      title: 'My Flutter App',
+      title: 'Lessay Learn',
       theme: const CupertinoThemeData(
         primaryColor: CupertinoColors.activeBlue,
       ),
