@@ -13,9 +13,9 @@ class HomeScreen extends ConsumerWidget {
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Chats'),
       ),
-      child: SafeArea(
+      // child: SafeArea(
         child: ChatList(),
-      ),
+      // ),
     );
   }
 }
