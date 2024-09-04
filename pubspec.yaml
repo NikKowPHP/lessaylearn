@@ -41,6 +41,8 @@ dev_dependencies:
   # Code Generation for JSON Serialization
   build_runner: ^2.4.6
   json_serializable: ^6.7.0
+  path_provider_platform_interface:
+  plugin_platform_interface:
 
   # Optional Dev Dependencies (Uncomment as needed)
   # mockito: ^5.4.2

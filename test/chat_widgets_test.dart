@@ -7,12 +7,24 @@ import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/core/widgets/cupertino_bottom_nav_bar.dart';
 import 'package:lessay_learn/core/dependency_injection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+class MockPathProviderPlatform extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
+  @override
+  Future<String?> getApplicationDocumentsPath() async {
+    return '.';
+  }
+}
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  await configureDependencies();
+  
+  PathProviderPlatform.instance = MockPathProviderPlatform();
 
+  await Hive.initFlutter();
   group('Widget Tests', () {
     testWidgets('MyApp widget test', (WidgetTester tester) async {
       await tester.pumpWidget(MyApp());
