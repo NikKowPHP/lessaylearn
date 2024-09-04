@@ -100,13 +100,12 @@ class ChatListItem extends StatelessWidget {
     return CupertinoListTile(
       leading: ClipOval(
         child: Container(
-          width: 40,
-          height: 40,
+          width: 50,
+          height: 50,
           child: Image.network(
             chat.avatarUrl,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
-              debugPrint('Error loading image: $error');
               return Container(
                 color: CupertinoColors.systemGrey,
                 child: Icon(CupertinoIcons.person_fill, color: CupertinoColors.white),
@@ -115,12 +114,47 @@ class ChatListItem extends StatelessWidget {
           ),
         ),
       ),
-      title: Text(chat.name),
-      subtitle: Text(chat.lastMessage),
-      trailing: Text(chat.time),
+      title: Text(chat.name, style: TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(chat.lastMessage, maxLines: 1, overflow: TextOverflow.ellipsis),
+          SizedBox(height: 4),
+          Row(
+            children: [
+              _buildTag(chat.languageLevel, CupertinoColors.activeBlue),
+              SizedBox(width: 8),
+              _buildTag(chat.chatTopic, CupertinoColors.activeGreen),
+            ],
+          ),
+        ],
+      ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(chat.time, style: TextStyle(color: CupertinoColors.systemGrey)),
+          SizedBox(height: 4),
+          Icon(CupertinoIcons.chevron_right, size: 16, color: CupertinoColors.systemGrey),
+        ],
+      ),
       onTap: () {
         // Handle chat item tap
       },
+    );
+  }
+
+  Widget _buildTag(String text, Color color) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(color: color, fontSize: 12),
+      ),
     );
   }
 }
