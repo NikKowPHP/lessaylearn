@@ -4,9 +4,11 @@ import 'package:lessay_learn/core/widgets/cupertino_bottom_nav_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:lessay_learn/core/dependency_injection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:lessay_learn/services/api_service.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MockPathProviderPlatform extends Mock
     with MockPlatformInterfaceMixin
@@ -39,7 +41,6 @@ void main() async {
     expect(find.byType(CupertinoBottomNavBar), findsOneWidget);
   });
 
- 
   testWidgets('MyApp has correct theme', (WidgetTester tester) async {
     await tester.pumpWidget(MyApp());
     final CupertinoApp app =
@@ -47,8 +48,33 @@ void main() async {
     expect(app.theme!.primaryColor, CupertinoColors.activeBlue);
   });
 
+  testWidgets('MyApp is wrapped with ProviderScope',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MyApp(),
+      ),
+    );
+    expect(find.byType(ProviderScope), findsOneWidget);
+  });
+  testWidgets('CupertinoBottomNavBar is present', (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp());
+    expect(find.byType(CupertinoBottomNavBar), findsOneWidget);
+  });
 
-   tearDownAll(() async {
+  test('GetIt instance is properly configured', () {
+    expect(getIt.isRegistered<ApiService>(), isTrue);
+    // Add more expectations for other registered dependencies
+  });
+
+  testWidgets('MyApp has correct theme', (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp());
+    final CupertinoApp app =
+        tester.widget<CupertinoApp>(find.byType(CupertinoApp));
+    expect(app.theme!.primaryColor, CupertinoColors.activeBlue);
+  });
+
+  tearDownAll(() async {
     await Hive.close();
   });
 }
