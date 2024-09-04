@@ -1,64 +1,76 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-
+import 'package:lessay_learn/services/local_storage_service.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/services/chat_service.dart';
+
 class ChatList extends StatelessWidget {
-  final ChatService chatService = ChatService();
+final ChatService chatService = ChatService(LocalStorageService());
 
   ChatList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final chats = chatService.getChats()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    return FutureBuilder<List<ChatModel>>(
+      future: chatService.getChats(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CupertinoActivityIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No chats available'));
+        }
 
-    return CustomScrollView(
-      slivers: [
-        CupertinoSliverRefreshControl(
-          onRefresh: () async {
-            // Implement refresh logic here
-          },
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              if (index.isOdd) {
-                return Container(
-                  height: 1,
-                  color: CupertinoColors.separator,
-                );
-              }
-              final chatIndex = index ~/ 2;
-              final chat = chats[chatIndex];
-              final isFirstOfDay = chatIndex == 0 || 
-                !isSameDay(chat.date, chats[chatIndex - 1].date);
+        final chats = snapshot.data!..sort((a, b) => b.date.compareTo(a.date));
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isFirstOfDay)
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        formatDate(chat.date),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: CupertinoColors.systemGrey,
+        return CustomScrollView(
+          slivers: [
+            CupertinoSliverRefreshControl(
+              onRefresh: () async {
+                // Implement refresh logic here
+              },
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  if (index.isOdd) {
+                    return Container(
+                      height: 1,
+                      color: CupertinoColors.separator,
+                    );
+                  }
+                  final chatIndex = index ~/ 2;
+                  final chat = chats[chatIndex];
+                  final isFirstOfDay = chatIndex == 0 || 
+                    !isSameDay(chat.date, chats[chatIndex - 1].date);
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isFirstOfDay)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            formatDate(chat.date),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: CupertinoColors.systemGrey,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ChatListItem(chat: chat),
-                ],
-              );
-            },
-            childCount: chats.length * 2 - 1,
-          ),
-        ),
-      ],
+                      ChatListItem(chat: chat),
+                    ],
+                  );
+                },
+                childCount: chats.length * 2 - 1,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
-
   String formatDate(DateTime date) {
     final now = DateTime.now();
     if (isSameDay(date, now)) {
