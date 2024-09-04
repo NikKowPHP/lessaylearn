@@ -7,6 +7,8 @@ class ChatModel {
   final DateTime date;
   final String chatTopic;
   final String languageLevel;
+  final String sourceLanguage;
+  final String targetLanguage;
 
   ChatModel({
     required this.id,
@@ -17,6 +19,8 @@ class ChatModel {
     required this.date,
     required this.chatTopic,
     required this.languageLevel,
+    required this.sourceLanguage,
+    required this.targetLanguage,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,6 +33,8 @@ class ChatModel {
       'date': date.toIso8601String(),
       'chatTopic': chatTopic,
       'languageLevel': languageLevel,
+      'sourceLanguage': sourceLanguage,
+      'targetLanguage': targetLanguage,
     };
   }
 
@@ -42,6 +48,8 @@ class ChatModel {
       date: DateTime.parse(json['date']),
       chatTopic: json['chatTopic'],
       languageLevel: json['languageLevel'],
+      sourceLanguage: json['sourceLanguage'],
+      targetLanguage: json['targetLanguage'],
     );
   }
 }

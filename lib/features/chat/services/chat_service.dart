@@ -27,36 +27,29 @@ class ChatService implements IChatService {
     final random = Random();
     final List<ChatModel> mockChats = [];
 
-    final List<String> names = [
-      'John',
-      'Jane',
-      'Alice',
-      'Bob',
-      'Charlie',
-      'Diana'
-    ];
-    final List<String> topics = [
-      'Greetings',
-      'Weather',
-      'Hobbies',
-      'Travel',
-      'Food',
-      'Movies'
-    ];
+    final List<String> names = ['John', 'Jane', 'Alice', 'Bob', 'Charlie', 'Diana'];
+    final List<String> topics = ['Greetings', 'Weather', 'Hobbies', 'Travel', 'Food', 'Movies'];
     final List<String> levels = ['Beginner', 'Intermediate', 'Advanced'];
+    final List<String> languages = ['English', 'Spanish', 'French', 'German', 'Italian', 'Chinese'];
 
     for (int i = 0; i < 20; i++) {
+      String sourceLanguage = languages[random.nextInt(languages.length)];
+      String targetLanguage;
+      do {
+        targetLanguage = languages[random.nextInt(languages.length)];
+      } while (targetLanguage == sourceLanguage);
+
       mockChats.add(ChatModel(
         id: '${i + 1}',
         name: names[random.nextInt(names.length)],
         lastMessage: 'Random message ${random.nextInt(100)}',
-        time:
-            '${random.nextInt(12)}:${random.nextInt(60).toString().padLeft(2, '0')} ${random.nextBool() ? 'AM' : 'PM'}',
+        time: '${random.nextInt(12)}:${random.nextInt(60).toString().padLeft(2, '0')} ${random.nextBool() ? 'AM' : 'PM'}',
         avatarUrl: 'https://i.pravatar.cc/150?img=${random.nextInt(70)}',
-        date: DateTime.now().subtract(
-            Duration(days: random.nextInt(30), hours: random.nextInt(24))),
+        date: DateTime.now().subtract(Duration(days: random.nextInt(30), hours: random.nextInt(24))),
         chatTopic: topics[random.nextInt(topics.length)],
         languageLevel: levels[random.nextInt(levels.length)],
+        sourceLanguage: sourceLanguage,
+        targetLanguage: targetLanguage,
       ));
     }
 
