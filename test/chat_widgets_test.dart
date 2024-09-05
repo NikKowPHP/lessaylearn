@@ -81,7 +81,7 @@ void main() async {
     setUp(() async {
       mockChatService = MockChatService();
       mockLocalStorageService = MockLocalStorageService();
-      await configureDependencies();
+   
 
       when(() => mockLocalStorageService.getChats())
           .thenAnswer((_) async => []);
@@ -111,7 +111,8 @@ void main() async {
 
       expect(find.text('Error: Test error'), findsOneWidget);
     });
-    testWidgets('ChatList displays a list of chats when data is available',
+    
+   testWidgets('ChatList displays a list of chats when data is available',
         (WidgetTester tester) async {
       final mockChats = [
         ChatModel(
@@ -140,11 +141,7 @@ void main() async {
         ),
       ];
 
- 
-
-  when(() => mockChatService.getChats()).thenAnswer((_) async => mockChats);
-
-      final result = await mockChatService.getChats();
+      when(() => mockChatService.getChats()).thenAnswer((_) async => mockChats);
 
       await tester.pumpWidget(
         ProviderScope(
@@ -155,12 +152,16 @@ void main() async {
         ),
       );
 
-      // Use tester.pump() with a specific duration instead of pumpAndSettle()
-      await tester.pump(Duration(seconds: 5)); 
+      // Wait for the data to load
+      await tester.pumpAndSettle();
 
-      expect(find.byType(ChatListItem), findsNWidgets(mockChats.length));
+      // Check if the chat items are rendered
       expect(find.text('John Doe'), findsOneWidget);
       expect(find.text('Jane Smith'), findsOneWidget);
+
+      // Check if the date headers are rendered
+      expect(find.text('Today'), findsOneWidget);
+      expect(find.text('Yesterday'), findsOneWidget);
     });
   });
 }
