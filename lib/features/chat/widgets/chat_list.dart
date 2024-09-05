@@ -17,7 +17,7 @@ final ChatService chatService = ChatService(LocalStorageService());
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildLoadingIndicator();
         } else if (snapshot.hasError) {
-          return _buildErrorWidget(snapshot.error.toString());
+          return buildErrorWidget(snapshot.error.toString());
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return _buildEmptyListWidget();
         }
@@ -49,9 +49,9 @@ Widget _buildLoadingIndicator() {
     return Center(child: CupertinoActivityIndicator());
   }
 
-  Widget _buildErrorWidget(String error) {
-    return Center(child: Text('Error: $error'));
-  }
+Widget buildErrorWidget(String error) {
+  return Center(child: Text('Error: $error'));
+}
 
   Widget _buildEmptyListWidget() {
     return Center(child: Text('No chats available'));
