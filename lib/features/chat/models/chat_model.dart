@@ -81,4 +81,30 @@ class ChatModel {
       targetLanguage: json['targetLanguage'] ?? '',
     );
   }
+
+  ChatModel copyWith({
+    String? id,
+    String? name,
+    String? lastMessage,
+    String? time,
+    String? avatarUrl,
+    DateTime? date,
+    String? chatTopic,
+    String? languageLevel,
+    String? sourceLanguage,
+    String? targetLanguage,
+  }) {
+    return ChatModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      lastMessage: lastMessage ?? this.lastMessage,
+      time: time ?? this.time,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      date: date ?? this.date,
+      chatTopic: chatTopic ?? this.chatTopic,
+      languageLevel: languageLevel ?? this.languageLevel,
+      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
+      targetLanguage: targetLanguage ?? this.targetLanguage,
+    );
+  }
 }
