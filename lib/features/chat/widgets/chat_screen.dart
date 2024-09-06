@@ -3,6 +3,7 @@ import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/services/chat_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
+import 'package:go_router/go_router.dart';
 
 class IndividualChatScreen extends StatefulWidget {
   final ChatModel chat;
@@ -50,6 +51,11 @@ class _IndividualChatScreenState extends State<IndividualChatScreen> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(widget.chat.name),
+         leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.back),
+          onPressed: () => context.go('/'),
+        ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           child: Icon(CupertinoIcons.info),
