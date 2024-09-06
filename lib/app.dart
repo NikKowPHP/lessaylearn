@@ -1,33 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
-
-import 'package:lessay_learn/features/home/presentation/home_screen.dart';
-
+import 'package:lessay_learn/core/router/router.dart';
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
-  final GoRouter _router = GoRouter(
-    routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const HomeScreen(),
-      ),
-       GoRoute(
-        path: '/settings',
-        builder: (context, state) => const SettingsScreen(),
-      ),
-   
-    ],
-  );
+  final GoRouter _router = createAppRouter();
 
   @override
   Widget build(BuildContext context) {
     return CupertinoApp.router(
       title: 'Lessay Learn',
       theme: const CupertinoThemeData(
-        primaryColor: CupertinoColors.activeBlue,
+        primaryColor: CupertinoColors.systemGrey,
       ),
       routerConfig: _router,
     );
