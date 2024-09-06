@@ -71,16 +71,19 @@ GoRouter createAppRouter() {
               child: const SettingsScreen(),
             ),
           ),
-          GoRoute(
-            path: '/chat/:chatId',
-            pageBuilder: (BuildContext context, GoRouterState state) {
-              final chat = state.extra as ChatModel;
-              return CupertinoPage(
-                child: IndividualChatScreen(chat: chat),
-              );
-            },
-          ),
+         // Give the chat route a name
+      
         ],
+      ),
+      GoRoute(
+        name: 'chatDetails',
+        path: '/chat/:chatId',
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final chat = state.extra as ChatModel;
+          return CupertinoPage(
+            child: IndividualChatScreen(chat: chat),
+          );
+        },
       ),
     ],
   );
