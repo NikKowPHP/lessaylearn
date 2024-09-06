@@ -49,12 +49,12 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
             label: 'Chats',
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.phone),
+            icon: Icon(CupertinoIcons.globe),
             label: 'World',
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.camera),
-            label: 'Camera',
+            icon: Icon(CupertinoIcons.book),
+            label: 'Learn',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.settings),
