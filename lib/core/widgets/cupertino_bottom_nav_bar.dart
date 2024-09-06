@@ -1,5 +1,6 @@
-
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 
 class CupertinoBottomNavBar extends StatelessWidget {
@@ -29,27 +30,23 @@ class CupertinoBottomNavBar extends StatelessWidget {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        switch (index) {
-          case 0:
-            return const HomeScreen();
-          case 1:
-            return const CupertinoPageScaffold(
-              navigationBar: CupertinoNavigationBar(middle: Text('Calls')),
-              child: Center(child: Text('Calls Screen')),
-            );
-          case 2:
-            return const CupertinoPageScaffold(
-              navigationBar: CupertinoNavigationBar(middle: Text('Camera')),
-              child: Center(child: Text('Camera Screen')),
-            );
-          case 3:
-            return const CupertinoPageScaffold(
-              navigationBar: CupertinoNavigationBar(middle: Text('Settings')),
-              child: Center(child: Text('Settings Screen')),
-            );
-          default:
-            return const HomeScreen();
-        }
+        // Use IndexedStack to efficiently switch between screens
+        return CupertinoTabView(
+          builder: (context) {
+            switch (index) {
+              case 0:
+                return const HomeScreen(); // Replace with your Chats screen
+              case 1:
+                return const HomeScreen(); // Replace with your Calls screen
+              case 2:
+                return const HomeScreen(); // Replace with your Camera screen
+              case 3:
+                return const SettingsScreen(); // Replace with your Settings screen
+              default:
+                return const HomeScreen();
+            }
+          },
+        );
       },
     );
   }
