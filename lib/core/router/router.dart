@@ -1,11 +1,15 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:lessay_learn/core/widgets/cupertino_bottom_nav_bar.dart';
 import 'package:lessay_learn/features/chat/widgets/chat_screen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:lessay_learn/features/chat/widgets/create_chat_view.dart';
 
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
+import 'package:lessay_learn/services/i_chat_service.dart';
 
 
 
@@ -84,6 +88,17 @@ GoRouter createAppRouter() {
             child: IndividualChatScreen(chat: chat),
           );
         },
+      ),
+        GoRoute(
+        path: '/create-chat',
+        pageBuilder: (context, state) => CupertinoPage(
+          child: Consumer(
+            builder: (context, ref, _) {
+              final chatService = ref.watch(chatServiceProvider);
+              return CreateChatView(chatService: chatService);
+            },
+          ),
+        ),
       ),
     ],
   );

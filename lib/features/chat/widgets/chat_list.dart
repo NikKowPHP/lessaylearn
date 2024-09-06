@@ -1,14 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
-
-import 'package:lessay_learn/services/local_storage_service.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
-import 'package:lessay_learn/features/chat/services/chat_service.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatList extends StatelessWidget {
- final IChatService chatService; // Receive IChatService (interface)
+ final IChatService chatService; 
 
   ChatList({Key? key, required this.chatService}) : super(key: key);
 

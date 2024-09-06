@@ -13,11 +13,11 @@ class HomeScreen extends ConsumerWidget {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: const Text('Chats'),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.settings),
-          onPressed: () => context.go('/settings'),
-        ),
+         trailing: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () => context.go('/create-chat'),
+            child: Icon(CupertinoIcons.add),
+          ),
       ),
       child: SafeArea(
         child: ChatList(chatService: chatService),

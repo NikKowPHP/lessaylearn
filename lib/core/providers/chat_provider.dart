@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:lessay_learn/features/chat/services/chat_service.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
+import 'package:lessay_learn/services/local_storage_service.dart';
 
+// Changed to provide IChatService
 final chatServiceProvider = Provider<IChatService>((ref) {
-  return GetIt.I.get<IChatService>(); // Or, if not using GetIt: ChatService();
+  return ChatService(LocalStorageService());
 });

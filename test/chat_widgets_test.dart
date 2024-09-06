@@ -30,7 +30,7 @@ class MockNetworkImage extends Mock implements NetworkImage {}
 final chatServiceProvider =
     Provider<ChatService>((ref) => ChatService(LocalStorageService()));
 
-class MockChatService extends Mock implements IChatService {}
+class MockChatService extends Mock implements ChatService {}
 
 class MockLocalStorageService extends Mock implements ILocalStorageService {}
 
@@ -50,10 +50,26 @@ void main() async {
   setUpAll(() async {
     PathProviderPlatform.instance = MockPathProviderPlatform();
     await Hive.initFlutter();
-        // Register dependencies for testing
-    getIt.registerLazySingleton<ILocalStorageService>(() => mockLocalStorageService);
-    getIt.registerLazySingleton<IChatService>(() => mockChatService); 
+  
   });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   group('Widget Tests', () {
     testWidgets('MyApp widget test', (WidgetTester tester) async {
       await tester.pumpWidget(MyApp());
@@ -80,6 +96,17 @@ void main() async {
     });
   });
 
+
+
+
+
+
+
+
+
+
+
+
   group('ChatList Widget Tests', () {
     late MockChatService mockChatService;
     late MockLocalStorageService mockLocalStorageService;
@@ -88,7 +115,8 @@ void main() async {
       mockChatService = MockChatService();
       mockLocalStorageService = MockLocalStorageService();
    
-
+ getIt.reset();
+  configureDependencies();
       when(() => mockLocalStorageService.getChats())
           .thenAnswer((_) async => []);
     });
@@ -102,7 +130,7 @@ void main() async {
           overrides: [
             chatServiceProvider.overrideWithValue(mockChatService),
           ],
-          child: CupertinoApp(home: ChatList()),
+          child: CupertinoApp(home: ChatList(chatService: mockChatService,)),
         ),
       );
 
@@ -154,7 +182,7 @@ void main() async {
           overrides: [
             chatServiceProvider.overrideWithValue(mockChatService),
           ],
-          child: CupertinoApp(home: ChatList()),
+          child: CupertinoApp(home: ChatList(chatService: mockChatService)),
         ),
       );
 
