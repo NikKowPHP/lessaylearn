@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:lessay_learn/features/chat/widgets/chat_list.dart';
-import 'package:lessay_learn/services/i_chat_service.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -16,7 +15,7 @@ class HomeScreen extends ConsumerWidget {
          trailing: CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () => context.go('/create-chat'),
-            child: Icon(CupertinoIcons.add),
+            child: Icon(CupertinoIcons.create),
           ),
       ),
       child: SafeArea(
