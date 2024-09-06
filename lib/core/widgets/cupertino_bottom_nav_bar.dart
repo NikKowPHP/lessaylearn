@@ -76,7 +76,7 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
               case 1:
                 return const CommunityScreen(); // Use your Calls screen here
               case 2:
-                return const CameraScreen(); // Use your Camera screen here
+                return const LearnScreen(); // Use your Camera screen here
               case 3:
                 return const SettingsScreen();
               default:
