@@ -17,14 +17,11 @@ Future<void> configureDependencies() async {
   getIt
       .registerLazySingleton<ILocalStorageService>(() => LocalStorageService());
 
- 
-
   // In your configureDependencies() function
-getIt.registerLazySingleton<IChatService>(() => ChatService(getIt()));
+  getIt.registerLazySingleton<IChatService>(() => ChatService(getIt()));
 
-
- // Register AppConfig
-  getIt.registerLazySingleton<IAppConfig>(() => AppConfig()); 
+  // Register AppConfig
+  getIt.registerLazySingleton<IAppConfig>(() => AppConfig());
 
   // Register other services or repositories here, using the same pattern
 }
