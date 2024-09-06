@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
+import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 
 
@@ -9,6 +10,7 @@ class LocalStorageService implements ILocalStorageService {
   static const String _chatsBoxName = 'chats';
   static const String _isLoggedInKey = 'isLoggedIn';
   static const String _messagesBoxName = 'messages';
+  static const String _usersBoxName = 'users';
 
   Future<Box> _openChatsBox() async {
     return await Hive.openBox(_chatsBoxName);
@@ -16,6 +18,10 @@ class LocalStorageService implements ILocalStorageService {
     Future<Box> _openMessagesBox() async {
     return await Hive.openBox(_messagesBoxName);
   }
+     Future<Box> _openUsersBox() async {
+    return await Hive.openBox(_usersBoxName);
+  }
+  
 
   @override
   Future<bool> isUserLoggedIn() async {
@@ -102,5 +108,19 @@ Future<ChatModel?> getChatById(String chatId) async {
         .map((json) => MessageModel.fromJson(json).id)
         .toList();
     await box.deleteAll(keysToDelete);
+  }
+
+   @override
+  Future<List<UserModel>> getUsers() async {
+    final box = await _openUsersBox(); // Open a box for users
+    final userList = box.get('users', defaultValue: []) as List;
+    return userList.map((user) => UserModel.fromJson(user)).toList();
+  }
+
+  @override
+  Future<void> saveUsers(List<UserModel> users) async {
+    final box = await _openUsersBox(); // Open a box for users
+    final userList = users.map((user) => user.toJson()).toList();
+    await box.put('users', userList);
   }
 }

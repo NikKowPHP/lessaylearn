@@ -1,5 +1,6 @@
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
+import 'package:lessay_learn/features/chat/models/user_model.dart';
 
 abstract class ILocalStorageService {
   Future<bool> isUserLoggedIn();
@@ -13,4 +14,6 @@ abstract class ILocalStorageService {
   Future<MessageModel?> getMessageById(String messageId);
   Future<void> updateMessage(MessageModel message);
   Future<void> deleteMessagesForChat(String chatId);
+  Future<List<UserModel>> getUsers(); // Add getUsers method
+  Future<void> saveUsers(List<UserModel> users); // Add saveUsers method
 }
