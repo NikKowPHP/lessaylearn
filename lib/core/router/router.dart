@@ -9,6 +9,7 @@ import 'package:lessay_learn/features/chat/widgets/create_chat_view.dart';
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
+import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
 
 
@@ -58,9 +59,9 @@ GoRouter createAppRouter() {
             ),
           ),
           GoRoute(
-            path: '/calls',
-            pageBuilder: (context, state) => CupertinoPage(
-              child: const CallsScreen(),
+            path: '/community',
+            pageBuilder: (context, state) => const CupertinoPage(
+              child: CommunityScreen(),
             ),
           ),
           GoRoute(

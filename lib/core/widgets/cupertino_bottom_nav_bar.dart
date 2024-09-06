@@ -4,6 +4,7 @@ import 'package:lessay_learn/core/providers/chat_provider.dart';
 
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
+import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 
 // Placeholder screens for Calls and Camera (you'll replace these)
 class CallsScreen extends StatelessWidget {
@@ -49,7 +50,7 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.phone),
-            label: 'Calls',
+            label: 'World',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.camera),
@@ -73,7 +74,7 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
                   },
                 );
               case 1:
-                return const CallsScreen(); // Use your Calls screen here
+                return const CommunityScreen(); // Use your Calls screen here
               case 2:
                 return const CameraScreen(); // Use your Camera screen here
               case 3:
