@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'package:lessay_learn/services/i_chat_service.dart';
 
 import 'package:lessay_learn/services/local_storage_service.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
@@ -7,9 +8,9 @@ import 'package:lessay_learn/features/chat/services/chat_service.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatList extends StatelessWidget {
-final ChatService chatService = ChatService(LocalStorageService());
+ final IChatService chatService; // Receive IChatService (interface)
 
-  ChatList({Key? key}) : super(key: key);
+  ChatList({Key? key, required this.chatService}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -144,16 +145,17 @@ class ChatListItem extends StatelessWidget {
         child: Container(
           width: 50,
           height: 50,
-          child: Image.network(
-            chat.avatarUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                color: CupertinoColors.systemGrey,
-                child: Icon(CupertinoIcons.person_fill, color: CupertinoColors.white),
-              );
-            },
-          ),
+          // child: Image.network(
+          //   chat.avatarUrl,
+          //   fit: BoxFit.cover,
+          //   errorBuilder: (context, error, stackTrace) {
+          //     return Container(
+          //       color: CupertinoColors.systemGrey,
+          //       child: Icon(CupertinoIcons.person_fill, color: CupertinoColors.white),
+          //     );
+          //   },
+          // ),
+          child: Image.asset(chat.avatarUrl, fit: BoxFit.cover),
         ),
       ),
       title: Text(chat.name, style: TextStyle(fontWeight: FontWeight.bold)),

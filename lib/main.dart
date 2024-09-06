@@ -10,11 +10,11 @@ Future<void> main() async {
   // Initialize Dependency Injection
   await configureDependencies();
 
-  // Initialize Hive 
-  await Hive.initFlutter(); 
+  // Initialize Hive
+  await Hive.initFlutter();
 
   runApp(
-     ProviderScope(
+    ProviderScope(
       child: MyApp(),
     ),
   );

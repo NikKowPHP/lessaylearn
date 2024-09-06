@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
+import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
 
 class ChatService implements IChatService {
-  final LocalStorageService localStorageService;
+  final ILocalStorageService localStorageService; // Use interface
 
   ChatService(this.localStorageService);
-
   @override
   Future<List<ChatModel>> getChats() async {
     final savedChats = await localStorageService.getChats();
@@ -106,7 +106,7 @@ class ChatService implements IChatService {
         lastMessage: 'Random message ${random.nextInt(100)}',
         time:
             '${random.nextInt(12)}:${random.nextInt(60).toString().padLeft(2, '0')} ${random.nextBool() ? 'AM' : 'PM'}',
-        avatarUrl: 'assets/blank.jpg',
+        avatarUrl: 'assets/blank.png',
         date: DateTime.now().subtract(
             Duration(days: random.nextInt(30), hours: random.nextInt(24))),
         chatTopic: topics[random.nextInt(topics.length)],

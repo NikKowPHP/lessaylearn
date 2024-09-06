@@ -8,6 +8,8 @@ import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/core/widgets/cupertino_bottom_nav_bar.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lessay_learn/services/api_service.dart';
+import 'package:lessay_learn/services/i_chat_service.dart';
+import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -28,9 +30,9 @@ class MockNetworkImage extends Mock implements NetworkImage {}
 final chatServiceProvider =
     Provider<ChatService>((ref) => ChatService(LocalStorageService()));
 
-class MockChatService extends Mock implements ChatService {}
+class MockChatService extends Mock implements IChatService {}
 
-class MockLocalStorageService extends Mock implements LocalStorageService {}
+class MockLocalStorageService extends Mock implements ILocalStorageService {}
 
 class MockPathProviderPlatform extends Fake
     with MockPlatformInterfaceMixin
@@ -43,10 +45,14 @@ class MockPathProviderPlatform extends Fake
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
-
+  MockChatService mockChatService = MockChatService();
+  MockLocalStorageService mockLocalStorageService = MockLocalStorageService();
   setUpAll(() async {
     PathProviderPlatform.instance = MockPathProviderPlatform();
     await Hive.initFlutter();
+        // Register dependencies for testing
+    getIt.registerLazySingleton<ILocalStorageService>(() => mockLocalStorageService);
+    getIt.registerLazySingleton<IChatService>(() => mockChatService); 
   });
   group('Widget Tests', () {
     testWidgets('MyApp widget test', (WidgetTester tester) async {

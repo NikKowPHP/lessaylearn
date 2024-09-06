@@ -1,11 +1,43 @@
 import 'package:flutter/cupertino.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/core/providers/chat_provider.dart';
+
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 
-class CupertinoBottomNavBar extends StatelessWidget {
+// Placeholder screens for Calls and Camera (you'll replace these)
+class CallsScreen extends StatelessWidget {
+  const CallsScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(middle: Text('Calls')),
+      child: Center(child: Text('Calls Screen')),
+    );
+  }
+}
+
+class CameraScreen extends StatelessWidget {
+  const CameraScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(middle: Text('Camera')),
+      child: Center(child: Text('Camera Screen')),
+    );
+  }
+}
+
+class CupertinoBottomNavBar extends StatefulWidget {
   const CupertinoBottomNavBar({Key? key}) : super(key: key);
 
+  @override
+  State<CupertinoBottomNavBar> createState() => _CupertinoBottomNavBarState();
+}
+
+class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
@@ -30,20 +62,29 @@ class CupertinoBottomNavBar extends StatelessWidget {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        // Use IndexedStack to efficiently switch between screens
         return CupertinoTabView(
           builder: (context) {
             switch (index) {
               case 0:
-                return const HomeScreen(); // Replace with your Chats screen
+                return Consumer(
+                  builder: (context, ref, child) {
+           
+                    return HomeScreen();
+                  },
+                );
               case 1:
-                return const HomeScreen(); // Replace with your Calls screen
+                return const CallsScreen(); // Use your Calls screen here
               case 2:
-                return const HomeScreen(); // Replace with your Camera screen
+                return const CameraScreen(); // Use your Camera screen here
               case 3:
-                return const SettingsScreen(); // Replace with your Settings screen
+                return const SettingsScreen();
               default:
-                return const HomeScreen();
+                return Consumer(
+                  builder: (context, ref, child) {
+        
+                    return HomeScreen();
+                  },
+                );
             }
           },
         );

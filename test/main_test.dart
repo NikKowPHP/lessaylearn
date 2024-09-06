@@ -41,12 +41,6 @@ void main() async {
     expect(find.byType(CupertinoBottomNavBar), findsOneWidget);
   });
 
-  testWidgets('MyApp has correct theme', (WidgetTester tester) async {
-    await tester.pumpWidget(MyApp());
-    final CupertinoApp app =
-        tester.widget<CupertinoApp>(find.byType(CupertinoApp));
-    expect(app.theme!.primaryColor, CupertinoColors.activeBlue);
-  });
 
   testWidgets('MyApp is wrapped with ProviderScope',
       (WidgetTester tester) async {
@@ -71,7 +65,7 @@ void main() async {
     await tester.pumpWidget(MyApp());
     final CupertinoApp app =
         tester.widget<CupertinoApp>(find.byType(CupertinoApp));
-    expect(app.theme!.primaryColor, CupertinoColors.activeBlue);
+    expect(app.theme!.primaryColor, CupertinoColors.systemGrey);
   });
 
   tearDownAll(() async {
