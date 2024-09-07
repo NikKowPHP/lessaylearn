@@ -1,0 +1,69 @@
+import 'package:lessay_learn/features/learn/models/deck_model.dart';
+import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
+import 'package:lessay_learn/features/learn/services/flashcard_service.dart';
+import 'package:lessay_learn/services/i_local_storage_service.dart';
+
+abstract class IFlashcardRepository {
+  Future<List<DeckModel>> getDecks();
+  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId);
+  Future<List<FlashcardModel>> getAllFlashcards();
+  Future<void> updateFlashcard(FlashcardModel flashcard);
+  Future<void> addDeck(DeckModel deck);
+  Future<void> updateDeck(DeckModel deck);
+  Future<void> deleteDeck(String deckId);
+  Future<void> addFlashcard(FlashcardModel flashcard);
+  Future<void> deleteFlashcard(String flashcardId);
+}
+
+class FlashcardRepository implements IFlashcardRepository {
+  final ILocalStorageService _localStorageService;
+  final FlashcardService _flashcardService;
+
+FlashcardRepository(this._localStorageService, this._flashcardService);
+
+
+  @override
+  Future<List<DeckModel>> getDecks() async {
+    return await _flashcardService.getDecks();
+  }
+
+  @override
+  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
+    return await _localStorageService.getFlashcardsForDeck(deckId);
+  }
+
+  @override
+  Future<List<FlashcardModel>> getAllFlashcards() async {
+    return await _localStorageService.getAllFlashcards();
+  }
+
+  @override
+  Future<void> updateFlashcard(FlashcardModel flashcard) async {
+    await _localStorageService.updateFlashcard(flashcard);
+  }
+
+  @override
+  Future<void> addDeck(DeckModel deck) async {
+    await _localStorageService.addDeck(deck);
+  }
+
+  @override
+  Future<void> updateDeck(DeckModel deck) async {
+    await _localStorageService.updateDeck(deck);
+  }
+
+  @override
+  Future<void> deleteDeck(String deckId) async {
+    await _localStorageService.deleteDeck(deckId);
+  }
+
+  @override
+  Future<void> addFlashcard(FlashcardModel flashcard) async {
+    await _localStorageService.addFlashcard(flashcard);
+  }
+
+  @override
+  Future<void> deleteFlashcard(String flashcardId) async {
+    await _localStorageService.deleteFlashcard(flashcardId);
+  }
+}
