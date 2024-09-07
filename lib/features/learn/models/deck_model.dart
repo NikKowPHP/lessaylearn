@@ -1,0 +1,55 @@
+// lib/features/learn/models/deck_model.dart
+import 'package:equatable/equatable.dart';
+
+class DeckModel extends Equatable {
+  final String id;
+  final String name;
+  final String description;
+  final int cardCount;
+  final DateTime lastStudied;
+  final String languageLevel;
+  final String sourceLanguage;
+  final String targetLanguage;
+
+  const DeckModel({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.cardCount,
+    required this.lastStudied,
+    required this.languageLevel,
+    required this.sourceLanguage,
+    required this.targetLanguage,
+  });
+
+  factory DeckModel.fromJson(Map<String, dynamic> json) {
+    return DeckModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      cardCount: json['cardCount'] ?? 0,
+      lastStudied: json['lastStudied'] != null
+          ? DateTime.parse(json['lastStudied'])
+          : DateTime.now(),
+      languageLevel: json['languageLevel'] ?? '',
+      sourceLanguage: json['sourceLanguage'] ?? '',
+      targetLanguage: json['targetLanguage'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'cardCount': cardCount,
+      'lastStudied': lastStudied.toIso8601String(),
+      'languageLevel': languageLevel,
+      'sourceLanguage': sourceLanguage,
+      'targetLanguage': targetLanguage,
+    };
+  }
+
+  @override
+  List<Object?> get props => [id, name, description, cardCount, lastStudied, languageLevel, sourceLanguage, targetLanguage];
+}
