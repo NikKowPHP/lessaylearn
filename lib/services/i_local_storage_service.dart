@@ -1,6 +1,8 @@
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
+import 'package:lessay_learn/features/learn/models/deck_model.dart';
+import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 
 abstract class ILocalStorageService {
   Future<bool> isUserLoggedIn();
@@ -16,4 +18,14 @@ abstract class ILocalStorageService {
   Future<void> deleteMessagesForChat(String chatId);
   Future<List<UserModel>> getUsers(); // Add getUsers method
   Future<void> saveUsers(List<UserModel> users); // Add saveUsers method
+  // Add the missing methods for flashcards and decks
+  Future<List<DeckModel>> getDecks();
+  Future<void> addDeck(DeckModel deck);
+  Future<void> updateDeck(DeckModel deck);
+  Future<void> deleteDeck(String deckId);
+  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId);
+  Future<List<FlashcardModel>> getAllFlashcards(); // You might need this
+  Future<void> addFlashcard(FlashcardModel flashcard);
+  Future<void> updateFlashcard(FlashcardModel flashcard);
+  Future<void> deleteFlashcard(String flashcardId);
 }
