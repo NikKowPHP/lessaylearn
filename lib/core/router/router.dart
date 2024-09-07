@@ -9,6 +9,7 @@ import 'package:lessay_learn/features/chat/widgets/create_chat_view.dart';
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
+import 'package:lessay_learn/features/learn/presentation/learn_screen.dart';
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
 
@@ -64,12 +65,13 @@ GoRouter createAppRouter() {
               child: CommunityScreen(),
             ),
           ),
-          GoRoute(
-            path: '/camera',
+            GoRoute(
+            path: '/learn', // Update path to '/learn'
             pageBuilder: (context, state) => CupertinoPage(
-              child: const CameraScreen(),
+              child: const LearnScreen(), // Use LearnScreen here
             ),
           ),
+          
           GoRoute(
             path: '/settings',
             pageBuilder: (context, state) => CupertinoPage(
