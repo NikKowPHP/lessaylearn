@@ -144,18 +144,92 @@ Future<ChatModel?> getChatById(String chatId) async {
   }
 
   @override
-  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-    final box = await _openFlashcardsBox();
-    final flashcardList = box.values.where((flashcard) => flashcard['deckId'] == deckId).toList();
-    return flashcardList.map((flashcard) => FlashcardModel.fromJson(flashcard)).toList();
-  }
 
-  @override
-  Future<List<FlashcardModel>> getAllFlashcards() async {
-    final box = await _openFlashcardsBox();
-    final flashcardList = box.values.toList();
-    return flashcardList.map((flashcard) => FlashcardModel.fromJson(flashcard)).toList();
+Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
+  final box = await _openFlashcardsBox();
+  final flashcardList = box.values.where((flashcard) => flashcard['deckId'] == deckId).toList();
+  
+  if (flashcardList.isEmpty) {
+    // Populate with mock data
+    final mockFlashcards = _getMockFlashcards(deckId);
+    for (var flashcard in mockFlashcards) {
+      await addFlashcard(flashcard);
+    }
+    return mockFlashcards;
   }
+  
+  return flashcardList.map((flashcard) => FlashcardModel.fromJson(flashcard)).toList();
+}
+
+List<FlashcardModel> _getMockFlashcards(String deckId) {
+    if (deckId == '1') { // Spanish Basics
+      return [
+        FlashcardModel(
+          id: '1',
+          deckId: deckId,
+          front: 'Hola',
+          back: 'Hello',
+          nextReview: DateTime.now().add(Duration(days: 1)),
+          interval: 1,
+          easeFactor: 2.5,
+        ),
+        FlashcardModel(
+          id: '2',
+          deckId: deckId,
+          front: 'Adiós',
+          back: 'Goodbye',
+          nextReview: DateTime.now().add(Duration(days: 3)),
+          interval: 3,
+          easeFactor: 2.8,
+        ),
+        // Add more flashcards for Spanish Basics...
+      ];
+    } else if (deckId == '2') { // French Verbs
+      return [
+        FlashcardModel(
+          id: '3',
+          deckId: deckId,
+          front: 'Être',
+          back: 'To be',
+          nextReview: DateTime.now().add(Duration(days: 2)),
+          interval: 2,
+          easeFactor: 2.6,
+        ),
+        FlashcardModel(
+          id: '4',
+          deckId: deckId,
+          front: 'Avoir',
+          back: 'To have',
+          nextReview: DateTime.now().add(Duration(days: 4)),
+          interval: 4,
+          easeFactor: 2.9,
+        ),
+        // Add more flashcards for French Verbs...
+      ];
+    } else {
+      return []; // Return an empty list if the deckId is not recognized
+    }
+  }
+@override
+Future<List<FlashcardModel>> getAllFlashcards() async {
+  final box = await _openFlashcardsBox();
+  final flashcardList = box.values.toList();
+  
+  if (flashcardList.isEmpty) {
+    // Populate with mock data for all decks
+    final mockDecks = await getDecks();
+    for (var deck in mockDecks) {
+      final mockFlashcards = _getMockFlashcards(deck.id);
+      for (var flashcard in mockFlashcards) {
+        await addFlashcard(flashcard);
+      }
+    }
+    return await getAllFlashcards(); // Recursive call to get the newly added flashcards
+  }
+  
+  return flashcardList.map((flashcard) => FlashcardModel.fromJson(flashcard)).toList();
+}
+
 
   @override
   Future<void> updateFlashcard(FlashcardModel flashcard) async {
@@ -199,4 +273,9 @@ Future<ChatModel?> getChatById(String chatId) async {
     final box = await _openFlashcardsBox();
     await box.delete(flashcardId);
   }
+  Future<bool> hasFlashcards() async {
+  final box = await _openFlashcardsBox();
+  return box.isNotEmpty;
+}
+
 }
