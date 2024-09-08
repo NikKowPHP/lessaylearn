@@ -5,6 +5,15 @@ import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_service_provider.dart';
 import 'package:lessay_learn/features/learn/repositories/flashcard_repository.dart';
 
+final dueFlashcardsProvider = FutureProvider<List<FlashcardModel>>((ref) async {
+  final repository = ref.watch(flashcardRepositoryProvider);
+  return repository.getDueFlashcards();
+});
+
+final flashcardNotifierProvider = StateNotifierProvider<FlashcardNotifier, AsyncValue<List<FlashcardModel>>>((ref) {
+  final repository = ref.watch(flashcardRepositoryProvider);
+  return FlashcardNotifier(repository);
+});
 
 final flashcardRepositoryProvider = Provider<FlashcardRepository>((ref) {
   // Get the ILocalStorageService instance from the provider
@@ -60,6 +69,15 @@ class FlashcardNotifier extends StateNotifier<AsyncValue<List<FlashcardModel>>> 
   Future<List<FlashcardModel>> getDueFlashcards() async {
     return await _repository.getDueFlashcards();
   }
+   Future<void> startStudySession(String deckId) async {
+    final dueFlashcards = await _repository.getDueFlashcardsForDeck(deckId);
+    state = AsyncValue.data(dueFlashcards);
+  }
 
-
+Future<List<FlashcardModel>> getDueFlashcardsForDeck(String deckId) async {
+    return await _repository.getDueFlashcardsForDeck(deckId);
+  }
+   Future<void> updateDeckProgress(String deckId) async {
+    await _repository.updateDeckProgress(deckId);
+  }
 }
