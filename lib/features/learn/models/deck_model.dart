@@ -49,6 +49,27 @@ class DeckModel extends Equatable {
       'targetLanguage': targetLanguage,
     };
   }
+   DeckModel copyWith({
+    String? id,
+    String? name,
+    String? description,
+    int? cardCount,
+    DateTime? lastStudied,
+    String? languageLevel,
+    String? sourceLanguage,
+    String? targetLanguage,
+  }) {
+    return DeckModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      cardCount: cardCount ?? this.cardCount,
+      lastStudied: lastStudied ?? this.lastStudied,
+      languageLevel: languageLevel ?? this.languageLevel,
+      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
+      targetLanguage: targetLanguage ?? this.targetLanguage,
+    );
+  }
 
   @override
   List<Object?> get props => [id, name, description, cardCount, lastStudied, languageLevel, sourceLanguage, targetLanguage];
