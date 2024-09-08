@@ -126,27 +126,32 @@ void _answerCard(int answerQuality) {
     );
   }
 
-void _endSession() {
-  // Assuming flashcards contain the deck ID
+void _endSession(BuildContext dialogContext) async {
   if (widget.flashcards.isNotEmpty) {
     String deckId = widget.flashcards.first.deckId;
-    ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(deckId);
+    await ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(deckId);
   }
-  Navigator.pop(context);
+  Navigator.pop(dialogContext); // Close the dialog
+  Navigator.pop(context); // Pop the navigator to the previous page
 }
-  void _showSessionSummary() {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) => CupertinoAlertDialog(
+
+void _showSessionSummary() {
+  showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) => Builder(
+      builder: (BuildContext dialogContext) => CupertinoAlertDialog(
         title: Text('Session Complete'),
         content: Text('You have reviewed all due cards in this deck.'),
         actions: [
           CupertinoDialogAction(
             child: Text('OK'),
-            onPressed: _endSession,
+            onPressed: () {
+              _endSession(dialogContext);
+            },
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
