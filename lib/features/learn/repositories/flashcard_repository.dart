@@ -66,4 +66,11 @@ FlashcardRepository(this._localStorageService, this._flashcardService);
   Future<void> deleteFlashcard(String flashcardId) async {
     await _localStorageService.deleteFlashcard(flashcardId);
   }
+   Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
+    await _flashcardService.reviewFlashcard(flashcard, quality);
+  }
+
+  Future<List<FlashcardModel>> getDueFlashcards() async {
+    return await _flashcardService.getDueFlashcards();
+  }
 }

@@ -1,4 +1,3 @@
-
 // lib/features/learn/models/flashcard_model.dart
 import 'package:equatable/equatable.dart';
 
@@ -7,9 +6,10 @@ class FlashcardModel extends Equatable {
   final String deckId;
   final String front;
   final String back;
-  final DateTime nextReview;
+  final DateTime nextReview; 
   final int interval;
   final double easeFactor;
+  final int repetitions;
 
   const FlashcardModel({
     required this.id,
@@ -18,9 +18,9 @@ class FlashcardModel extends Equatable {
     required this.back,
     required this.nextReview,
     required this.interval,
-    required this.easeFactor,
+    this.repetitions = 0,
+    this.easeFactor = 2.5,
   });
-  
 
   factory FlashcardModel.fromJson(Map<String, dynamic> json) {
     return FlashcardModel(
@@ -33,6 +33,7 @@ class FlashcardModel extends Equatable {
           : DateTime.now(),
       interval: json['interval'] ?? 0,
       easeFactor: json['easeFactor'] ?? 2.5,
+      repetitions: json['repetitions'] ?? 0,
     );
   }
 
@@ -45,11 +46,11 @@ class FlashcardModel extends Equatable {
       'nextReview': nextReview.toIso8601String(),
       'interval': interval,
       'easeFactor': easeFactor,
+      'repetitions': repetitions,
     };
   }
 
-
- FlashcardModel copyWith({
+  FlashcardModel copyWith({
     String? id,
     String? deckId,
     String? front,
@@ -57,6 +58,7 @@ class FlashcardModel extends Equatable {
     DateTime? nextReview,
     int? interval,
     double? easeFactor,
+    int? repetitions,
   }) {
     return FlashcardModel(
       id: id ?? this.id,
@@ -66,9 +68,19 @@ class FlashcardModel extends Equatable {
       nextReview: nextReview ?? this.nextReview,
       interval: interval ?? this.interval,
       easeFactor: easeFactor ?? this.easeFactor,
+      repetitions: repetitions ?? this.repetitions,
     );
   }
 
   @override
-  List<Object?> get props => [id, deckId, front, back, nextReview, interval, easeFactor];
+  List<Object?> get props => [
+        id,
+        deckId,
+        front,
+        back,
+        nextReview,
+        interval,
+        easeFactor,
+        repetitions,
+      ];
 }

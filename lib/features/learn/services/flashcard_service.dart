@@ -1,4 +1,5 @@
 // lib/features/learn/services/flashcard_service.dart
+import 'package:lessay_learn/core/SRSA/engine/srsa_algoritm.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/services/i_flashcard_service.dart';
@@ -130,5 +131,15 @@ class FlashcardService implements IFlashcardService {
     }
     
     return allFlashcards;
+  }
+   Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
+    final updatedFlashcard = SRSAlgorithm.processReview(flashcard, quality);
+    await updateFlashcard(updatedFlashcard);
+  }
+
+  Future<List<FlashcardModel>> getDueFlashcards() async {
+    final allFlashcards = await getAllFlashcards();
+    final now = DateTime.now();
+    return allFlashcards.where((card) => card.nextReview.isBefore(now)).toList();
   }
 }

@@ -52,6 +52,14 @@ class FlashcardNotifier extends StateNotifier<AsyncValue<List<FlashcardModel>>> 
       await _repository.updateFlashcard(updatedFlashcard);
     });
   }
+  Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
+    await _repository.reviewFlashcard(flashcard, quality);
+    await _loadFlashcards();
+  }
+
+  Future<List<FlashcardModel>> getDueFlashcards() async {
+    return await _repository.getDueFlashcards();
+  }
 
 
 }
