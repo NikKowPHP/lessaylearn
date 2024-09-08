@@ -18,15 +18,19 @@ class FlashcardService implements IFlashcardService {
 
   @override
   Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-    final savedFlashcards = await localStorageService.getFlashcardsForDeck(deckId);
-    return savedFlashcards.isNotEmpty ? savedFlashcards : getMockedFlashcards(deckId);
+    final savedFlashcards =
+        await localStorageService.getFlashcardsForDeck(deckId);
+    return savedFlashcards.isNotEmpty
+        ? savedFlashcards
+        : getMockedFlashcards(deckId);
   }
 
   @override
   Future<void> addDeck(DeckModel deck) async {
     await localStorageService.addDeck(deck);
   }
- @override
+
+  @override
   Future<void> addFlashcard(FlashcardModel flashcard) async {
     await localStorageService.addFlashcard(flashcard);
   }
@@ -38,9 +42,10 @@ class FlashcardService implements IFlashcardService {
 
   @override
   Future<void> deleteDeck(String deckId) async {
-    await localStorageService.deleteDeck(deckId); 
+    await localStorageService.deleteDeck(deckId);
     // deleteDeck() in LocalStorageService already handles deleting associated flashcards
   }
+
   @override
   Future<void> deleteFlashcard(String flashcardId) async {
     await localStorageService.deleteFlashcard(flashcardId);
@@ -51,7 +56,8 @@ class FlashcardService implements IFlashcardService {
       DeckModel(
         id: '1',
         name: 'Spanish Basics',
-        description: 'Learn the fundamentals of Spanish grammar and vocabulary.',
+        description:
+            'Learn the fundamentals of Spanish grammar and vocabulary.',
         cardCount: 50,
         lastStudied: DateTime.now().subtract(Duration(days: 2)),
         languageLevel: 'Beginner',
@@ -61,7 +67,8 @@ class FlashcardService implements IFlashcardService {
       DeckModel(
         id: '2',
         name: 'French Verbs',
-        description: 'Master the most common French verbs and their conjugations.',
+        description:
+            'Master the most common French verbs and their conjugations.',
         cardCount: 100,
         lastStudied: DateTime.now().subtract(Duration(days: 5)),
         languageLevel: 'Intermediate',
@@ -73,7 +80,8 @@ class FlashcardService implements IFlashcardService {
   }
 
   List<FlashcardModel> getMockedFlashcards(String deckId) {
-    if (deckId == '1') { // Spanish Basics
+    if (deckId == '1') {
+      // Spanish Basics
       return [
         FlashcardModel(
           id: '1',
@@ -95,7 +103,8 @@ class FlashcardService implements IFlashcardService {
         ),
         // Add more flashcards for Spanish Basics...
       ];
-    } else if (deckId == '2') { // French Verbs
+    } else if (deckId == '2') {
+      // French Verbs
       return [
         FlashcardModel(
           id: '3',
@@ -121,18 +130,20 @@ class FlashcardService implements IFlashcardService {
       return []; // Return an empty list if the deckId is not recognized
     }
   }
-   Future<List<FlashcardModel>> getAllFlashcards() async {
+
+  Future<List<FlashcardModel>> getAllFlashcards() async {
     final allDecks = await getDecks();
     final allFlashcards = <FlashcardModel>[];
-    
+
     for (final deck in allDecks) {
       final flashcardsForDeck = await getFlashcardsForDeck(deck.id);
       allFlashcards.addAll(flashcardsForDeck);
     }
-    
+
     return allFlashcards;
   }
-   Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
+
+  Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
     final updatedFlashcard = SRSAlgorithm.processReview(flashcard, quality);
     await updateFlashcard(updatedFlashcard);
   }
@@ -140,25 +151,38 @@ class FlashcardService implements IFlashcardService {
   Future<List<FlashcardModel>> getDueFlashcards() async {
     final allFlashcards = await getAllFlashcards();
     final now = DateTime.now();
-    return allFlashcards.where((card) => card.nextReview.isBefore(now)).toList();
+  return allFlashcards
+      .where((card) => card.nextReview != null && card.nextReview.isBefore(now))
+      .toList();
   }
+
   Future<List<FlashcardModel>> getDueFlashcardsForDeck(String deckId) async {
     final allFlashcards = await getFlashcardsForDeck(deckId);
     final now = DateTime.now();
-    return allFlashcards.where((card) => card.nextReview.isBefore(now)).toList();
+    return allFlashcards
+        .where((card) => card.nextReview.isBefore(now))
+        .toList();
   }
 
   Future<void> updateDeckProgress(String deckId) async {
     await localStorageService.updateDeckLastStudied(deckId, DateTime.now());
   }
+
   Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatus() async {
     final allFlashcards = await getAllFlashcards();
     final now = DateTime.now();
 
     return {
       'new': allFlashcards.where((card) => card.repetitions == 0).toList(),
-      'learn': allFlashcards.where((card) => card.repetitions > 0 && card.interval <= 1).toList(),
-      'review': allFlashcards.where((card) => card.repetitions > 0 && card.interval > 1 && card.nextReview.isBefore(now)).toList(),
+      'learn': allFlashcards
+          .where((card) => card.repetitions > 0 && card.interval <= 1)
+          .toList(),
+      'review': allFlashcards
+          .where((card) =>
+              card.repetitions > 0 &&
+              card.interval > 1 &&
+              card.nextReview.isBefore(now))
+          .toList(),
     };
   }
 }

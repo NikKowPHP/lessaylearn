@@ -37,7 +37,7 @@ final decksProvider = FutureProvider<List<DeckModel>>((ref) async {
 final flashcardsForDeckProvider = FutureProvider.family<List<FlashcardModel>, String>((ref, deckId) async {
   try {
     final repository = ref.watch(flashcardRepositoryProvider);
-    return await repository.getFlashcardsForDeck(deckId);
+  return await repository.getFlashcardsForDeck(deckId);
   } catch (e) {
     print('Error fetching flashcards: $e');
     return [];

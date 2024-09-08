@@ -49,22 +49,19 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStudyButton(BuildContext context,
-      AsyncValue<List<FlashcardModel>> dueFlashcardsAsyncValue) {
-    return dueFlashcardsAsyncValue.when(
-      data: (dueFlashcards) {
-        final dueCount = dueFlashcards.where((f) => f.deckId == deck.id).length;
-        return CupertinoButton.filled(
-          child: Text('Study Now ($dueCount due)'),
-          onPressed: dueCount > 0
-              ? () => _startStudySession(context, dueFlashcards)
-              : null,
-        );
-      },
-      loading: () => CupertinoActivityIndicator(),
-      error: (_, __) => Text('Error loading due flashcards'),
-    );
-  }
+Widget _buildStudyButton(BuildContext context, AsyncValue<List<FlashcardModel>> dueFlashcardsAsyncValue) {
+  return dueFlashcardsAsyncValue.when(
+    data: (dueFlashcards) {
+      final dueCount = dueFlashcards.where((f) => f.deckId == deck.id).length;
+      return CupertinoButton.filled(
+        child: Text('Study Now ($dueCount due)'),
+        onPressed: dueCount > 0 ? () => _startStudySession(context, dueFlashcards) : null,
+      );
+    },
+    loading: () => CupertinoActivityIndicator(),
+    error: (_, __) => Text('Error loading due flashcards'),
+  );
+}
 
   void _startStudySession(
       BuildContext context, List<FlashcardModel> flashcards) {

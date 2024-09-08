@@ -40,6 +40,15 @@ class LearnScreen extends ConsumerWidget {
       ],
     );
   }
+  Widget _buildDueCardsSection(BuildContext context, WidgetRef ref) {
+  final dueFlashcardsAsyncValue = ref.watch(dueFlashcardsProvider);
+  return dueFlashcardsAsyncValue.when(
+    data: (dueFlashcards) => _buildStatusSection(context, 'Due', dueFlashcards, CupertinoColors.activeOrange),
+    loading: () => CupertinoActivityIndicator(),
+    error: (_, __) => Text('Error loading due flashcards'),
+  );
+}
+
 
  Widget _buildDeckList(BuildContext context, WidgetRef ref, List<DeckModel> decks) {
     return ListView.builder(

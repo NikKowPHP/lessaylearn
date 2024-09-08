@@ -6,23 +6,23 @@ import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 
-
-
 class LocalStorageService implements ILocalStorageService {
   static const String _chatsBoxName = 'chats';
   static const String _isLoggedInKey = 'isLoggedIn';
   static const String _messagesBoxName = 'messages';
   static const String _usersBoxName = 'users';
-    static const String _decksBoxName = 'decks';
+  static const String _decksBoxName = 'decks';
   static const String _flashcardsBoxName = 'flashcards';
 
   Future<Box> _openChatsBox() async {
     return await Hive.openBox(_chatsBoxName);
   }
-    Future<Box> _openMessagesBox() async {
+
+  Future<Box> _openMessagesBox() async {
     return await Hive.openBox(_messagesBoxName);
   }
-     Future<Box> _openUsersBox() async {
+
+  Future<Box> _openUsersBox() async {
     return await Hive.openBox(_usersBoxName);
   }
 
@@ -33,11 +33,11 @@ class LocalStorageService implements ILocalStorageService {
   Future<Box> _openFlashcardsBox() async {
     return await Hive.openBox(_flashcardsBoxName);
   }
-    Future<void> initializeBoxes() async {
+
+  Future<void> initializeBoxes() async {
     await Hive.openBox(_decksBoxName);
     await Hive.openBox(_flashcardsBoxName);
   }
-
 
   @override
   Future<bool> isUserLoggedIn() async {
@@ -61,17 +61,17 @@ class LocalStorageService implements ILocalStorageService {
     return chatList.map((chat) => ChatModel.fromJson(chat)).toList();
   }
 
-   @override
-Future<ChatModel?> getChatById(String chatId) async {
-  final chats = await getChats();
-  try {
-    return chats.firstWhere((chat) => chat.id == chatId);
-  } catch (e) {
-    // TODO: Handle the case where no chat with the given ID is found
-    // You can either return null or throw an exception
-    return null; // Or throw an exception: throw ChatNotFoundException();
+  @override
+  Future<ChatModel?> getChatById(String chatId) async {
+    final chats = await getChats();
+    try {
+      return chats.firstWhere((chat) => chat.id == chatId);
+    } catch (e) {
+      // TODO: Handle the case where no chat with the given ID is found
+      // You can either return null or throw an exception
+      return null; // Or throw an exception: throw ChatNotFoundException();
+    }
   }
-}
 
   @override
   Future<void> updateChat(ChatModel chat) async {
@@ -99,7 +99,8 @@ Future<ChatModel?> getChatById(String chatId) async {
   @override
   Future<List<MessageModel>> getMessagesForChat(String chatId) async {
     final box = await _openMessagesBox();
-    final allMessages = box.values.map((json) => MessageModel.fromJson(json)).toList();
+    final allMessages =
+        box.values.map((json) => MessageModel.fromJson(json)).toList();
     return allMessages.where((message) => message.chatId == chatId).toList();
   }
 
@@ -126,7 +127,7 @@ Future<ChatModel?> getChatById(String chatId) async {
     await box.deleteAll(keysToDelete);
   }
 
-   @override
+  @override
   Future<List<UserModel>> getUsers() async {
     final box = await _openUsersBox(); // Open a box for users
     final userList = box.get('users', defaultValue: []) as List;
@@ -140,7 +141,7 @@ Future<ChatModel?> getChatById(String chatId) async {
     await box.put('users', userList);
   }
 
-   @override
+  @override
   Future<List<DeckModel>> getDecks() async {
     final box = await _openDecksBox();
     final deckList = box.values.toList();
@@ -148,25 +149,28 @@ Future<ChatModel?> getChatById(String chatId) async {
   }
 
   @override
+  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
+    final box = await _openFlashcardsBox();
+    // TODO: TEST PURPOSES REMOVE THIS
+    box.clear();
+    final flashcardList = box.get(deckId, defaultValue: []) as List;
 
-Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-  final box = await _openFlashcardsBox();
-  final flashcardList = box.values.where((flashcard) => flashcard['deckId'] == deckId).toList();
-  
-  if (flashcardList.isEmpty) {
-    // Populate with mock data
-    final mockFlashcards = _getMockFlashcards(deckId);
-    for (var flashcard in mockFlashcards) {
-      await addFlashcard(flashcard);
-    }
-    return mockFlashcards;
+    // if (flashcardList.isEmpty) {
+    //   final mockFlashcards = _getMockFlashcards(deckId);
+    //   for (var flashcard in mockFlashcards) {
+    //     await addFlashcard(flashcard);
+    //   }
+    // }
+
+    return flashcardList
+        .map((flashcard) =>
+            FlashcardModel.fromJson(flashcard as Map<String, dynamic>))
+        .toList();
   }
-  
-  return flashcardList.map((flashcard) => FlashcardModel.fromJson(flashcard)).toList();
-}
 
-List<FlashcardModel> _getMockFlashcards(String deckId) {
-    if (deckId == '1') { // Spanish Basics
+  List<FlashcardModel> _getMockFlashcards(String deckId) {
+    if (deckId == '1') {
+      // Spanish Basics
       return [
         FlashcardModel(
           id: '1',
@@ -188,7 +192,8 @@ List<FlashcardModel> _getMockFlashcards(String deckId) {
         ),
         // Add more flashcards for Spanish Basics...
       ];
-    } else if (deckId == '2') { // French Verbs
+    } else if (deckId == '2') {
+      // French Verbs
       return [
         FlashcardModel(
           id: '3',
@@ -214,26 +219,28 @@ List<FlashcardModel> _getMockFlashcards(String deckId) {
       return []; // Return an empty list if the deckId is not recognized
     }
   }
-@override
-Future<List<FlashcardModel>> getAllFlashcards() async {
-  final box = await _openFlashcardsBox();
-  final flashcardList = box.values.toList();
-  
-  if (flashcardList.isEmpty) {
-    // Populate with mock data for all decks
-    final mockDecks = await getDecks();
-    for (var deck in mockDecks) {
-      final mockFlashcards = _getMockFlashcards(deck.id);
-      for (var flashcard in mockFlashcards) {
-        await addFlashcard(flashcard);
-      }
-    }
-    return await getAllFlashcards(); // Recursive call to get the newly added flashcards
-  }
-  
-  return flashcardList.map((flashcard) => FlashcardModel.fromJson(flashcard)).toList();
-}
 
+  @override
+  Future<List<FlashcardModel>> getAllFlashcards() async {
+    final box = await _openFlashcardsBox();
+    final flashcardList = box.values.toList();
+
+    if (flashcardList.isEmpty) {
+      // Populate with mock data for all decks
+      final mockDecks = await getDecks();
+      for (var deck in mockDecks) {
+        final mockFlashcards = _getMockFlashcards(deck.id);
+        for (var flashcard in mockFlashcards) {
+          await addFlashcard(flashcard);
+        }
+      }
+      return await getAllFlashcards(); // Recursive call to get the newly added flashcards
+    }
+
+    return flashcardList
+        .map((flashcard) => FlashcardModel.fromJson(flashcard))
+        .toList();
+  }
 
   @override
   Future<void> updateFlashcard(FlashcardModel flashcard) async {
@@ -260,7 +267,8 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
 
     // Delete all flashcards associated with this deck
     final flashcardsBox = await _openFlashcardsBox();
-    final flashcardsToDelete = flashcardsBox.values.where((flashcard) => flashcard['deckId'] == deckId);
+    final flashcardsToDelete = flashcardsBox.values
+        .where((flashcard) => flashcard['deckId'] == deckId);
     for (var flashcard in flashcardsToDelete) {
       await flashcardsBox.delete(flashcard['id']);
     }
@@ -269,7 +277,10 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
   @override
   Future<void> addFlashcard(FlashcardModel flashcard) async {
     final box = await _openFlashcardsBox();
-    await box.put(flashcard.id, flashcard.toJson());
+    List<Map<String, dynamic>> flashcards =
+        box.get(flashcard.deckId, defaultValue: []);
+    flashcards.add(flashcard.toJson());
+    await box.put(flashcard.deckId, flashcards); // Store the list of flashcards
   }
 
   @override
@@ -277,17 +288,20 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     final box = await _openFlashcardsBox();
     await box.delete(flashcardId);
   }
+
   Future<bool> hasFlashcards() async {
-  final box = await _openFlashcardsBox();
-  return box.isNotEmpty;
-}
- Future<DeckModel?> getDeckById(String deckId) async {
+    final box = await _openFlashcardsBox();
+    return box.isNotEmpty;
+  }
+
+  Future<DeckModel?> getDeckById(String deckId) async {
     final box = await _openDecksBox();
     final deckJson = box.get(deckId);
     return deckJson != null ? DeckModel.fromJson(deckJson) : null;
   }
 
-  Future<void> updateDeckLastStudied(String deckId, DateTime lastStudied) async {
+  Future<void> updateDeckLastStudied(
+      String deckId, DateTime lastStudied) async {
     final box = await _openDecksBox();
     final deck = await getDeckById(deckId);
     if (deck != null) {
@@ -295,6 +309,4 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
       await box.put(deckId, updatedDeck.toJson());
     }
   }
-
-
 }

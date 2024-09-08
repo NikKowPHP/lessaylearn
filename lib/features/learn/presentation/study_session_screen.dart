@@ -98,22 +98,20 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
     );
   }
 
-  void _answerCard(int answerQuality) {
-    final flashcard = _dueFlashcards[_currentIndex];
-    ref
-        .read(flashcardProvider.notifier)
-        .reviewFlashcard(flashcard, answerQuality);
+void _answerCard(int answerQuality) {
+  final flashcard = _dueFlashcards[_currentIndex];
+  ref.read(flashcardProvider.notifier).reviewFlashcard(flashcard, answerQuality);
 
-    setState(() {
-      _showAnswer = false;
-      if (_currentIndex < _dueFlashcards.length - 1) {
-        _currentIndex++;
-      } else {
-        // End of study session
-        _showSessionSummary();
-      }
-    });
-  }
+  setState(() {
+    _showAnswer = false;
+    if (_currentIndex < _dueFlashcards.length - 1) {
+      _currentIndex++;
+    } else {
+      _showSessionSummary();
+    }
+  });
+}
+
 
   FlashcardModel _updateFlashcard(FlashcardModel flashcard, int answerQuality) {
     // Implement spaced repetition algorithm (e.g., SuperMemo 2) here
