@@ -15,10 +15,27 @@ class StudySessionScreen extends ConsumerStatefulWidget {
 class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
   int _currentIndex = 0;
   bool _showAnswer = false;
+  late List<FlashcardModel> _dueFlashcards;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDueFlashcards();
+  }
+
+  Future<void> _loadDueFlashcards() async {
+    final flashcards = await ref
+        .read(flashcardProvider.notifier)
+        .getDueFlashcardsForDeck(widget.deck.id);
+    setState(() {
+      _dueFlashcards = flashcards;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final flashcardsAsyncValue = ref.watch(flashcardsForDeckProvider(widget.deck.id));
+    final flashcardsAsyncValue =
+        ref.watch(flashcardsForDeckProvider(widget.deck.id));
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
@@ -51,7 +68,9 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
             },
             child: Center(
               child: Text(
-                _showAnswer ? flashcards[_currentIndex].back : flashcards[_currentIndex].front,
+                _showAnswer
+                    ? flashcards[_currentIndex].back
+                    : flashcards[_currentIndex].front,
                 style: const TextStyle(fontSize: 24),
                 textAlign: TextAlign.center,
               ),
@@ -62,21 +81,22 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              // Update the CupertinoButton onPressed callbacks:
               CupertinoButton(
                 child: const Text('Again'),
-                onPressed: () => _answerCard(flashcards, 0),
+                onPressed: () => _answerCard(0),
               ),
               CupertinoButton(
                 child: const Text('Hard'),
-                onPressed: () => _answerCard(flashcards, 1),
+                onPressed: () => _answerCard(1),
               ),
               CupertinoButton(
                 child: const Text('Good'),
-                onPressed: () => _answerCard(flashcards, 2),
+                onPressed: () => _answerCard(2),
               ),
               CupertinoButton(
                 child: const Text('Easy'),
-                onPressed: () => _answerCard(flashcards, 3),
+                onPressed: () => _answerCard(3),
               ),
             ],
           ),
@@ -84,13 +104,20 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
     );
   }
 
-  void _answerCard(List<FlashcardModel> flashcards, int answerQuality) {
-    final flashcard = flashcards[_currentIndex];
-    final updatedFlashcard = _updateFlashcard(flashcard, answerQuality);
-    ref.read(flashcardProvider.notifier).updateFlashcard(updatedFlashcard);
+  void _answerCard(int answerQuality) {
+    final flashcard = _dueFlashcards[_currentIndex];
+    ref
+        .read(flashcardProvider.notifier)
+        .reviewFlashcard(flashcard, answerQuality);
+
     setState(() {
       _showAnswer = false;
-      _currentIndex = (_currentIndex + 1) % flashcards.length;
+      if (_currentIndex < _dueFlashcards.length - 1) {
+        _currentIndex++;
+      } else {
+        // End of study session
+        _showSessionSummary();
+      }
     });
   }
 
@@ -98,11 +125,32 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
     // Implement spaced repetition algorithm (e.g., SuperMemo 2) here
     // This is a simplified version
     final newInterval = (flashcard.interval * flashcard.easeFactor).round();
-    final newEaseFactor = flashcard.easeFactor + (0.1 - (5 - answerQuality) * (0.08 + (5 - answerQuality) * 0.02));
+    final newEaseFactor = flashcard.easeFactor +
+        (0.1 - (5 - answerQuality) * (0.08 + (5 - answerQuality) * 0.02));
     return flashcard.copyWith(
       interval: newInterval,
       easeFactor: newEaseFactor.clamp(1.3, 2.5),
       nextReview: DateTime.now().add(Duration(days: newInterval)),
+    );
+  }
+
+ void _endSession() {
+    ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(widget.deck.id);
+    Navigator.pop(context);
+  }
+  void _showSessionSummary() {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: Text('Session Complete'),
+        content: Text('You have reviewed all due cards in this deck.'),
+        actions: [
+          CupertinoDialogAction(
+            child: Text('OK'),
+            onPressed: _endSession,
+          ),
+        ],
+      ),
     );
   }
 }
