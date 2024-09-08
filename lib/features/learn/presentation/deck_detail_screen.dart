@@ -26,7 +26,7 @@ class DeckDetailScreen extends ConsumerWidget {
         child: Column(
           children: [
             _buildDeckInfo(),
-            _buildStudyButton(context, dueFlashcardsAsyncValue),
+            _buildStudyButton(context, ref),
             _buildFlashcardList(flashcardsAsyncValue),
           ],
         ),
@@ -49,29 +49,39 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
-Widget _buildStudyButton(BuildContext context, AsyncValue<List<FlashcardModel>> dueFlashcardsAsyncValue) {
-  return dueFlashcardsAsyncValue.when(
-    data: (dueFlashcards) {
-      final dueCount = dueFlashcards.where((f) => f.deckId == deck.id).length;
+Widget _buildStudyButton(BuildContext context, WidgetRef ref) {
+  final flashcardStatusAsyncValue = ref.watch(flashcardStatusProvider(deck.id));
+
+  return flashcardStatusAsyncValue.when(
+    data: (flashcardStatus) {
+      final newCount = flashcardStatus['new']?.length ?? 0;
+      final learnCount = flashcardStatus['learn']?.length ?? 0;
+      final reviewCount = flashcardStatus['review']?.length ?? 0;
+      final totalCount = newCount + learnCount + reviewCount;
+
       return CupertinoButton.filled(
-        child: Text('Study Now ($dueCount due)'),
-        onPressed: dueCount > 0 ? () => _startStudySession(context, dueFlashcards) : null,
+        child: Text('Study Now ($totalCount cards)'),
+        onPressed: totalCount > 0 ? () => _startStudySession(context, flashcardStatus) : null,
       );
     },
     loading: () => CupertinoActivityIndicator(),
-    error: (_, __) => Text('Error loading due flashcards'),
+    error: (_, __) => Text('Error loading flashcards'),
   );
 }
 
-  void _startStudySession(
-      BuildContext context, List<FlashcardModel> flashcards) {
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (context) => StudySessionScreen(flashcards: flashcards),
-      ),
-    );
-  }
+void _startStudySession(BuildContext context, Map<String, List<FlashcardModel>> flashcardStatus) {
+  final allFlashcards = [
+    ...?flashcardStatus['new'],
+    ...?flashcardStatus['learn'],
+    ...?flashcardStatus['review'],
+  ];
+  Navigator.push(
+    context,
+    CupertinoPageRoute(
+      builder: (context) => StudySessionScreen(flashcards: allFlashcards),
+    ),
+  );
+}
 
   Widget _buildFlashcardList(
       AsyncValue<List<FlashcardModel>> flashcardsAsyncValue) {

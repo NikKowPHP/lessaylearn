@@ -9,9 +9,9 @@ final dueFlashcardsProvider = FutureProvider<List<FlashcardModel>>((ref) async {
   final repository = ref.watch(flashcardRepositoryProvider);
   return repository.getDueFlashcards();
 });
-final flashcardStatusProvider = FutureProvider<Map<String, List<FlashcardModel>>>((ref) async {
+final flashcardStatusProvider = FutureProvider.family<Map<String, List<FlashcardModel>>, String>((ref, deckId) async {
   final repository = ref.watch(flashcardRepositoryProvider);
-  return repository.getFlashcardsByStatus();
+  return repository.getFlashcardsByStatusForDeck(deckId);
 });
 
 final flashcardNotifierProvider =

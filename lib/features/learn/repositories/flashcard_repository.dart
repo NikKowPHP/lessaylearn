@@ -91,5 +91,19 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
    Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatus() async {
     return await _flashcardService.getFlashcardsByStatus();
   }
+  Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatusForDeck(String deckId) async {
+    final flashcards = await getFlashcardsForDeck(deckId);
+    final now = DateTime.now();
+
+    return {
+      'new': flashcards.where((card) => card.repetitions == 0).toList(),
+      'learn': flashcards.where((card) => card.repetitions > 0 && card.interval <= 1).toList(),
+      'review': flashcards.where((card) => 
+        card.repetitions > 0 && 
+        card.interval > 1 && 
+        card.nextReview.isBefore(now)
+      ).toList(),
+    };
+  }
 
 }
