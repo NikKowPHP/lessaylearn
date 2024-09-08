@@ -33,7 +33,11 @@ class LocalStorageService implements ILocalStorageService {
   Future<Box> _openFlashcardsBox() async {
     return await Hive.openBox(_flashcardsBoxName);
   }
-  
+    Future<void> initializeBoxes() async {
+    await Hive.openBox(_decksBoxName);
+    await Hive.openBox(_flashcardsBoxName);
+  }
+
 
   @override
   Future<bool> isUserLoggedIn() async {
@@ -277,5 +281,20 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
   final box = await _openFlashcardsBox();
   return box.isNotEmpty;
 }
+ Future<DeckModel?> getDeckById(String deckId) async {
+    final box = await _openDecksBox();
+    final deckJson = box.get(deckId);
+    return deckJson != null ? DeckModel.fromJson(deckJson) : null;
+  }
+
+  Future<void> updateDeckLastStudied(String deckId, DateTime lastStudied) async {
+    final box = await _openDecksBox();
+    final deck = await getDeckById(deckId);
+    if (deck != null) {
+      final updatedDeck = deck.copyWith(lastStudied: lastStudied);
+      await box.put(deckId, updatedDeck.toJson());
+    }
+  }
+
 
 }

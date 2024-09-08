@@ -28,4 +28,8 @@ abstract class ILocalStorageService {
   Future<void> addFlashcard(FlashcardModel flashcard);
   Future<void> updateFlashcard(FlashcardModel flashcard);
   Future<void> deleteFlashcard(String flashcardId);
+    Future<bool> hasFlashcards();
+  Future<DeckModel?> getDeckById(String deckId);
+  Future<void> updateDeckLastStudied(String deckId, DateTime lastStudied);
+
 }
