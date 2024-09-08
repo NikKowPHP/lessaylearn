@@ -142,4 +142,14 @@ class FlashcardService implements IFlashcardService {
     final now = DateTime.now();
     return allFlashcards.where((card) => card.nextReview.isBefore(now)).toList();
   }
+  Future<List<FlashcardModel>> getDueFlashcardsForDeck(String deckId) async {
+    final allFlashcards = await getFlashcardsForDeck(deckId);
+    final now = DateTime.now();
+    return allFlashcards.where((card) => card.nextReview.isBefore(now)).toList();
+  }
+
+  Future<void> updateDeckProgress(String deckId) async {
+    await localStorageService.updateDeckLastStudied(deckId, DateTime.now());
+  }
 }
+  

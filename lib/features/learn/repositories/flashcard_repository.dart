@@ -73,4 +73,17 @@ FlashcardRepository(this._localStorageService, this._flashcardService);
   Future<List<FlashcardModel>> getDueFlashcards() async {
     return await _flashcardService.getDueFlashcards();
   }
+   Future<List<FlashcardModel>> getDueFlashcardsForDeck(String deckId) async {
+    return await _flashcardService.getDueFlashcardsForDeck(deckId);
+  }
+   Future<void> updateDeckProgress(String deckId) async {
+    final deck = await _localStorageService.getDeckById(deckId);
+    if (deck != null) {
+      final now = DateTime.now();
+      await _localStorageService.updateDeckLastStudied(deckId, now);
+      // You might want to update other deck progress properties here 
+      // based on your application's logic (e.g., percentage complete).
+    }
+  }
+
 }
