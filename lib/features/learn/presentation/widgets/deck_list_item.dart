@@ -1,44 +1,35 @@
-
 // lib/features/learn/presentation/widgets/deck_list_item.dart
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/presentation/deck_detail_screen.dart';
 
 class DeckListItem extends StatelessWidget {
   final DeckModel deck;
+  final VoidCallback onTap;
 
-  const DeckListItem({Key? key, required this.deck}) : super(key: key);
+  const DeckListItem({Key? key, required this.deck, required this.onTap})
+      : super(key: key);
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return CupertinoListTile(
-      leading: const Icon(CupertinoIcons.book),
+      leading: Icon(CupertinoIcons.book),
       title: Text(deck.name),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('${deck.cardCount} cards'),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              _buildTag(deck.languageLevel, CupertinoColors.activeBlue),
-              const SizedBox(width: 8),
-              _buildTag('${deck.sourceLanguage} → ${deck.targetLanguage}', CupertinoColors.activeGreen),
-            ],
-          ),
+          Text('Last studied: ${_formatDate(deck.lastStudied)}'),
         ],
       ),
-      trailing: const CupertinoListTileChevron(),
-      onTap: () {
-        Navigator.of(context).push(
-          CupertinoPageRoute(
-            builder: (context) => DeckDetailScreen(deck: deck),
-          ),
-        );
-      },
+      trailing: CupertinoListTileChevron(),
+      onTap: onTap,
     );
   }
-
+ String _formatDate(DateTime date) {
+    return DateFormat('MMM d, y').format(date);
+  }
   Widget _buildTag(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
