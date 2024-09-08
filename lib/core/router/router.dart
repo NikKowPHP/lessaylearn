@@ -9,9 +9,13 @@ import 'package:lessay_learn/features/chat/widgets/create_chat_view.dart';
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
+import 'package:lessay_learn/features/learn/models/deck_model.dart';
+import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
+import 'package:lessay_learn/features/learn/presentation/deck_detail_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/learn_screen.dart';
+import 'package:lessay_learn/features/learn/presentation/study_session_screen.dart';
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
-import 'package:lessay_learn/services/i_chat_service.dart';
+
 
 
 
@@ -42,13 +46,11 @@ class CameraScreen extends StatelessWidget {
 
 GoRouter createAppRouter() {
   return GoRouter(
-    initialLocation: '/', // Start at the home screen
+    initialLocation: '/',
     routes: [
-      // ShellRoute for bottom navigation
       ShellRoute(
         builder: (context, state, child) {
           return CupertinoBottomNavBar(
-            // Pass the child to be displayed based on the selected tab
             key: state.pageKey,
           );
         },
@@ -65,21 +67,18 @@ GoRouter createAppRouter() {
               child: CommunityScreen(),
             ),
           ),
-            GoRoute(
-            path: '/learn', // Update path to '/learn'
+          GoRoute(
+            path: '/learn',
             pageBuilder: (context, state) => CupertinoPage(
-              child: const LearnScreen(), // Use LearnScreen here
+              child: const LearnScreen(),
             ),
           ),
-          
           GoRoute(
             path: '/settings',
             pageBuilder: (context, state) => CupertinoPage(
               child: const SettingsScreen(),
             ),
           ),
-         // Give the chat route a name
-      
         ],
       ),
       GoRoute(
@@ -92,7 +91,7 @@ GoRouter createAppRouter() {
           );
         },
       ),
-        GoRoute(
+      GoRoute(
         path: '/create-chat',
         pageBuilder: (context, state) => CupertinoPage(
           child: Consumer(
@@ -103,6 +102,25 @@ GoRouter createAppRouter() {
           ),
         ),
       ),
+      GoRoute(
+        path: '/deck/:deckId',
+        pageBuilder: (context, state) {
+          final deck = state.extra as DeckModel;
+          return CupertinoPage(
+            child: DeckDetailScreen(deck: deck),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/study-session',
+        pageBuilder: (context, state) {
+          final flashcards = state.extra as List<FlashcardModel>;
+          return CupertinoPage(
+            child: StudySessionScreen(flashcards: flashcards),
+          );
+        },
+      ),
     ],
   );
 }
+
