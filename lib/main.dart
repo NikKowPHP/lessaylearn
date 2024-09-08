@@ -6,16 +6,7 @@ import 'package:lessay_learn/core/dependency_injection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Dependency Injection
-  await configureDependencies();
-
-  // Initialize Hive
   await Hive.initFlutter();
-
-  runApp(
-    ProviderScope(
-      child: MyApp(),
-    ),
-  );
+  await configureDependencies();
+  runApp(ProviderScope(child: MyApp()));
 }
