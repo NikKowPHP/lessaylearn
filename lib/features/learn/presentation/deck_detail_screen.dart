@@ -13,7 +13,7 @@ class DeckDetailScreen extends ConsumerWidget {
 
   const DeckDetailScreen({Key? key, required this.deck}) : super(key: key);
 
-   @override
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final flashcardsAsyncValue = ref.watch(flashcardsForDeckProvider(deck.id));
     final dueFlashcardsAsyncValue = ref.watch(dueFlashcardsProvider);
@@ -49,13 +49,16 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStudyButton(BuildContext context, AsyncValue<List<FlashcardModel>> dueFlashcardsAsyncValue) {
+  Widget _buildStudyButton(BuildContext context,
+      AsyncValue<List<FlashcardModel>> dueFlashcardsAsyncValue) {
     return dueFlashcardsAsyncValue.when(
       data: (dueFlashcards) {
         final dueCount = dueFlashcards.where((f) => f.deckId == deck.id).length;
         return CupertinoButton.filled(
           child: Text('Study Now ($dueCount due)'),
-          onPressed: dueCount > 0 ? () => _startStudySession(context) : null,
+          onPressed: dueCount > 0
+              ? () => _startStudySession(context, dueFlashcards)
+              : null,
         );
       },
       loading: () => CupertinoActivityIndicator(),
@@ -63,24 +66,27 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFlashcardList(AsyncValue<List<FlashcardModel>> flashcardsAsyncValue) {
-    return Expanded(
-      child: flashcardsAsyncValue.when(
-        data: (flashcards) => ListView.builder(
-          itemCount: flashcards.length,
-          itemBuilder: (context, index) => FlashcardListItem(flashcard: flashcards[index]),
-        ),
-        loading: () => Center(child: CupertinoActivityIndicator()),
-        error: (error, _) => Center(child: Text('Error: $error')),
+  void _startStudySession(
+      BuildContext context, List<FlashcardModel> flashcards) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => StudySessionScreen(flashcards: flashcards),
       ),
     );
   }
 
-   void _startStudySession(BuildContext context) {
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (context) => StudySessionScreen(deck: deck),
+  Widget _buildFlashcardList(
+      AsyncValue<List<FlashcardModel>> flashcardsAsyncValue) {
+    return Expanded(
+      child: flashcardsAsyncValue.when(
+        data: (flashcards) => ListView.builder(
+          itemCount: flashcards.length,
+          itemBuilder: (context, index) =>
+              FlashcardListItem(flashcard: flashcards[index]),
+        ),
+        loading: () => Center(child: CupertinoActivityIndicator()),
+        error: (error, _) => Center(child: Text('Error: $error')),
       ),
     );
   }

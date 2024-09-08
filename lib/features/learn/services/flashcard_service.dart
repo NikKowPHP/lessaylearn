@@ -19,7 +19,7 @@ class FlashcardService implements IFlashcardService {
   @override
   Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
     final savedFlashcards = await localStorageService.getFlashcardsForDeck(deckId);
-    return savedFlashcards.isNotEmpty ? savedFlashcards : _getMockFlashcards(deckId);
+    return savedFlashcards.isNotEmpty ? savedFlashcards : getMockedFlashcards(deckId);
   }
 
   @override
@@ -72,7 +72,7 @@ class FlashcardService implements IFlashcardService {
     ];
   }
 
-  List<FlashcardModel> _getMockFlashcards(String deckId) {
+  List<FlashcardModel> getMockedFlashcards(String deckId) {
     if (deckId == '1') { // Spanish Basics
       return [
         FlashcardModel(
@@ -151,5 +151,14 @@ class FlashcardService implements IFlashcardService {
   Future<void> updateDeckProgress(String deckId) async {
     await localStorageService.updateDeckLastStudied(deckId, DateTime.now());
   }
+  Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatus() async {
+    final allFlashcards = await getAllFlashcards();
+    final now = DateTime.now();
+
+    return {
+      'new': allFlashcards.where((card) => card.repetitions == 0).toList(),
+      'learn': allFlashcards.where((card) => card.repetitions > 0 && card.interval <= 1).toList(),
+      'review': allFlashcards.where((card) => card.repetitions > 0 && card.interval > 1 && card.nextReview.isBefore(now)).toList(),
+    };
+  }
 }
-  

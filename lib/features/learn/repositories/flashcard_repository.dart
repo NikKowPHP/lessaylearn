@@ -28,10 +28,13 @@ FlashcardRepository(this._localStorageService, this._flashcardService);
   }
 
   @override
-  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-    return await _localStorageService.getFlashcardsForDeck(deckId);
+Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
+  final flashcards = await _localStorageService.getFlashcardsForDeck(deckId);
+  if (flashcards.isEmpty) {
+    return _flashcardService.getMockedFlashcards(deckId);
   }
-
+  return flashcards;
+}
   @override
   Future<List<FlashcardModel>> getAllFlashcards() async {
     return await _localStorageService.getAllFlashcards();
@@ -84,6 +87,9 @@ FlashcardRepository(this._localStorageService, this._flashcardService);
       // You might want to update other deck progress properties here 
       // based on your application's logic (e.g., percentage complete).
     }
+  }
+   Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatus() async {
+    return await _flashcardService.getFlashcardsByStatus();
   }
 
 }

@@ -5,8 +5,10 @@ import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 
 class StudySessionScreen extends ConsumerStatefulWidget {
-  final DeckModel deck;
-  const StudySessionScreen({Key? key, required this.deck}) : super(key: key);
+ final List<FlashcardModel> flashcards;
+  const StudySessionScreen({Key? key, required this.flashcards}) : super(key: key);
+
+
 
   @override
   _StudySessionScreenState createState() => _StudySessionScreenState();
@@ -17,36 +19,28 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
   bool _showAnswer = false;
   late List<FlashcardModel> _dueFlashcards;
 
-  @override
+ @override
   void initState() {
     super.initState();
-    _loadDueFlashcards();
+    _dueFlashcards = widget.flashcards;
   }
-
-  Future<void> _loadDueFlashcards() async {
-    final flashcards = await ref
-        .read(flashcardProvider.notifier)
-        .getDueFlashcardsForDeck(widget.deck.id);
-    setState(() {
-      _dueFlashcards = flashcards;
-    });
-  }
+  // Future<void> _loadDueFlashcards() async {
+  //   final flashcards = await ref
+  //       .read(flashcardProvider.notifier)
+  //       .getDueFlashcardsForDeck(widget.deck.id);
+  //   setState(() {
+  //     _dueFlashcards = flashcards;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final flashcardsAsyncValue =
-        ref.watch(flashcardsForDeckProvider(widget.deck.id));
-
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Studying ${widget.deck.name}'),
+        middle: Text('Study Session'),
       ),
       child: SafeArea(
-        child: flashcardsAsyncValue.when(
-          data: (flashcards) => _buildStudySession(flashcards),
-          loading: () => const Center(child: CupertinoActivityIndicator()),
-          error: (error, stackTrace) => Center(child: Text('Error: $error')),
-        ),
+        child: _buildStudySession(widget.flashcards),
       ),
     );
   }
@@ -134,10 +128,14 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
     );
   }
 
- void _endSession() {
-    ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(widget.deck.id);
-    Navigator.pop(context);
+void _endSession() {
+  // Assuming flashcards contain the deck ID
+  if (widget.flashcards.isNotEmpty) {
+    String deckId = widget.flashcards.first.deckId;
+    ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(deckId);
   }
+  Navigator.pop(context);
+}
   void _showSessionSummary() {
     showCupertinoDialog(
       context: context,
