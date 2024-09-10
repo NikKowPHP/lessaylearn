@@ -113,18 +113,6 @@ void _answerCard(int answerQuality) {
 }
 
 
-  FlashcardModel _updateFlashcard(FlashcardModel flashcard, int answerQuality) {
-    // Implement spaced repetition algorithm (e.g., SuperMemo 2) here
-    // This is a simplified version
-    final newInterval = (flashcard.interval * flashcard.easeFactor).round();
-    final newEaseFactor = flashcard.easeFactor +
-        (0.1 - (5 - answerQuality) * (0.08 + (5 - answerQuality) * 0.02));
-    return flashcard.copyWith(
-      interval: newInterval,
-      easeFactor: newEaseFactor.clamp(1.3, 2.5),
-      nextReview: DateTime.now().add(Duration(days: newInterval)),
-    );
-  }
 
 void _endSession(BuildContext dialogContext) async {
   if (widget.flashcards.isNotEmpty) {

@@ -152,7 +152,7 @@ class LocalStorageService implements ILocalStorageService {
   Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
     final box = await _openFlashcardsBox();
     // TODO: TEST PURPOSES REMOVE THIS
-    box.clear();
+    // box.clear();
     final flashcardList = box.get(deckId, defaultValue: []) as List;
 
     // if (flashcardList.isEmpty) {
