@@ -130,6 +130,9 @@ void _endSession(BuildContext dialogContext) async {
   if (widget.flashcards.isNotEmpty) {
     String deckId = widget.flashcards.first.deckId;
     await ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(deckId);
+     // Refresh the flashcard state
+    ref.refresh(flashcardsForDeckProvider(deckId));
+    ref.refresh(flashcardStatusProvider(deckId));
   }
   Navigator.pop(dialogContext); // Close the dialog
   Navigator.pop(context); // Pop the navigator to the previous page
