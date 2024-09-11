@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
+import 'package:lessay_learn/features/learn/presentation/add_deck_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/deck_detail_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/study_session_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/widgets/deck_list_item.dart';
@@ -19,9 +20,21 @@ class LearnScreen extends ConsumerWidget {
     final decksAsyncValue = ref.watch(decksProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
+     navigationBar: CupertinoNavigationBar(
         middle: Text('Learn'),
-      ),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: Icon(CupertinoIcons.add), 
+          onPressed: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => AddDeckScreen(),
+              ),
+            );
+          },
+        ),
+      ), 
       child: SafeArea(
         child: decksAsyncValue.when(
           data: (decks) => _buildDeckList(context, ref, decks),
