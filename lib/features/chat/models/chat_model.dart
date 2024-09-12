@@ -1,10 +1,9 @@
 class ChatModel {
   final String id;
-  final String name;
+  final String hostUserId;
+  final String guestUserId;
   final String lastMessage;
-  final String time;
-  final String avatarUrl;
-  final DateTime date;
+  final DateTime lastMessageTimestamp;
   final String chatTopic;
   final String languageLevel;
   final String sourceLanguage;
@@ -12,27 +11,80 @@ class ChatModel {
 
   ChatModel({
     required this.id,
-    required this.name,
+    required this.hostUserId,
+    required this.guestUserId,
     required this.lastMessage,
-    required this.time,
-    required this.avatarUrl,
-    required this.date,
+    required this.lastMessageTimestamp,
     required this.chatTopic,
     required this.languageLevel,
     required this.sourceLanguage,
     required this.targetLanguage,
   });
+
+  factory ChatModel.fromJson(Map<String, dynamic> json) {
+    return ChatModel(
+      id: json['id'] ?? '',
+      hostUserId: json['hostUserId'] ?? '',
+      guestUserId: json['guestUserId'] ?? '',
+      lastMessage: json['lastMessage'] ?? '',
+      lastMessageTimestamp: json['lastMessageTimestamp'] != null
+          ? DateTime.parse(json['lastMessageTimestamp'])
+          : DateTime.now(),
+      chatTopic: json['chatTopic'] ?? '',
+      languageLevel: json['languageLevel'] ?? '',
+      sourceLanguage: json['sourceLanguage'] ?? '',
+      targetLanguage: json['targetLanguage'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'hostUserId': hostUserId,
+      'guestUserId': guestUserId,
+      'lastMessage': lastMessage,
+      'lastMessageTimestamp': lastMessageTimestamp.toIso8601String(),
+      'chatTopic': chatTopic,
+      'languageLevel': languageLevel,
+      'sourceLanguage': sourceLanguage,
+      'targetLanguage': targetLanguage,
+    };
+  }
+
+  ChatModel copyWith({
+    String? id,
+    String? hostUserId,
+    String? guestUserId,
+    String? lastMessage,
+    DateTime? lastMessageTimestamp,
+    String? chatTopic,
+    String? languageLevel,
+    String? sourceLanguage,
+    String? targetLanguage,
+  }) {
+    return ChatModel(
+      id: id ?? this.id,
+      hostUserId: hostUserId ?? this.hostUserId,
+      guestUserId: guestUserId ?? this.guestUserId,
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastMessageTimestamp: lastMessageTimestamp ?? this.lastMessageTimestamp,
+      chatTopic: chatTopic ?? this.chatTopic,
+      languageLevel: languageLevel ?? this.languageLevel,
+      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
+      targetLanguage: targetLanguage ?? this.targetLanguage,
+    );
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ChatModel &&
           runtimeType == other.runtimeType &&
           id == other.id &&
-          name == other.name &&
+          hostUserId == other.hostUserId &&
+          guestUserId == other.guestUserId &&
           lastMessage == other.lastMessage &&
-          time == other.time &&
-          avatarUrl == other.avatarUrl &&
-          date == other.date &&
+          lastMessageTimestamp == other.lastMessageTimestamp &&
           chatTopic == other.chatTopic &&
           languageLevel == other.languageLevel &&
           sourceLanguage == other.sourceLanguage &&
@@ -41,70 +93,12 @@ class ChatModel {
   @override
   int get hashCode =>
       id.hashCode ^
-      name.hashCode ^
+      hostUserId.hashCode ^
+      guestUserId.hashCode ^
       lastMessage.hashCode ^
-      time.hashCode ^
-      avatarUrl.hashCode ^
-      date.hashCode ^
+      lastMessageTimestamp.hashCode ^
       chatTopic.hashCode ^
       languageLevel.hashCode ^
       sourceLanguage.hashCode ^
       targetLanguage.hashCode;
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'lastMessage': lastMessage,
-      'time': time,
-      'avatarUrl': avatarUrl,
-      'date': date.toIso8601String(),
-      'chatTopic': chatTopic,
-      'languageLevel': languageLevel,
-      'sourceLanguage': sourceLanguage,
-      'targetLanguage': targetLanguage,
-    };
-  }
-
-  factory ChatModel.fromJson(Map<String, dynamic> json) {
-    return ChatModel(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      lastMessage: json['lastMessage'] ?? '',
-      time: json['time'] ?? '',
-      avatarUrl: json['avatarUrl'] ?? '',
-      date:
-          json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
-      chatTopic: json['chatTopic'] ?? '',
-      languageLevel: json['languageLevel'] ?? '',
-      sourceLanguage: json['sourceLanguage'] ?? '',
-      targetLanguage: json['targetLanguage'] ?? '',
-    );
-  }
-
-  ChatModel copyWith({
-    String? id,
-    String? name,
-    String? lastMessage,
-    String? time,
-    String? avatarUrl,
-    DateTime? date,
-    String? chatTopic,
-    String? languageLevel,
-    String? sourceLanguage,
-    String? targetLanguage,
-  }) {
-    return ChatModel(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      lastMessage: lastMessage ?? this.lastMessage,
-      time: time ?? this.time,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
-      date: date ?? this.date,
-      chatTopic: chatTopic ?? this.chatTopic,
-      languageLevel: languageLevel ?? this.languageLevel,
-      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
-      targetLanguage: targetLanguage ?? this.targetLanguage,
-    );
-  }
 }

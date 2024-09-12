@@ -50,13 +50,14 @@ class CommunityService implements ICommunityService {
   @override
   Future<List<UserModel>> getUsers(int segment) async {
     final savedUsers = await localStorageService.getUsers();
-    if (savedUsers.isNotEmpty) {
+    
       return _filterUsersBySegment(savedUsers, segment);
-    } else {
-      final mockUsers = _getMockUsers();
-      await localStorageService.saveUsers(mockUsers);
-      return _filterUsersBySegment(mockUsers, segment);
-    }
+   
+    // else {
+    //   // final mockUsers = _getMockUsers();
+    //   // await localStorageService.saveUsers(mockUsers);
+    //   // return _filterUsersBySegment(mockUsers, segment);
+    // }
   }
 
   List<UserModel> _filterUsersBySegment(List<UserModel> users, int segment) {

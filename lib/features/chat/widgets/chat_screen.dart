@@ -22,12 +22,22 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<MessageModel> _messages = [];
-
+String _chatPartnerName = 'Loading...';
   @override
   void initState() {
     super.initState();
     _loadMessages();
+     _loadChatPartnerName();
   }
+
+  Future<void> _loadChatPartnerName() async {
+  final chatService = ref.read(chatServiceProvider);
+  final currentUserId = 'currentUserId'; // Replace with actual current user ID
+  final partnerName = await chatService.getChatPartnerName(widget.chat.id, currentUserId);
+  setState(() {
+    _chatPartnerName = partnerName;
+  });
+}
 
   Future<void> _loadMessages() async {
     final chatService = ref.read(chatServiceProvider);
@@ -67,7 +77,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
 
   CupertinoNavigationBar _buildNavigationBar() {
     return CupertinoNavigationBar(
-      middle: Text(widget.chat.name),
+     middle: Text(_chatPartnerName),
       leading: CupertinoButton(
         padding: EdgeInsets.zero,
         child: const Icon(CupertinoIcons.back),

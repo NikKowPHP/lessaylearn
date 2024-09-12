@@ -9,24 +9,24 @@ class ChatList extends StatelessWidget {
 
   ChatList({Key? key, required this.chatService}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<ChatModel>>(
-      future: chatService.getChats(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingIndicator();
-        } else if (snapshot.hasError) {
-          return buildErrorWidget(snapshot.error.toString());
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return _buildEmptyListWidget();
-        }
+@override
+Widget build(BuildContext context) {
+  return FutureBuilder<List<ChatModel>>(
+    future: chatService.getChats(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return _buildLoadingIndicator();
+      } else if (snapshot.hasError) {
+        return buildErrorWidget(snapshot.error.toString());
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return _buildEmptyListWidget();
+      }
 
-        final chats = snapshot.data!..sort((a, b) => b.date.compareTo(a.date));
-        return _buildChatListView(chats);
-      },
-    );
-  }
+      final chats = snapshot.data!;
+      return _buildChatListView(chats);
+    },
+  );
+}
   String formatDate(DateTime date) {
     final now = DateTime.now();
     if (isSameDay(date, now)) {
@@ -75,23 +75,23 @@ Widget buildErrorWidget(String error) {
     );
   }
 
-  Widget _buildChatListItem(List<ChatModel> chats, int index) {
-    if (index.isOdd) {
-      return _buildSeparator();
-    }
-    final chatIndex = index ~/ 2;
-    final chat = chats[chatIndex];
-    final isFirstOfDay = chatIndex == 0 || 
-      !_isSameDay(chat.date, chats[chatIndex - 1].date);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (isFirstOfDay) _buildDateHeader(chat.date),
-        ChatListItem(chat: chat),
-      ],
-    );
+Widget _buildChatListItem(List<ChatModel> chats, int index) {
+  if (index.isOdd) {
+    return _buildSeparator();
   }
+  final chatIndex = index ~/ 2;
+  final chat = chats[chatIndex];
+  final isFirstOfDay = chatIndex == 0 || 
+    !_isSameDay(chat.lastMessageTimestamp, chats[chatIndex - 1].lastMessageTimestamp);
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (isFirstOfDay) _buildDateHeader(chat.lastMessageTimestamp),
+      ChatListItem(chat: chat),
+    ],
+  );
+}
 
   Widget _buildSeparator() {
     return Container(
@@ -152,10 +152,11 @@ class ChatListItem extends StatelessWidget {
           //     );
           //   },
           // ),
-          child: Image.asset(chat.avatarUrl, fit: BoxFit.cover),
+         child: Icon(CupertinoIcons.person_fill, color: CupertinoColors.systemGrey),
         ),
+        
       ),
-      title: Text(chat.name, style: TextStyle(fontWeight: FontWeight.bold)),
+      title: Text('Chat ${chat.id}', style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -174,7 +175,10 @@ class ChatListItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(chat.time, style: TextStyle(color: CupertinoColors.systemGrey)),
+          Text(
+            _formatTime(chat.lastMessageTimestamp),
+            style: TextStyle(color: CupertinoColors.systemGrey),
+          ),
           SizedBox(height: 4),
           Icon(CupertinoIcons.chevron_right, size: 16, color: CupertinoColors.systemGrey),
         ],
@@ -198,4 +202,20 @@ class ChatListItem extends StatelessWidget {
       ),
     );
   }
+String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m';
+    } else {
+      return 'Now';
+    }
+  }
+
 }
+

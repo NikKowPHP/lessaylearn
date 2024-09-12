@@ -96,15 +96,14 @@ class _CreateChatViewState extends State<CreateChatView> {
     );
   }
 
-  void _submitForm() async {
+ void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final newChat = ChatModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _name,
+        hostUserId: 'currentUserId', // Replace with actual current user ID
+        guestUserId: '', // This will be empty for a new chat
         lastMessage: '',
-        time: '',
-        avatarUrl: 'assets/default_avatar.png',
-        date: DateTime.now(),
+        lastMessageTimestamp: DateTime.now(),
         chatTopic: _chatTopic,
         languageLevel: _languageLevel,
         sourceLanguage: _sourceLanguage,

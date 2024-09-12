@@ -31,5 +31,6 @@ abstract class ILocalStorageService {
     Future<bool> hasFlashcards();
   Future<DeckModel?> getDeckById(String deckId);
   Future<void> updateDeckLastStudied(String deckId, DateTime lastStudied);
-
+Future<void> saveChat(ChatModel chat);
+Future<UserModel?> getUserById(String userId);
 }

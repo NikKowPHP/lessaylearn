@@ -137,7 +137,7 @@ Future<List<MessageModel>> getMessagesForChat(String chatId) async {
   @override
   Future<List<UserModel>> getUsers() async {
     final box = await _openUsersBox();
-    
+   
     final userList = box.get('users', defaultValue: []) as List;
     return userList
         .map((user) => UserModel.fromJson(Map<String, dynamic>.from(user)))
@@ -259,6 +259,12 @@ Future<List<MessageModel>> getMessagesForChat(String chatId) async {
     flashcards[flashcard.id] = flashcard.toJson();
     await box.put(flashcard.deckId, flashcards);
   }
+  @override
+Future<UserModel?> getUserById(String userId) async {
+  final box = await _openUsersBox();
+  final userJson = box.get(userId);
+  return userJson != null ? UserModel.fromJson(Map<String, dynamic>.from(userJson)) : null;
+}
 
   @override
   Future<void> addDeck(DeckModel deck) async {
@@ -320,5 +326,12 @@ Future<List<MessageModel>> getMessagesForChat(String chatId) async {
       final updatedDeck = deck.copyWith(lastStudied: lastStudied);
       await box.put(deckId, updatedDeck.toJson());
     }
+  }
+   @override
+  Future<void> saveChat(ChatModel chat) async {
+    final box = await _openChatsBox();
+    final chats = await getChats();
+    chats.add(chat);
+    await box.put(_chatsBoxName, chats.map((c) => c.toJson()).toList());
   }
 }

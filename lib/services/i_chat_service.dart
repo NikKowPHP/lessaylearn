@@ -8,4 +8,6 @@ abstract class IChatService {
   Future<void> sendMessage(MessageModel message);
   Future<void> markMessageAsRead(String messageId);
   Future<void> deleteChat(String chatId);
+  Future<void> createChat(ChatModel chat);
+  Future<String> getChatPartnerName(String chatId, String currentUserId);
 }

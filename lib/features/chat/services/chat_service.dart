@@ -10,24 +10,36 @@ class ChatService implements IChatService {
 
   ChatService(this.localStorageService);
   @override
+  @override
+  Future<void> createChat(ChatModel chat) async {
+    await localStorageService.saveChat(chat);
+  }
+
   Future<List<ChatModel>> getChats() async {
     final savedChats = await localStorageService.getChats();
-    // Ensure that the service returns an empty list or mock data when needed
-    
-    return savedChats.isNotEmpty ? savedChats : _getMockChats();
+
+    savedChats.sort(
+        (a, b) => b.lastMessageTimestamp.compareTo(a.lastMessageTimestamp));
+    return savedChats;
   }
+@override
+  Future<String> getChatPartnerName(String chatId, String currentUserId) async {
+  final chat = await localStorageService.getChatById(chatId);
+  if (chat == null) return 'Unknown';
+
+  final partnerUserId = chat.hostUserId == currentUserId ? chat.guestUserId : chat.hostUserId;
+  final user = await localStorageService.getUserById(partnerUserId);
+  return user?.name ?? 'Unknown';
+}
 
   @override
   Future<void> saveChats(List<ChatModel> chats) async {
     await localStorageService.saveChats(chats);
   }
 
-
-
- @override
+  @override
   Future<List<MessageModel>> getMessagesForChat(String chatId) async {
-    final savedMessages = await localStorageService.getMessagesForChat(chatId);
-    return savedMessages.isNotEmpty ? savedMessages : _getMockMessages(chatId);
+    return await localStorageService.getMessagesForChat(chatId);
   }
 
   @override
@@ -38,8 +50,7 @@ class ChatService implements IChatService {
     if (chat != null) {
       final updatedChat = chat.copyWith(
         lastMessage: message.content,
-        time: '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
-        date: message.timestamp,
+        lastMessageTimestamp: message.timestamp,
       );
       await localStorageService.updateChat(updatedChat);
     }
@@ -58,84 +69,5 @@ class ChatService implements IChatService {
   Future<void> deleteChat(String chatId) async {
     await localStorageService.deleteChat(chatId);
     await localStorageService.deleteMessagesForChat(chatId);
-  }
-
-
-
-
-  List<ChatModel> _getMockChats() {
-    final random = Random();
-    final List<ChatModel> mockChats = [];
-
-    final List<String> names = [
-      'John',
-      'Jane',
-      'Alice',
-      'Bob',
-      'Charlie',
-      'Diana'
-    ];
-    final List<String> topics = [
-      'Greetings',
-      'Weather',
-      'Hobbies',
-      'Travel',
-      'Food',
-      'Movies'
-    ];
-    final List<String> levels = ['Beginner', 'Intermediate', 'Advanced'];
-    final List<String> languages = [
-      'English',
-      'Spanish',
-      'French',
-      'German',
-      'Italian',
-      'Chinese'
-    ];
-
-    for (int i = 0; i < 20; i++) {
-      String sourceLanguage = languages[random.nextInt(languages.length)];
-      String targetLanguage;
-      do {
-        targetLanguage = languages[random.nextInt(languages.length)];
-      } while (targetLanguage == sourceLanguage);
-
-      mockChats.add(ChatModel(
-        id: '${i + 1}',
-        name: names[random.nextInt(names.length)],
-        lastMessage: 'Random message ${random.nextInt(100)}',
-        time:
-            '${random.nextInt(12)}:${random.nextInt(60).toString().padLeft(2, '0')} ${random.nextBool() ? 'AM' : 'PM'}',
-        avatarUrl: 'assets/blank.png',
-        date: DateTime.now().subtract(
-            Duration(days: random.nextInt(30), hours: random.nextInt(24))),
-        chatTopic: topics[random.nextInt(topics.length)],
-        languageLevel: levels[random.nextInt(levels.length)],
-        sourceLanguage: sourceLanguage,
-        targetLanguage: targetLanguage,
-      ));
-    }
-
-    return mockChats;
-  }
-
-   List<MessageModel> _getMockMessages(String chatId) {
-    final random = Random();
-    final List<MessageModel> mockMessages = [];
-
-    final now = DateTime.now();
-    for (int i = 0; i < 20; i++) {
-      mockMessages.add(MessageModel(
-        id: '${chatId}_${i + 1}',
-        chatId: chatId,
-        senderId: random.nextBool() ? 'user' : 'other',
-        content: 'Mock message ${random.nextInt(100)}',
-        timestamp: now.subtract(Duration(minutes: random.nextInt(60 * 24))),
-        isRead: random.nextBool(),
-      ));
-    }
-
-    mockMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    return mockMessages;
   }
 }
