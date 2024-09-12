@@ -97,13 +97,19 @@ class LocalStorageService implements ILocalStorageService {
     await box.put(message.id, message.toJson());
   }
 
-  @override
-  Future<List<MessageModel>> getMessagesForChat(String chatId) async {
-    final box = await _openMessagesBox();
-    final allMessages =
-        box.values.map((json) => MessageModel.fromJson(json)).toList();
-    return allMessages.where((message) => message.chatId == chatId).toList();
-  }
+ @override
+Future<List<MessageModel>> getMessagesForChat(String chatId) async {
+  final box = await _openMessagesBox();
+  final allMessages = box.values.map((json) {
+    if (json is Map<String, dynamic>) {
+      return MessageModel.fromJson(json);
+    } else if (json is Map) {
+      return MessageModel.fromJson(Map<String, dynamic>.from(json));
+    }
+    throw FormatException('Invalid message format');
+  }).toList();
+  return allMessages.where((message) => message.chatId == chatId).toList();
+}
 
   @override
   Future<MessageModel?> getMessageById(String messageId) async {

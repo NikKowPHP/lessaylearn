@@ -124,27 +124,28 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     );
   }
 
-  void _sendMessage() {
-    final messageContent = _messageController.text.trim();
-    if (messageContent.isNotEmpty) {
-      final newMessage = MessageModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        chatId: widget.chat.id,
-        senderId: 'user', // Replace with actual user ID
-        content: messageContent,
-        timestamp: DateTime.now(),
-      );
+ void _sendMessage() async {
+  final messageContent = _messageController.text.trim();
+  if (messageContent.isNotEmpty) {
+    final newMessage = MessageModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      chatId: widget.chat.id,
+      senderId: 'user', // Replace with actual user ID
+      content: messageContent,
+      timestamp: DateTime.now(),
+    );
 
-      setState(() {
-        _messages.add(newMessage);
-        _messageController.clear();
-      });
+    setState(() {
+      _messages.add(newMessage);
+      _messageController.clear();
+    });
 
-      final chatService = ref.read(chatServiceProvider);
-      chatService.sendMessage(newMessage);
-      _scrollToBottom();
-    }
+    final chatService = ref.read(chatServiceProvider);
+    await chatService.sendMessage(newMessage);
+
+    _scrollToBottom();
   }
+}
 
   @override
   void dispose() {
