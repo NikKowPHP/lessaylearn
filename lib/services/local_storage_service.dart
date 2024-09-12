@@ -130,14 +130,17 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<List<UserModel>> getUsers() async {
-    final box = await _openUsersBox(); // Open a box for users
+    final box = await _openUsersBox();
+    
     final userList = box.get('users', defaultValue: []) as List;
-    return userList.map((user) => UserModel.fromJson(user)).toList();
+    return userList
+        .map((user) => UserModel.fromJson(Map<String, dynamic>.from(user)))
+        .toList();
   }
 
   @override
   Future<void> saveUsers(List<UserModel> users) async {
-    final box = await _openUsersBox(); // Open a box for users
+    final box = await _openUsersBox();
     final userList = users.map((user) => user.toJson()).toList();
     await box.put('users', userList);
   }
@@ -227,27 +230,29 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-Future<List<FlashcardModel>> getAllFlashcards() async {
-  final box = await _openFlashcardsBox();
-  List<FlashcardModel> allFlashcards = [];
+  Future<List<FlashcardModel>> getAllFlashcards() async {
+    final box = await _openFlashcardsBox();
+    List<FlashcardModel> allFlashcards = [];
 
-  for (var deckId in box.keys) {
-    Map<String, dynamic> flashcards = Map<String, dynamic>.from(box.get(deckId, defaultValue: <String, dynamic>{}));
-    allFlashcards.addAll(flashcards.values
-        .map((flashcard) => FlashcardModel.fromJson(Map<String, dynamic>.from(flashcard as Map))));
+    for (var deckId in box.keys) {
+      Map<String, dynamic> flashcards = Map<String, dynamic>.from(
+          box.get(deckId, defaultValue: <String, dynamic>{}));
+      allFlashcards.addAll(flashcards.values.map((flashcard) =>
+          FlashcardModel.fromJson(
+              Map<String, dynamic>.from(flashcard as Map))));
+    }
+
+    return allFlashcards;
   }
 
-  return allFlashcards;
-}
-
-@override
-Future<void> updateFlashcard(FlashcardModel flashcard) async {
-  final box = await _openFlashcardsBox();
-  Map<String, dynamic> flashcards = Map<String, dynamic>.from(box.get(flashcard.deckId, defaultValue: <String, dynamic>{}));
-  flashcards[flashcard.id] = flashcard.toJson();
-  await box.put(flashcard.deckId, flashcards);
-}
-
+  @override
+  Future<void> updateFlashcard(FlashcardModel flashcard) async {
+    final box = await _openFlashcardsBox();
+    Map<String, dynamic> flashcards = Map<String, dynamic>.from(
+        box.get(flashcard.deckId, defaultValue: <String, dynamic>{}));
+    flashcards[flashcard.id] = flashcard.toJson();
+    await box.put(flashcard.deckId, flashcards);
+  }
 
   @override
   Future<void> addDeck(DeckModel deck) async {

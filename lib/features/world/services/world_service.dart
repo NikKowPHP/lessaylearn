@@ -90,7 +90,7 @@ class CommunityService implements ICommunityService {
       mockUsers.add(UserModel(
         id: '${i + 1}',
         name: names[random.nextInt(names.length)],
-        avatarUrl: 'assets/avatar_${random.nextInt(5) + 1}.png',
+        avatarUrl: 'assets/blank.png',
         languageLevel: levels[random.nextInt(levels.length)],
         sourceLanguage: sourceLanguage,
         targetLanguage: targetLanguage,
