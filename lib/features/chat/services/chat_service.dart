@@ -4,7 +4,6 @@ import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
-import 'package:lessay_learn/services/local_storage_service.dart';
 
 class ChatService implements IChatService {
   final ILocalStorageService localStorageService; // Use interface
@@ -14,6 +13,7 @@ class ChatService implements IChatService {
   Future<List<ChatModel>> getChats() async {
     final savedChats = await localStorageService.getChats();
     // Ensure that the service returns an empty list or mock data when needed
+    
     return savedChats.isNotEmpty ? savedChats : _getMockChats();
   }
 

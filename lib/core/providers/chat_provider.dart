@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:get_it/get_it.dart';
 import 'package:lessay_learn/features/chat/services/chat_service.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';

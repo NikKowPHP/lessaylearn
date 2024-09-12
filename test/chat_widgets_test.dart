@@ -8,20 +8,13 @@ import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/core/widgets/cupertino_bottom_nav_bar.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lessay_learn/services/api_service.dart';
-import 'package:lessay_learn/services/i_chat_service.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lessay_learn/features/chat/widgets/chat_list.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
-import 'package:lessay_learn/services/local_storage_service.dart';
 import 'package:lessay_learn/features/chat/services/chat_service.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MockApiService extends Mock implements ApiService {}
 

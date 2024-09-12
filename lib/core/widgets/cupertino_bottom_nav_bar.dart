@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lessay_learn/core/providers/chat_provider.dart';
 
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';

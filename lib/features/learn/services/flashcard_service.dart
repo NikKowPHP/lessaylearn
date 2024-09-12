@@ -152,7 +152,7 @@ class FlashcardService implements IFlashcardService {
     final allFlashcards = await getAllFlashcards();
     final now = DateTime.now();
   return allFlashcards
-      .where((card) => card.nextReview != null && card.nextReview.isBefore(now))
+      .where((card) => card.nextReview.isBefore(now))
       .toList();
   }
 

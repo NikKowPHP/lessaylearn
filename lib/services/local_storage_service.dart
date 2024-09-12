@@ -57,6 +57,7 @@ class LocalStorageService implements ILocalStorageService {
   @override
   Future<List<ChatModel>> getChats() async {
     final box = await _openChatsBox();
+    // box.clear();
     final chatList = box.get(_chatsBoxName, defaultValue: []) as List;
     return chatList.map((chat) => ChatModel.fromJson(chat)).toList();
   }
@@ -152,19 +153,24 @@ class LocalStorageService implements ILocalStorageService {
   Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
     final box = await _openFlashcardsBox();
     // TODO: TEST PURPOSES REMOVE THIS
-    // box.clear();
-    final flashcardList = box.get(deckId, defaultValue: []) as List;
+    box.clear();
+    final flashcardData = box.get(deckId) as Map?;
+
+    if (flashcardData == null) {
+      return [];
+    }
+    // final flashcardList = box.get(deckId, defaultValue: []) as List;
 
     // if (flashcardList.isEmpty) {
-    //   final mockFlashcards = _getMockFlashcards(deckId);
-    //   for (var flashcard in mockFlashcards) {
-    //     await addFlashcard(flashcard);
-    //   }
+    // final mockFlashcards = _getMockFlashcards(deckId);
+    // for (var flashcard in mockFlashcards) {
+    //   await addFlashcard(flashcard);
+    // }
     // }
 
-    return flashcardList
-        .map((flashcard) =>
-            FlashcardModel.fromJson(flashcard as Map<String, dynamic>))
+    return flashcardData.values
+        .map((flashcard) => FlashcardModel.fromJson(
+            Map<String, dynamic>.from(flashcard as Map)))
         .toList();
   }
 
@@ -221,32 +227,27 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<List<FlashcardModel>> getAllFlashcards() async {
-    final box = await _openFlashcardsBox();
-    final flashcardList = box.values.toList();
+Future<List<FlashcardModel>> getAllFlashcards() async {
+  final box = await _openFlashcardsBox();
+  List<FlashcardModel> allFlashcards = [];
 
-    if (flashcardList.isEmpty) {
-      // Populate with mock data for all decks
-      final mockDecks = await getDecks();
-      for (var deck in mockDecks) {
-        final mockFlashcards = _getMockFlashcards(deck.id);
-        for (var flashcard in mockFlashcards) {
-          await addFlashcard(flashcard);
-        }
-      }
-      return await getAllFlashcards(); // Recursive call to get the newly added flashcards
-    }
-
-    return flashcardList
-        .map((flashcard) => FlashcardModel.fromJson(flashcard))
-        .toList();
+  for (var deckId in box.keys) {
+    Map<String, dynamic> flashcards = Map<String, dynamic>.from(box.get(deckId, defaultValue: <String, dynamic>{}));
+    allFlashcards.addAll(flashcards.values
+        .map((flashcard) => FlashcardModel.fromJson(Map<String, dynamic>.from(flashcard as Map))));
   }
 
-  @override
-  Future<void> updateFlashcard(FlashcardModel flashcard) async {
-    final box = await _openFlashcardsBox();
-    await box.put(flashcard.id, flashcard.toJson());
-  }
+  return allFlashcards;
+}
+
+@override
+Future<void> updateFlashcard(FlashcardModel flashcard) async {
+  final box = await _openFlashcardsBox();
+  Map<String, dynamic> flashcards = Map<String, dynamic>.from(box.get(flashcard.deckId, defaultValue: <String, dynamic>{}));
+  flashcards[flashcard.id] = flashcard.toJson();
+  await box.put(flashcard.deckId, flashcards);
+}
+
 
   @override
   Future<void> addDeck(DeckModel deck) async {
@@ -277,10 +278,10 @@ class LocalStorageService implements ILocalStorageService {
   @override
   Future<void> addFlashcard(FlashcardModel flashcard) async {
     final box = await _openFlashcardsBox();
-    List<Map<String, dynamic>> flashcards =
-        box.get(flashcard.deckId, defaultValue: []);
-    flashcards.add(flashcard.toJson());
-    await box.put(flashcard.deckId, flashcards); // Store the list of flashcards
+    Map<String, dynamic> flashcards = Map<String, dynamic>.from(
+        box.get(flashcard.deckId, defaultValue: <String, dynamic>{}));
+    flashcards[flashcard.id] = flashcard.toJson();
+    await box.put(flashcard.deckId, flashcards);
   }
 
   @override

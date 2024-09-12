@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 
