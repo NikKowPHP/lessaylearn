@@ -94,18 +94,23 @@ String _chatPartnerName = 'Loading...';
   }
 
   Widget _buildMessageList() {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: CupertinoScrollbar(
+  final currentUserId = 'user'; 
+  //TODO: Replace with actual user ID
+  return GestureDetector(
+    onTap: () => FocusScope.of(context).unfocus(),
+    child: CupertinoScrollbar(
+      controller: _scrollController,
+      child: ListView.builder(
         controller: _scrollController,
-        child: ListView.builder(
-          controller: _scrollController,
-          itemCount: _messages.length,
-          itemBuilder: (context, index) => MessageBubble(message: _messages[index]),
+        itemCount: _messages.length,
+        itemBuilder: (context, index) => MessageBubble(
+          message: _messages[index],
+          currentUserId: currentUserId,
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildMessageInput() {
     return Container(
@@ -137,10 +142,16 @@ String _chatPartnerName = 'Loading...';
  void _sendMessage() async {
   final messageContent = _messageController.text.trim();
   if (messageContent.isNotEmpty) {
+    final currentUserId = 'user'; // Replace with actual user ID
+    final receiverId = widget.chat.hostUserId == currentUserId
+        ? widget.chat.guestUserId
+        : widget.chat.hostUserId;
+
     final newMessage = MessageModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       chatId: widget.chat.id,
-      senderId: 'user', // Replace with actual user ID
+      senderId: currentUserId,
+      receiverId: receiverId,
       content: messageContent,
       timestamp: DateTime.now(),
     );
@@ -167,12 +178,17 @@ String _chatPartnerName = 'Loading...';
 
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
+  final String currentUserId;
 
-  const MessageBubble({Key? key, required this.message}) : super(key: key);
+  const MessageBubble({
+    Key? key,
+    required this.message,
+    required this.currentUserId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isUserMessage = message.senderId == 'user'; // Replace with actual user ID
+    final isUserMessage = message.senderId == currentUserId;
     return Align(
       alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(

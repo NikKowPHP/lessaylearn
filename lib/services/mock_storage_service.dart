@@ -1,4 +1,5 @@
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
+import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
@@ -110,10 +111,56 @@ class MockStorageService {
     ),
   ];
 
+
+ static final List<MessageModel> _messages = [
+  MessageModel(
+    id: 'msg1',
+    chatId: 'chat1',
+    senderId: 'user1',
+    receiverId: 'user2',
+    content: 'Hola! ¿Cómo estás?',
+    timestamp: DateTime.now().subtract(Duration(minutes: 5)),
+    isRead: true,
+  ),
+  MessageModel(
+    id: 'msg2',
+    chatId: 'chat1',
+    senderId: 'user2',
+    receiverId: 'user1',
+    content: 'Bien, gracias. ¿Y tú?',
+    timestamp: DateTime.now().subtract(Duration(minutes: 4)),
+    isRead: true,
+  ),
+  MessageModel(
+    id: 'msg3',
+    chatId: 'chat2',
+    senderId: 'user2',
+    receiverId: 'user1',
+    content: 'Bonjour! Comment allez-vous?',
+    timestamp: DateTime.now().subtract(Duration(hours: 1)),
+    isRead: true,
+  ),
+  MessageModel(
+    id: 'msg4',
+    chatId: 'chat2',
+    senderId: 'user1',
+    receiverId: 'user2',
+    content: 'Je vais bien, merci. Et vous?',
+    timestamp: DateTime.now().subtract(Duration(minutes: 55)),
+    isRead: false,
+  ),
+];
+
   // Methods to access mock data
   static List<UserModel> getUsers() => _users;
   static List<ChatModel> getChats() => _chats;
   static List<DeckModel> getDecks() => _decks;
   static List<FlashcardModel> getFlashcards() => _flashcards;
+
+    static List<MessageModel> getMessages() => _messages;
+
+  static List<MessageModel> getMessagesForChat(String chatId) {
+    return _messages.where((message) => message.chatId == chatId).toList();
+  }
 
 }

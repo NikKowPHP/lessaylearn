@@ -58,6 +58,7 @@ class LocalStorageService implements ILocalStorageService {
     @override
   Future<List<ChatModel>> getChats() async {
     final box = await _openChatsBox();
+    
     final chatList = box.get(_chatsBoxName, defaultValue: []) as List;
     if (chatList.isEmpty) {
    
@@ -106,15 +107,21 @@ class LocalStorageService implements ILocalStorageService {
  @override
 Future<List<MessageModel>> getMessagesForChat(String chatId) async {
   final box = await _openMessagesBox();
-  final allMessages = box.values.map((json) {
-    if (json is Map<String, dynamic>) {
-      return MessageModel.fromJson(json);
-    } else if (json is Map) {
-      return MessageModel.fromJson(Map<String, dynamic>.from(json));
-    }
-    throw FormatException('Invalid message format');
-  }).toList();
-  return allMessages.where((message) => message.chatId == chatId).toList();
+  final messagesJson = box.get(chatId) as List?;
+
+  if (messagesJson == null || messagesJson.isEmpty) {
+    // If no messages exist, get mock messages from MockStorageService
+    final mockMessages = MockStorageService.getMessagesForChat(chatId);
+    
+    // Save mock messages to local storage
+    await box.put(chatId, mockMessages.map((m) => m.toJson()).toList());
+    
+    return mockMessages;
+  }
+
+  return messagesJson
+      .map((json) => MessageModel.fromJson(Map<String, dynamic>.from(json)))
+      .toList();
 }
 
   @override
@@ -189,57 +196,7 @@ Future<List<MessageModel>> getMessagesForChat(String chatId) async {
         .toList();
   }
 
-  List<FlashcardModel> _getMockFlashcards(String deckId) {
-    if (deckId == '1') {
-      // Spanish Basics
-      return [
-        FlashcardModel(
-          id: '1',
-          deckId: deckId,
-          front: 'Hola',
-          back: 'Hello',
-          nextReview: DateTime.now().add(Duration(days: 1)),
-          interval: 1,
-          easeFactor: 2.5,
-        ),
-        FlashcardModel(
-          id: '2',
-          deckId: deckId,
-          front: 'Adiós',
-          back: 'Goodbye',
-          nextReview: DateTime.now().add(Duration(days: 3)),
-          interval: 3,
-          easeFactor: 2.8,
-        ),
-        // Add more flashcards for Spanish Basics...
-      ];
-    } else if (deckId == '2') {
-      // French Verbs
-      return [
-        FlashcardModel(
-          id: '3',
-          deckId: deckId,
-          front: 'Être',
-          back: 'To be',
-          nextReview: DateTime.now().add(Duration(days: 2)),
-          interval: 2,
-          easeFactor: 2.6,
-        ),
-        FlashcardModel(
-          id: '4',
-          deckId: deckId,
-          front: 'Avoir',
-          back: 'To have',
-          nextReview: DateTime.now().add(Duration(days: 4)),
-          interval: 4,
-          easeFactor: 2.9,
-        ),
-        // Add more flashcards for French Verbs...
-      ];
-    } else {
-      return []; // Return an empty list if the deckId is not recognized
-    }
-  }
+
 
   @override
   Future<List<FlashcardModel>> getAllFlashcards() async {
@@ -340,4 +297,16 @@ Future<UserModel?> getUserById(String userId) async {
     chats.add(chat);
     await box.put(_chatsBoxName, chats.map((c) => c.toJson()).toList());
   }
+ 
+Future<void> clearAllData() async {
+  await Hive.deleteBoxFromDisk(_chatsBoxName);
+  await Hive.deleteBoxFromDisk(_messagesBoxName);
+  await Hive.deleteBoxFromDisk(_usersBoxName);
+  await Hive.deleteBoxFromDisk(_decksBoxName);
+  await Hive.deleteBoxFromDisk(_flashcardsBoxName);
+
+  // Re-initialize the boxes
+  await initializeBoxes();
+}
+
 }
