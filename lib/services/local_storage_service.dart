@@ -5,6 +5,7 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
+import 'package:lessay_learn/services/mock_storage_service.dart';
 
 class LocalStorageService implements ILocalStorageService {
   static const String _chatsBoxName = 'chats';
@@ -54,11 +55,16 @@ class LocalStorageService implements ILocalStorageService {
     }
   }
 
-  @override
+    @override
   Future<List<ChatModel>> getChats() async {
     final box = await _openChatsBox();
-    // box.clear();
     final chatList = box.get(_chatsBoxName, defaultValue: []) as List;
+    if (chatList.isEmpty) {
+   
+      final mockChats = MockStorageService.getChats();
+      await saveChats(mockChats);
+      return mockChats;
+    }
     return chatList.map((chat) => ChatModel.fromJson(chat)).toList();
   }
 
