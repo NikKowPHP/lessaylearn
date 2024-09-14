@@ -9,7 +9,7 @@ class MockStorageService {
     UserModel(
       id: 'user1',
       name: 'Alice',
-      avatarUrl: 'https://example.com/alice.jpg',
+      avatarUrl: 'assets/avatar-1.png',
       languageLevel: 'Intermediate',
       sourceLanguage: 'English',
       targetLanguage: 'Spanish',
@@ -19,7 +19,7 @@ class MockStorageService {
     UserModel(
       id: 'user2',
       name: 'Bob',
-      avatarUrl: 'https://example.com/bob.jpg',
+      avatarUrl: 'assets/avatar-1.png',
       languageLevel: 'Beginner',
       sourceLanguage: 'English',
       targetLanguage: 'French',
