@@ -26,6 +26,26 @@ class MockStorageService {
       location: 'London',
       age: 32,
     ),
+    UserModel(
+      id: 'user3',
+      name: 'Charlie',
+      avatarUrl: 'assets/avatar-1.png',
+      languageLevel: 'Intermediate',
+      sourceLanguage: 'English',
+      targetLanguage: 'Spanish',
+      location: 'Madrid',
+      age: 25,
+    ),
+    UserModel(
+      id: 'user4',
+      name: 'Diana',
+      avatarUrl: 'assets/avatar-1.png',
+      languageLevel: 'Advanced',
+      sourceLanguage: 'English',
+      targetLanguage: 'French',
+      location: 'Paris',
+      age: 30,
+    ),
   ];
 
   static final List<ChatModel> _chats = [
@@ -50,6 +70,17 @@ class MockStorageService {
       languageLevel: 'Beginner',
       sourceLanguage: 'English',
       targetLanguage: 'French',
+    ),
+    ChatModel(
+      id: 'chat3',
+      hostUserId: 'user3',
+      guestUserId: 'user1',
+      lastMessage: 'Hola! ¿Cómo estás?',
+      lastMessageTimestamp: DateTime.now().subtract(Duration(minutes: 5)),
+      chatTopic: 'Spanish Conversation',
+      languageLevel: 'Intermediate',
+      sourceLanguage: 'English',
+      targetLanguage: 'Spanish',
     ),
   ];
 
@@ -148,6 +179,24 @@ class MockStorageService {
     content: 'Je vais bien, merci. Et vous?',
     timestamp: DateTime.now().subtract(Duration(minutes: 55)),
     isRead: false,
+  ),
+  MessageModel(
+    id: 'msg5',
+    chatId: 'chat3',
+    senderId: 'user3',
+    receiverId: 'user1',
+    content: 'Hola! ¿Cómo estás?',
+    timestamp: DateTime.now().subtract(Duration(minutes: 5)),
+    isRead: true,
+  ),
+  MessageModel(
+    id: 'msg6',
+    chatId: 'chat3',
+    senderId: 'user1',
+    receiverId: 'user3',
+    content: 'Bien, gracias. ¿Y tú?',
+    timestamp: DateTime.now().subtract(Duration(minutes: 4)),
+    isRead: true,
   ),
 ];
 
