@@ -14,6 +14,7 @@ import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/presentation/deck_detail_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/learn_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/study_session_screen.dart';
+import 'package:lessay_learn/features/profile/presentation/profile_screen.dart';
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 
 
@@ -123,6 +124,16 @@ GoRouter createAppRouter() {
           ),
         ),
       ),
+
+GoRoute(
+  path: '/profile/:userId',
+  pageBuilder: (context, state) {
+    final userId = state.pathParameters['userId']!;
+    return CupertinoPage(
+      child: ProfileScreen(userId: userId),
+    );
+  },
+),
       GoRoute(
         path: '/deck/:deckId',
         pageBuilder: (context, state) {
