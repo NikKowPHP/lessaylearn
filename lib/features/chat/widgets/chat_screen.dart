@@ -7,29 +7,31 @@ import 'package:go_router/go_router.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
+import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
 
 class IndividualChatScreen extends ConsumerStatefulWidget {
   final ChatModel chat;
 
   const IndividualChatScreen({
-    Key? key, 
-    required this.chat, 
+    Key? key,
+    required this.chat,
   }) : super(key: key);
 
   @override
-  ConsumerState<IndividualChatScreen> createState() => _IndividualChatScreenState();
+  ConsumerState<IndividualChatScreen> createState() =>
+      _IndividualChatScreenState();
 }
 
 class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<MessageModel> _messages = [];
- UserModel? _chatPartner;
+  UserModel? _chatPartner;
   @override
   void initState() {
     super.initState();
     _loadMessages();
-   _loadChatPartner();
+    _loadChatPartner();
   }
 
   Future<void> _loadChatPartner() async {
@@ -38,7 +40,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     final partnerUserId = widget.chat.hostUserId == currentUser.id
         ? widget.chat.guestUserId
         : widget.chat.hostUserId;
-         debugPrint('Partner user id: $partnerUserId');
+    debugPrint('Partner user id: $partnerUserId');
     final partner = await chatService.getUserById(partnerUserId);
     debugPrint('Partner: $partner');
     setState(() {
@@ -81,31 +83,27 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       ),
     );
   }
-    Widget _buildCupertinoAvatar(String avatarUrl) {
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        image: DecorationImage(
-          image: NetworkImage(avatarUrl),
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
+
+ 
 
   CupertinoNavigationBar _buildNavigationBar() {
     return CupertinoNavigationBar(
-      middle:  _chatPartner == null
+      middle: _chatPartner == null
           ? const CupertinoActivityIndicator()
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildCupertinoAvatar(_chatPartner!.avatarUrl),
-                const SizedBox(width: 8),
-                Text(_chatPartner!.name),
-              ],
+          : GestureDetector(
+              onTap: () => context.push('/profile/${_chatPartner!.id}'),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AvatarWidget(
+                    imageUrl: _chatPartner!.avatarUrl,
+                    size: 30,
+                    isNetworkImage: true,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(_chatPartner!.name),
+                ],
+              ),
             ),
       leading: CupertinoButton(
         padding: EdgeInsets.zero,
@@ -123,23 +121,23 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   }
 
   Widget _buildMessageList() {
-  final currentUserId = 'user1'; 
-  //TODO: Replace with actual user ID
-  return GestureDetector(
-    onTap: () => FocusScope.of(context).unfocus(),
-    child: CupertinoScrollbar(
-      controller: _scrollController,
-      child: ListView.builder(
+    final currentUserId = 'user1';
+    //TODO: Replace with actual user ID
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: CupertinoScrollbar(
         controller: _scrollController,
-        itemCount: _messages.length,
-        itemBuilder: (context, index) => MessageBubble(
-          message: _messages[index],
-          currentUserId: currentUserId,
+        child: ListView.builder(
+          controller: _scrollController,
+          itemCount: _messages.length,
+          itemBuilder: (context, index) => MessageBubble(
+            message: _messages[index],
+            currentUserId: currentUserId,
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildMessageInput() {
     return Container(
@@ -168,34 +166,34 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     );
   }
 
- void _sendMessage() async {
-  final messageContent = _messageController.text.trim();
-  if (messageContent.isNotEmpty) {
-    final currentUserId = 'user1'; // Replace with actual user ID
-    final receiverId = widget.chat.hostUserId == currentUserId
-        ? widget.chat.guestUserId
-        : widget.chat.hostUserId;
+  void _sendMessage() async {
+    final messageContent = _messageController.text.trim();
+    if (messageContent.isNotEmpty) {
+      final currentUserId = 'user1'; // Replace with actual user ID
+      final receiverId = widget.chat.hostUserId == currentUserId
+          ? widget.chat.guestUserId
+          : widget.chat.hostUserId;
 
-    final newMessage = MessageModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      chatId: widget.chat.id,
-      senderId: currentUserId,
-      receiverId: receiverId,
-      content: messageContent,
-      timestamp: DateTime.now(),
-    );
+      final newMessage = MessageModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        chatId: widget.chat.id,
+        senderId: currentUserId,
+        receiverId: receiverId,
+        content: messageContent,
+        timestamp: DateTime.now(),
+      );
 
-    setState(() {
-      _messages.add(newMessage);
-      _messageController.clear();
-    });
+      setState(() {
+        _messages.add(newMessage);
+        _messageController.clear();
+      });
 
-    final chatService = ref.read(chatServiceProvider);
-    await chatService.sendMessage(newMessage);
+      final chatService = ref.read(chatServiceProvider);
+      await chatService.sendMessage(newMessage);
 
-    _scrollToBottom();
+      _scrollToBottom();
+    }
   }
-}
 
   @override
   void dispose() {
@@ -218,7 +216,6 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUserMessage = message.senderId == currentUserId;
-    
 
     debugPrint('Message sender ID: ${message.senderId}');
     return Align(
@@ -227,10 +224,13 @@ class MessageBubble extends StatelessWidget {
         margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isUserMessage ? CupertinoColors.activeBlue : CupertinoColors.systemGrey5,
+          color: isUserMessage
+              ? CupertinoColors.activeBlue
+              : CupertinoColors.systemGrey5,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: TappableText(text: message.content, isUserMessage: isUserMessage),
+        child:
+            TappableText(text: message.content, isUserMessage: isUserMessage),
       ),
     );
   }
@@ -240,7 +240,9 @@ class TappableText extends StatelessWidget {
   final String text;
   final bool isUserMessage;
 
-  const TappableText({Key? key, required this.text, required this.isUserMessage}) : super(key: key);
+  const TappableText(
+      {Key? key, required this.text, required this.isUserMessage})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -269,7 +271,9 @@ class TappableText extends StatelessWidget {
               child: Text(
                 word,
                 style: TextStyle(
-                  color: isUserMessage ? CupertinoColors.white : CupertinoColors.black,
+                  color: isUserMessage
+                      ? CupertinoColors.white
+                      : CupertinoColors.black,
                 ),
               ),
             ),
@@ -279,7 +283,8 @@ class TappableText extends StatelessWidget {
     );
   }
 
-  Widget _buildTooltipContent(String word, bool isStarred, StateSetter setState) {
+  Widget _buildTooltipContent(
+      String word, bool isStarred, StateSetter setState) {
     return Padding(
       padding: EdgeInsets.all(8),
       child: Row(
