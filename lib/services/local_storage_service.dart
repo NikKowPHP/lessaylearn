@@ -229,6 +229,11 @@ class LocalStorageService implements ILocalStorageService {
     final userList = users.map((user) => user.toJson()).toList();
     await box.put('users', userList);
   }
+  @override
+Future<void> saveUser(UserModel user) async {
+  final box = await _openUsersBox();
+  await box.put(user.id, user.toJson());
+}
 
   @override
   Future<List<DeckModel>> getDecks() async {
