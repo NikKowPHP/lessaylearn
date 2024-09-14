@@ -10,4 +10,5 @@ abstract class IChatService {
   Future<void> deleteChat(String chatId);
   Future<void> createChat(ChatModel chat);
   Future<String> getChatPartnerName(String chatId, String currentUserId);
+   Future<ChatModel?> getChatById(String chatId);
 }

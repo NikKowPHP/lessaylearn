@@ -81,16 +81,37 @@ GoRouter createAppRouter() {
           ),
         ],
       ),
-      GoRoute(
-        name: 'chatDetails',
-        path: '/chat/:chatId',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          final chat = state.extra as ChatModel;
-          return CupertinoPage(
-            child: IndividualChatScreen(chat: chat),
-          );
+     GoRoute(
+  name: 'chatDetails',
+  path: '/chat/:chatId',
+  pageBuilder: (context, state) {
+    final chatId = state.pathParameters['chatId']!;
+    return CupertinoPage(
+         child: Consumer(
+    builder: (context, ref, _) => FutureBuilder<ChatModel?>(
+        future: ref.read(chatServiceProvider).getChatById(chatId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CupertinoPageScaffold(
+              child: Center(child: CupertinoActivityIndicator()),
+            );
+          } else if (snapshot.hasError) {
+            return CupertinoPageScaffold(
+              child: Center(child: Text('Error: ${snapshot.error}')),
+            );
+          } else if (snapshot.data == null) {
+            return const CupertinoPageScaffold(
+              child: Center(child: Text('Chat not found')),
+            );
+          } else {
+            return IndividualChatScreen(chat: snapshot.data!);
+          }
         },
       ),
+      ),
+    );
+  },
+),
       GoRoute(
         path: '/create-chat',
         pageBuilder: (context, state) => CupertinoPage(

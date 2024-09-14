@@ -7,7 +7,7 @@ import 'package:lessay_learn/features/learn/models/deck_model.dart';
 class MockStorageService {
   static final List<UserModel> _users = [
     UserModel(
-      id: 'user1',
+      id: 'currentUser',
       name: 'Alice',
       avatarUrl: 'https://example.com/alice.jpg',
       languageLevel: 'Intermediate',
@@ -150,6 +150,7 @@ class MockStorageService {
     isRead: false,
   ),
 ];
+
 
   // Methods to access mock data
   static List<UserModel> getUsers() => _users;

@@ -35,6 +35,11 @@ class ChatService implements IChatService {
   @override
   Future<void> saveChats(List<ChatModel> chats) async {
     await localStorageService.saveChats(chats);
+
+  }
+    @override
+  Future<ChatModel?> getChatById(String chatId) async {
+    return await localStorageService.getChatById(chatId);
   }
 
   @override

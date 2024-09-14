@@ -6,6 +6,7 @@ import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/mock_storage_service.dart';
+import 'package:flutter/foundation.dart';
 
 class LocalStorageService implements ILocalStorageService {
   static const String _chatsBoxName = 'chats';
@@ -55,31 +56,42 @@ class LocalStorageService implements ILocalStorageService {
     }
   }
 
-    @override
-  Future<List<ChatModel>> getChats() async {
-    final box = await _openChatsBox();
-    
-    final chatList = box.get(_chatsBoxName, defaultValue: []) as List;
-    if (chatList.isEmpty) {
-   
-      final mockChats = MockStorageService.getChats();
-      await saveChats(mockChats);
-      return mockChats;
-    }
-    return chatList.map((chat) => ChatModel.fromJson(chat)).toList();
+@override
+Future<List<ChatModel>> getChats() async {
+  final box = await _openChatsBox();
+  
+  List chatList = box.get(_chatsBoxName, defaultValue: []);
+  if (chatList.isEmpty) {
+    final mockChats = MockStorageService.getChats();
+    await saveChats(mockChats);
+    chatList = mockChats.map((chat) => chat.toJson()).toList();
+    await box.put(_chatsBoxName, chatList);
+  }
+  
+  return chatList.map((chat) => ChatModel.fromJson(Map<String, dynamic>.from(chat))).toList();
+}
+
+
+  Future<ChatModel?> getChatById(String chatId) async {
+  final box = await _openChatsBox();
+  final chatList = box.get(_chatsBoxName, defaultValue: []) as List;
+  
+  if (chatList.isEmpty) {
+    // If the chat list is empty, populate it with mock data
+    final mockChats = MockStorageService.getChats();
+    await saveChats(mockChats);
+    chatList.addAll(mockChats.map((chat) => chat.toJson()));
   }
 
-  @override
-  Future<ChatModel?> getChatById(String chatId) async {
-    final chats = await getChats();
-    try {
-      return chats.firstWhere((chat) => chat.id == chatId);
-    } catch (e) {
-      // TODO: Handle the case where no chat with the given ID is found
-      // You can either return null or throw an exception
-      return null; // Or throw an exception: throw ChatNotFoundException();
-    }
+  try {
+    final chatJson = chatList.firstWhere((chat) => chat['id'] == chatId);
+    return ChatModel.fromJson(Map<String, dynamic>.from(chatJson));
+  } catch (e) {
+    // If no chat with the given ID is found, return null
+    debugPrint('No chat with the given ID is found');
+    return null;
   }
+}
 
   @override
   Future<void> updateChat(ChatModel chat) async {
@@ -164,37 +176,39 @@ Future<List<MessageModel>> getMessagesForChat(String chatId) async {
     await box.put('users', userList);
   }
 
-  @override
-  Future<List<DeckModel>> getDecks() async {
-    final box = await _openDecksBox();
-    final deckList = box.values.toList();
-    return deckList.map((deck) => DeckModel.fromJson(deck)).toList();
-  }
-
-  @override
-  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-    final box = await _openFlashcardsBox();
-    // TODO: TEST PURPOSES REMOVE THIS
-    box.clear();
-    final flashcardData = box.get(deckId) as Map?;
-
-    if (flashcardData == null) {
-      return [];
+ @override
+Future<List<DeckModel>> getDecks() async {
+  final box = await _openDecksBox();
+  if (box.isEmpty) {
+    final mockDecks = MockStorageService.getDecks();
+    for (var deck in mockDecks) {
+      await box.put(deck.id, deck.toJson());
     }
-    // final flashcardList = box.get(deckId, defaultValue: []) as List;
-
-    // if (flashcardList.isEmpty) {
-    // final mockFlashcards = _getMockFlashcards(deckId);
-    // for (var flashcard in mockFlashcards) {
-    //   await addFlashcard(flashcard);
-    // }
-    // }
-
-    return flashcardData.values
-        .map((flashcard) => FlashcardModel.fromJson(
-            Map<String, dynamic>.from(flashcard as Map)))
-        .toList();
   }
+  // Always return data from the box, whether it was just populated with mocks or already had data
+  return box.values.map((deck) => DeckModel.fromJson(Map<String, dynamic>.from(deck))).toList();
+}
+
+@override
+Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
+  final box = await _openFlashcardsBox();
+  Map<String, dynamic> flashcardData = box.get(deckId, defaultValue: {});
+
+  if (flashcardData.isEmpty) {
+    final allMockFlashcards = MockStorageService.getFlashcards();
+    final mockFlashcardsForDeck = allMockFlashcards.where((f) => f.deckId == deckId).toList();
+    
+    for (var flashcard in mockFlashcardsForDeck) {
+      flashcardData[flashcard.id] = flashcard.toJson();
+    }
+    await box.put(deckId, flashcardData);
+  }
+
+  // Always return data from the box
+  return flashcardData.values
+      .map((flashcard) => FlashcardModel.fromJson(Map<String, dynamic>.from(flashcard)))
+      .toList();
+}
 
 
 

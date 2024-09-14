@@ -94,7 +94,7 @@ String _chatPartnerName = 'Loading...';
   }
 
   Widget _buildMessageList() {
-  final currentUserId = 'user'; 
+  final currentUserId = 'currentUser'; 
   //TODO: Replace with actual user ID
   return GestureDetector(
     onTap: () => FocusScope.of(context).unfocus(),

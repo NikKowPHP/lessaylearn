@@ -28,11 +28,9 @@ FlashcardRepository(this._localStorageService, this._flashcardService);
   }
 
   @override
+  @override
 Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
   final flashcards = await _localStorageService.getFlashcardsForDeck(deckId);
-  if (flashcards.isEmpty) {
-    return _flashcardService.getMockedFlashcards(deckId);
-  }
   return flashcards;
 }
   @override
