@@ -1,16 +1,24 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lessay_learn/core/providers/chat_provider.dart';
+import 'package:lessay_learn/features/chat/models/user_model.dart';
+import 'package:lessay_learn/features/chat/services/chat_service.dart';
+import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:go_router/go_router.dart';
 
-class ChatList extends StatelessWidget {
- final IChatService chatService; 
+class ChatList extends ConsumerWidget {
 
-  ChatList({Key? key, required this.chatService}) : super(key: key);
+
+  ChatList({Key? key}) : super(key: key);
 
 @override
-Widget build(BuildContext context) {
+Widget build(BuildContext context, WidgetRef ref) {
+      final chatService = ref.watch(chatServiceProvider);
+    final currentUser = ref.watch(currentUserProvider);
+
   return FutureBuilder<List<ChatModel>>(
     future: chatService.getChats(),
     builder: (context, snapshot) {
@@ -23,7 +31,7 @@ Widget build(BuildContext context) {
       }
 
       final chats = snapshot.data!;
-      return _buildChatListView(chats);
+       return _buildChatListView(context, ref, chats, currentUser);
     },
   );
 }
@@ -57,8 +65,8 @@ Widget buildErrorWidget(String error) {
     return Center(child: Text('No chats available'));
   }
 
-  Widget _buildChatListView(List<ChatModel> chats) {
-    return CustomScrollView(
+   Widget _buildChatListView(BuildContext context, WidgetRef ref, List<ChatModel> chats, UserModel currentUser) {
+    return CustomScrollView( 
       slivers: [
         CupertinoSliverRefreshControl(
           onRefresh: () async {
@@ -67,7 +75,7 @@ Widget buildErrorWidget(String error) {
         ),
         SliverList(
           delegate: SliverChildBuilderDelegate(
-            (context, index) => _buildChatListItem(chats, index),
+         (context, index) => _buildChatListItem(context, ref, chats, index, currentUser),
             childCount: chats.length * 2 - 1,
           ),
         ),
@@ -75,10 +83,15 @@ Widget buildErrorWidget(String error) {
     );
   }
 
-Widget _buildChatListItem(List<ChatModel> chats, int index) {
-  if (index.isOdd) {
+
+
+
+
+  Widget _buildChatListItem(BuildContext context, WidgetRef ref, List<ChatModel> chats, int index, UserModel currentUser) {
+    if (index.isOdd) {
     return _buildSeparator();
   }
+  final chatService = ref.watch(chatServiceProvider);
   final chatIndex = index ~/ 2;
   final chat = chats[chatIndex];
   final isFirstOfDay = chatIndex == 0 || 
@@ -87,8 +100,17 @@ Widget _buildChatListItem(List<ChatModel> chats, int index) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      if (isFirstOfDay) _buildDateHeader(chat.lastMessageTimestamp),
-      ChatListItem(chat: chat),
+        if (isFirstOfDay) _buildDateHeader(chat.lastMessageTimestamp),
+        FutureBuilder<UserModel?>(
+          future: chatService.getChatPartner(chat.id, currentUser.id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CupertinoActivityIndicator();
+            }
+            final partner = snapshot.data;
+            return ChatListItem(chat: chat, partner: partner);
+          },
+        ),
     ],
   );
 }
@@ -131,9 +153,24 @@ Widget _buildChatListItem(List<ChatModel> chats, int index) {
 
 class ChatListItem extends StatelessWidget {
   final ChatModel chat;
+  final UserModel? partner;
 
-  const ChatListItem({Key? key, required this.chat}) : super(key: key);
+  const ChatListItem({Key? key, required this.chat, this.partner}) : super(key: key);
 
+
+   Widget _buildCupertinoAvatar(String avatarUrl) {
+    return Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        image: DecorationImage(
+          image: NetworkImage(avatarUrl),
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,11 +189,12 @@ class ChatListItem extends StatelessWidget {
           //     );
           //   },
           // ),
-         child: Icon(CupertinoIcons.person_fill, color: CupertinoColors.systemGrey),
+           child: partner != null ? _buildCupertinoAvatar(partner!.avatarUrl) : Icon(CupertinoIcons.person_fill, color: CupertinoColors.systemGrey),
+         
         ),
         
       ),
-      title: Text('Chat ${chat.id}', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: Text(partner?.name ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

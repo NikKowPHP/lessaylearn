@@ -60,7 +60,9 @@ class LocalStorageService implements ILocalStorageService {
   Future<List<ChatModel>> getChats() async {
     final box = await _openChatsBox();
 
+    // box.clear();
     List chatList = box.get(_chatsBoxName, defaultValue: []);
+
     if (chatList.isEmpty) {
       final mockChats = MockStorageService.getChats();
       await saveChats(mockChats);
