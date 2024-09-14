@@ -142,7 +142,7 @@ String _chatPartnerName = 'Loading...';
  void _sendMessage() async {
   final messageContent = _messageController.text.trim();
   if (messageContent.isNotEmpty) {
-    final currentUserId = 'user'; // Replace with actual user ID
+    final currentUserId = 'user1'; // Replace with actual user ID
     final receiverId = widget.chat.hostUserId == currentUserId
         ? widget.chat.guestUserId
         : widget.chat.hostUserId;

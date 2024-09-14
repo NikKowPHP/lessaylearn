@@ -1,5 +1,5 @@
-import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
@@ -57,6 +57,7 @@ class ChatService implements IChatService {
         lastMessage: message.content,
         lastMessageTimestamp: message.timestamp,
       );
+      debugPrint('Updated chat: $updatedChat');
       await localStorageService.updateChat(updatedChat);
     }
   }

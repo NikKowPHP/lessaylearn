@@ -110,11 +110,42 @@ Future<List<ChatModel>> getChats() async {
     await saveChats(chats);
   }
 
-  @override
-  Future<void> saveMessage(MessageModel message) async {
-    final box = await _openMessagesBox();
-    await box.put(message.id, message.toJson());
+@override
+Future<void> saveMessage(MessageModel message) async {
+final messagesBox = await _openMessagesBox();
+  
+  // Save the message
+  List<dynamic> messagesJson = messagesBox.get(message.chatId, defaultValue: []);
+  messagesJson.add(message.toJson());
+  await messagesBox.put(message.chatId, messagesJson);
+  
+  // Update the chat with the new message
+  await updateChatWithLastMessage(message.chatId, message.content, message.timestamp);
+  
+  debugPrint('Message saved: $message');
+  debugPrint('Messages JSON: $messagesJson');
+}
+
+ Future<void> updateChatWithLastMessage(String chatId, String lastMessage, DateTime lastMessageTimestamp) async {
+  final chatsBox = await _openChatsBox();
+  
+  List<dynamic> chatsJson = chatsBox.get(_chatsBoxName, defaultValue: []);
+  int chatIndex = chatsJson.indexWhere((chat) => chat['id'] == chatId);
+  
+  if (chatIndex != -1) {
+    Map<String, dynamic> chatJson = Map<String, dynamic>.from(chatsJson[chatIndex]);
+    ChatModel updatedChat = ChatModel.fromJson(chatJson).copyWith(
+      lastMessage: lastMessage,
+      lastMessageTimestamp: lastMessageTimestamp,
+    );
+    chatsJson[chatIndex] = updatedChat.toJson();
+    await chatsBox.put(_chatsBoxName, chatsJson);
+    
+    debugPrint('Chat updated with last message: $updatedChat');
+  } else {
+    debugPrint('Chat not found for updating: $chatId');
   }
+}
 
  @override
 Future<List<MessageModel>> getMessagesForChat(String chatId) async {
