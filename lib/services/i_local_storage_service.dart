@@ -33,4 +33,5 @@ abstract class ILocalStorageService {
   Future<void> updateDeckLastStudied(String deckId, DateTime lastStudied);
 Future<void> saveChat(ChatModel chat);
 Future<UserModel?> getUserById(String userId);
+Future<void> clearAllData();  
 }

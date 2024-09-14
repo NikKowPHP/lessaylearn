@@ -120,6 +120,7 @@ Future<List<ChatModel>> getChats() async {
 Future<List<MessageModel>> getMessagesForChat(String chatId) async {
   final box = await _openMessagesBox();
   final messagesJson = box.get(chatId) as List?;
+  
 
   if (messagesJson == null || messagesJson.isEmpty) {
     // If no messages exist, get mock messages from MockStorageService

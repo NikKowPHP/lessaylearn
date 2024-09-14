@@ -7,7 +7,7 @@ import 'package:lessay_learn/features/learn/models/deck_model.dart';
 class MockStorageService {
   static final List<UserModel> _users = [
     UserModel(
-      id: 'currentUser',
+      id: 'user1',
       name: 'Alice',
       avatarUrl: 'https://example.com/alice.jpg',
       languageLevel: 'Intermediate',

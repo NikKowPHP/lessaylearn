@@ -94,7 +94,7 @@ String _chatPartnerName = 'Loading...';
   }
 
   Widget _buildMessageList() {
-  final currentUserId = 'currentUser'; 
+  final currentUserId = 'user1'; 
   //TODO: Replace with actual user ID
   return GestureDetector(
     onTap: () => FocusScope.of(context).unfocus(),
@@ -189,6 +189,9 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUserMessage = message.senderId == currentUserId;
+    
+
+    debugPrint('Message sender ID: ${message.senderId}');
     return Align(
       alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
