@@ -83,4 +83,17 @@ class MessageModel {
       content.hashCode ^
       timestamp.hashCode ^
       isRead.hashCode;
+      
+      @override
+String toString() {
+  return '''MessageModel(
+    id: $id,
+    chatId: $chatId,
+    senderId: $senderId,
+    receiverId: $receiverId,
+    content: $content,
+    timestamp: $timestamp,
+    isRead: $isRead
+  )''';
+}
 }

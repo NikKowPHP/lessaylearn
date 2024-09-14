@@ -101,4 +101,19 @@ class ChatModel {
       languageLevel.hashCode ^
       sourceLanguage.hashCode ^
       targetLanguage.hashCode;
+      
+       @override
+  String toString() {
+    return '''ChatModel(
+      id: $id,
+      hostUserId: $hostUserId,
+      guestUserId: $guestUserId,
+      lastMessage: $lastMessage,
+      lastMessageTimestamp: $lastMessageTimestamp,
+      chatTopic: $chatTopic,
+      languageLevel: $languageLevel,
+      sourceLanguage: $sourceLanguage,
+      targetLanguage: $targetLanguage
+    )''';
+  }
 }

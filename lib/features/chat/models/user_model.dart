@@ -19,6 +19,20 @@ class UserModel {
     required this.age,
   });
 
+  @override
+String toString() {
+  return '''UserModel(
+    id: $id,
+    name: $name,
+    avatarUrl: $avatarUrl,
+    languageLevel: $languageLevel,
+    sourceLanguage: $sourceLanguage,
+    targetLanguage: $targetLanguage,
+    location: $location,
+    age: $age
+  )''';
+}
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] ?? '',

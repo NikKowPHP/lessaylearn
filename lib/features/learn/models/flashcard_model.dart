@@ -36,6 +36,19 @@ class FlashcardModel extends Equatable {
       repetitions: json['repetitions'] ?? 0,
     );
   }
+  @override
+String toString() {
+  return '''FlashcardModel(
+    id: $id,
+    deckId: $deckId,
+    front: $front,
+    back: $back,
+    nextReview: $nextReview,
+    interval: $interval,
+    easeFactor: $easeFactor,
+    repetitions: $repetitions
+  )''';
+}
 
   Map<String, dynamic> toJson() {
     return {

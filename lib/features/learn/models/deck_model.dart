@@ -37,6 +37,22 @@ class DeckModel extends Equatable {
     );
   }
 
+
+
+  @override
+String toString() {
+  return '''DeckModel(
+    id: $id,
+    name: $name,
+    description: $description,
+    cardCount: $cardCount,
+    lastStudied: $lastStudied,
+    languageLevel: $languageLevel,
+    sourceLanguage: $sourceLanguage,
+    targetLanguage: $targetLanguage
+  )''';
+}
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
