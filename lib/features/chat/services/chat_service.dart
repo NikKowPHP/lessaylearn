@@ -16,6 +16,15 @@ class ChatService implements IChatService {
     await localStorageService.saveChat(chat);
   }
 
+   @override
+  Future<UserModel?> getChatPartner(String chatId, String currentUserId) async {
+    final chat = await localStorageService.getChatById(chatId);
+    if (chat == null) return null;
+
+    final partnerUserId = chat.hostUserId == currentUserId ? chat.guestUserId : chat.hostUserId;
+    return await localStorageService.getUserById(partnerUserId);
+  }
+
   Future<List<ChatModel>> getChats() async {
     final savedChats = await localStorageService.getChats();
 
