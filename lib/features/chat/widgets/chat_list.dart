@@ -5,6 +5,7 @@ import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/chat/services/chat_service.dart';
 import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
+import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:go_router/go_router.dart';
@@ -165,17 +166,7 @@ class ChatListItem extends StatelessWidget {
 
 
    Widget _buildCupertinoAvatar(String avatarUrl) {
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        image: DecorationImage(
-          image: NetworkImage(avatarUrl),
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
+    return AvatarWidget(imageUrl: avatarUrl, size: 50, isNetworkImage: false);
   }
 
   @override

@@ -113,6 +113,15 @@ GoRouter createAppRouter() {
     );
   },
 ),
+GoRoute(
+  path: '/profile/:userId',
+  pageBuilder: (context, state) {
+    final userId = state.pathParameters['userId']!;
+    return CupertinoPage(
+      child: ProfileScreen(userId: userId),
+    );
+  },
+),
       GoRoute(
         path: '/create-chat',
         pageBuilder: (context, state) => CupertinoPage(
@@ -125,15 +134,7 @@ GoRouter createAppRouter() {
         ),
       ),
 
-GoRoute(
-  path: '/profile/:userId',
-  pageBuilder: (context, state) {
-    final userId = state.pathParameters['userId']!;
-    return CupertinoPage(
-      child: ProfileScreen(userId: userId),
-    );
-  },
-),
+
       GoRoute(
         path: '/deck/:deckId',
         pageBuilder: (context, state) {
