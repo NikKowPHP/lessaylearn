@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
+import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/services/i_chat_service.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 
@@ -60,6 +61,10 @@ class ChatService implements IChatService {
       debugPrint('Updated chat: $updatedChat');
       await localStorageService.updateChat(updatedChat);
     }
+  }
+    @override
+  Future<UserModel?> getUserById(String userId) async {
+    return await localStorageService.getUserById(userId);
   }
 
   @override

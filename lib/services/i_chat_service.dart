@@ -1,5 +1,6 @@
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
+import 'package:lessay_learn/features/chat/models/user_model.dart';
 
 abstract class IChatService {
   Future<List<ChatModel>> getChats();
@@ -11,4 +12,5 @@ abstract class IChatService {
   Future<void> createChat(ChatModel chat);
   Future<String> getChatPartnerName(String chatId, String currentUserId);
    Future<ChatModel?> getChatById(String chatId);
+    Future<UserModel?> getUserById(String userId);
 }

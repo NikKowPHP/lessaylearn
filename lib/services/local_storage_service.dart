@@ -156,6 +156,7 @@ class LocalStorageService implements ILocalStorageService {
   Future<List<MessageModel>> getMessagesForChat(String chatId) async {
     final box = await _openMessagesBox();
     final messagesJson = box.get(chatId) as List?;
+    
 
     if (messagesJson == null || messagesJson.isEmpty) {
       // If no messages exist, get mock messages from MockStorageService
@@ -195,13 +196,28 @@ class LocalStorageService implements ILocalStorageService {
     await box.deleteAll(keysToDelete);
   }
 
+    Future<void> _populateUsersWithMockData() async {
+    final box = await _openUsersBox();
+    final mockUsers = MockStorageService.getUsers();
+    
+    for (var user in mockUsers) {
+      await box.put(user.id, user.toJson());
+    }
+    
+    debugPrint('Populated users box with mock data');
+  }
+
   @override
   Future<List<UserModel>> getUsers() async {
     final box = await _openUsersBox();
-
-    final userList = box.get('users', defaultValue: []) as List;
-    return userList
-        .map((user) => UserModel.fromJson(Map<String, dynamic>.from(user)))
+    
+    // box.clear();
+    if (box.isEmpty) {
+      await _populateUsersWithMockData();
+    }
+    
+    return box.values
+        .map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson)))
         .toList();
   }
 
@@ -279,6 +295,7 @@ class LocalStorageService implements ILocalStorageService {
   Future<UserModel?> getUserById(String userId) async {
     final box = await _openUsersBox();
     final userJson = box.get(userId);
+    debugPrint('User JSON: $userJson');
     return userJson != null
         ? UserModel.fromJson(Map<String, dynamic>.from(userJson))
         : null;

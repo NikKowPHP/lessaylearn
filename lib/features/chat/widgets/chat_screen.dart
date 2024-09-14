@@ -5,6 +5,8 @@ import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:lessay_learn/features/chat/models/user_model.dart';
+import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
 
 class IndividualChatScreen extends ConsumerStatefulWidget {
   final ChatModel chat;
@@ -22,22 +24,27 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<MessageModel> _messages = [];
-String _chatPartnerName = 'Loading...';
+ UserModel? _chatPartner;
   @override
   void initState() {
     super.initState();
     _loadMessages();
-     _loadChatPartnerName();
+   _loadChatPartner();
   }
 
-  Future<void> _loadChatPartnerName() async {
-  final chatService = ref.read(chatServiceProvider);
-  final currentUserId = 'currentUserId'; // Replace with actual current user ID
-  final partnerName = await chatService.getChatPartnerName(widget.chat.id, currentUserId);
-  setState(() {
-    _chatPartnerName = partnerName;
-  });
-}
+  Future<void> _loadChatPartner() async {
+    final chatService = ref.read(chatServiceProvider);
+    final currentUser = ref.read(currentUserProvider);
+    final partnerUserId = widget.chat.hostUserId == currentUser.id
+        ? widget.chat.guestUserId
+        : widget.chat.hostUserId;
+         debugPrint('Partner user id: $partnerUserId');
+    final partner = await chatService.getUserById(partnerUserId);
+    debugPrint('Partner: $partner');
+    setState(() {
+      _chatPartner = partner;
+    });
+  }
 
   Future<void> _loadMessages() async {
     final chatService = ref.read(chatServiceProvider);
@@ -74,10 +81,32 @@ String _chatPartnerName = 'Loading...';
       ),
     );
   }
+    Widget _buildCupertinoAvatar(String avatarUrl) {
+    return Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        image: DecorationImage(
+          image: NetworkImage(avatarUrl),
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
 
   CupertinoNavigationBar _buildNavigationBar() {
     return CupertinoNavigationBar(
-     middle: Text(_chatPartnerName),
+      middle:  _chatPartner == null
+          ? const CupertinoActivityIndicator()
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildCupertinoAvatar(_chatPartner!.avatarUrl),
+                const SizedBox(width: 8),
+                Text(_chatPartner!.name),
+              ],
+            ),
       leading: CupertinoButton(
         padding: EdgeInsets.zero,
         child: const Icon(CupertinoIcons.back),
