@@ -34,19 +34,26 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     _loadChatPartner();
   }
 
-  Future<void> _loadChatPartner() async {
-    final chatService = ref.read(chatServiceProvider);
-    final currentUser = ref.read(currentUserProvider);
-    final partnerUserId = widget.chat.hostUserId == currentUser.id
-        ? widget.chat.guestUserId
-        : widget.chat.hostUserId;
-    debugPrint('Partner user id: $partnerUserId');
-    final partner = await chatService.getUserById(partnerUserId);
-    debugPrint('Partner: $partner');
-    setState(() {
-      _chatPartner = partner;
-    });
-  }
+ Future<void> _loadChatPartner() async {
+  final chatService = ref.read(chatServiceProvider);
+  final currentUserAsync = ref.read(currentUserProvider);
+  
+  await currentUserAsync.when(
+    data: (currentUser) async {
+      final partnerUserId = widget.chat.hostUserId == currentUser.id
+          ? widget.chat.guestUserId
+          : widget.chat.hostUserId;
+      debugPrint('Partner user id: $partnerUserId');
+      final partner = await chatService.getUserById(partnerUserId);
+      debugPrint('Partner: $partner');
+      setState(() {
+        _chatPartner = partner;
+      });
+    },
+    loading: () => null,
+    error: (_, __) => null,
+  );
+}
 
   Future<void> _loadMessages() async {
     final chatService = ref.read(chatServiceProvider);

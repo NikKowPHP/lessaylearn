@@ -35,5 +35,6 @@ Future<void> saveChat(ChatModel chat);
 Future<UserModel?> getUserById(String userId);
 Future<void> clearAllData();  
 Future<void> saveUser(UserModel user);
+Future<UserModel?> getCurrentUser();
 
 }

@@ -17,22 +17,28 @@ class ChatList extends ConsumerWidget {
 @override
 Widget build(BuildContext context, WidgetRef ref) {
       final chatService = ref.watch(chatServiceProvider);
-    final currentUser = ref.watch(currentUserProvider);
+ 
+ final currentUserAsync = ref.watch(currentUserProvider);
+  return currentUserAsync.when(
+    data: (currentUser) {
+      return FutureBuilder<List<ChatModel>>(
+        future: chatService.getChats(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildLoadingIndicator();
+          } else if (snapshot.hasError) {
+            return buildErrorWidget(snapshot.error.toString());
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return _buildEmptyListWidget();
+          }
 
-  return FutureBuilder<List<ChatModel>>(
-    future: chatService.getChats(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return _buildLoadingIndicator();
-      } else if (snapshot.hasError) {
-        return buildErrorWidget(snapshot.error.toString());
-      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        return _buildEmptyListWidget();
-      }
-
-      final chats = snapshot.data!;
-       return _buildChatListView(context, ref, chats, currentUser);
+          final chats = snapshot.data!;
+          return _buildChatListView(context, ref, chats, currentUser);
+        },
+      );
     },
+    loading: () => _buildLoadingIndicator(),
+    error: (error, stackTrace) => buildErrorWidget(error.toString()),
   );
 }
   String formatDate(DateTime date) {
@@ -65,7 +71,7 @@ Widget buildErrorWidget(String error) {
     return Center(child: Text('No chats available'));
   }
 
-   Widget _buildChatListView(BuildContext context, WidgetRef ref, List<ChatModel> chats, UserModel currentUser) {
+ Widget _buildChatListView(BuildContext context, WidgetRef ref, List<ChatModel> chats, UserModel currentUser) {
     return CustomScrollView( 
       slivers: [
         CupertinoSliverRefreshControl(

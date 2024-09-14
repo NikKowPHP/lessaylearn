@@ -15,6 +15,7 @@ class LocalStorageService implements ILocalStorageService {
   static const String _usersBoxName = 'users';
   static const String _decksBoxName = 'decks';
   static const String _flashcardsBoxName = 'flashcards';
+  static const String _currentUserKey = 'currentUser';
 
   Future<Box> _openChatsBox() async {
     return await Hive.openBox(_chatsBoxName);
@@ -46,6 +47,28 @@ class LocalStorageService implements ILocalStorageService {
     final box = await _openChatsBox();
     return box.get(_isLoggedInKey, defaultValue: false);
   }
+@override
+Future<UserModel?> getCurrentUser() async {
+  final box = await _openUsersBox();
+  final userJson = box.get(_currentUserKey);
+  if (userJson != null) {
+    return UserModel.fromJson(Map<String, dynamic>.from(userJson));
+  }
+  
+  // If there's no current user, add the first user from mock data
+  final mockUsers = MockStorageService.getUsers();
+  if (mockUsers.isNotEmpty) {
+    final firstUser = mockUsers.first;
+    await saveCurrentUser(firstUser);
+      return firstUser;
+  }
+  
+  return null;
+}
+Future<void> saveCurrentUser(UserModel user) async {
+  final box = await _openUsersBox();
+  await box.put(_currentUserKey, user.toJson());
+}
 
   @override
   Future<void> saveChats(List<ChatModel> chats) async {
@@ -61,6 +84,7 @@ class LocalStorageService implements ILocalStorageService {
     final box = await _openChatsBox();
 
     // box.clear();
+    //  await box.clear();
     List chatList = box.get(_chatsBoxName, defaultValue: []);
 
     if (chatList.isEmpty) {
@@ -198,30 +222,31 @@ class LocalStorageService implements ILocalStorageService {
     await box.deleteAll(keysToDelete);
   }
 
-    Future<void> _populateUsersWithMockData() async {
-    final box = await _openUsersBox();
-    final mockUsers = MockStorageService.getUsers();
-    
-    for (var user in mockUsers) {
-      await box.put(user.id, user.toJson());
-    }
-    
-    debugPrint('Populated users box with mock data');
+Future<void> _populateUsersWithMockData() async {
+  final box = await _openUsersBox();
+  final mockUsers = MockStorageService.getUsers();
+  
+  for (var user in mockUsers) {
+    await box.put(user.id, user.toJson());
   }
+  
+  debugPrint('Populated users box with ${mockUsers.length} mock users');
+}
 
-  @override
-  Future<List<UserModel>> getUsers() async {
-    final box = await _openUsersBox();
-    
-    // box.clear();
-    if (box.isEmpty) {
-      await _populateUsersWithMockData();
-    }
-    
-    return box.values
-        .map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson)))
-        .toList();
+@override
+Future<List<UserModel>> getUsers() async {
+  final box = await _openUsersBox();
+  
+  // await box.clear();
+  if (box.isEmpty) {
+    await _populateUsersWithMockData();
   }
+  debugPrint('Users: ${box.values}');
+  
+  return box.values
+      .map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson)))
+      .toList();
+}
 
   @override
   Future<void> saveUsers(List<UserModel> users) async {
@@ -229,10 +254,17 @@ class LocalStorageService implements ILocalStorageService {
     final userList = users.map((user) => user.toJson()).toList();
     await box.put('users', userList);
   }
-  @override
+
+@override
 Future<void> saveUser(UserModel user) async {
   final box = await _openUsersBox();
   await box.put(user.id, user.toJson());
+  
+  // Only set as current user if there isn't one already
+  final currentUser = await getCurrentUser();
+  if (currentUser == null) {
+    await saveCurrentUser(user);
+  }
 }
 
   @override

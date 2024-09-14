@@ -3,35 +3,50 @@ class UserModel {
   final String name;
   final String avatarUrl;
   final String languageLevel;
-  final String sourceLanguage;
-  final String targetLanguage;
+  final List<String> sourceLanguages;
+  final List<String> targetLanguages;
+  final List<String> spokenLanguages;
   final String location;
   final int age;
+  final String? bio;
+  final List<String> interests;
+  final String? occupation;
+  final String? education;
 
   UserModel({
     required this.id,
     required this.name,
     required this.avatarUrl,
     required this.languageLevel,
-    required this.sourceLanguage,
-    required this.targetLanguage,
+    required this.sourceLanguages,
+    required this.targetLanguages,
+    required this.spokenLanguages,
     required this.location,
     required this.age,
+    this.bio,
+    this.interests = const [],
+    this.occupation,
+    this.education,
   });
 
   @override
-String toString() {
-  return '''UserModel(
-    id: $id,
-    name: $name,
-    avatarUrl: $avatarUrl,
-    languageLevel: $languageLevel,
-    sourceLanguage: $sourceLanguage,
-    targetLanguage: $targetLanguage,
-    location: $location,
-    age: $age
-  )''';
-}
+  String toString() {
+    return '''UserModel(
+      id: $id,
+      name: $name,
+      avatarUrl: $avatarUrl,
+      languageLevel: $languageLevel,
+      sourceLanguages: $sourceLanguages,
+      targetLanguages: $targetLanguages,
+      spokenLanguages: $spokenLanguages,
+      location: $location,
+      age: $age,
+      bio: $bio,
+      interests: $interests,
+      occupation: $occupation,
+      education: $education
+    )''';
+  }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -39,10 +54,15 @@ String toString() {
       name: json['name'] ?? '',
       avatarUrl: json['avatarUrl'] ?? '',
       languageLevel: json['languageLevel'] ?? '',
-      sourceLanguage: json['sourceLanguage'] ?? '',
-      targetLanguage: json['targetLanguage'] ?? '',
+      sourceLanguages: List<String>.from(json['sourceLanguages'] ?? []),
+      targetLanguages: List<String>.from(json['targetLanguages'] ?? []),
+      spokenLanguages: List<String>.from(json['spokenLanguages'] ?? []),
       location: json['location'] ?? '',
       age: json['age'] ?? 0,
+      bio: json['bio'],
+      interests: List<String>.from(json['interests'] ?? []),
+      occupation: json['occupation'],
+      education: json['education'],
     );
   }
 
@@ -52,10 +72,15 @@ String toString() {
       'name': name,
       'avatarUrl': avatarUrl,
       'languageLevel': languageLevel,
-      'sourceLanguage': sourceLanguage,
-      'targetLanguage': targetLanguage,
+      'sourceLanguages': sourceLanguages,
+      'targetLanguages': targetLanguages,
+      'spokenLanguages': spokenLanguages,
       'location': location,
       'age': age,
+      'bio': bio,
+      'interests': interests,
+      'occupation': occupation,
+      'education': education,
     };
   }
 }

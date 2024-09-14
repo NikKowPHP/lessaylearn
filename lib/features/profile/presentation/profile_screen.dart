@@ -40,15 +40,14 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildProfileContent(BuildContext context, UserModel user) {
     return ListView(
+      padding: EdgeInsets.all(16),
       children: [
         SizedBox(height: 20),
         AvatarWidget(
           imageUrl: user.avatarUrl,
           size: 100,
-          isNetworkImage: true,
+          isNetworkImage: false,
         ),
-        
-
         SizedBox(height: 20),
         Text(
           user.name,
@@ -62,12 +61,41 @@ class ProfileScreen extends ConsumerWidget {
           textAlign: TextAlign.center,
         ),
         SizedBox(height: 20),
-        _buildInfoTile('Native Language', user.sourceLanguage),
-        _buildInfoTile('Learning', user.targetLanguage),
+       if (user.bio != null) _buildInfoTile('Bio', user.bio!),
+        _buildInfoTile('Native Languages', user.sourceLanguages.join(', ')),
+        _buildInfoTile('Learning', user.targetLanguages.join(', ')),
+        _buildInfoTile('Spoken Languages', user.spokenLanguages.join(', ')),
         _buildInfoTile('Level', user.languageLevel),
+        if (user.occupation != null) _buildInfoTile('Occupation', user.occupation!),
+        if (user.education != null) _buildInfoTile('Education', user.education!),
+        SizedBox(height: 20),
+        Text(
+          'Interests',
+          style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+        ),
+        SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: user.interests.map((interest) => _buildInterestChip(interest)).toList(),
+        ),
       ],
     );
   }
+    Widget _buildInterestChip(String interest) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemGrey5,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        interest,
+        style: TextStyle(fontSize: 14),
+      ),
+    );
+  }
+
 
   Widget _buildInfoTile(String title, String value) {
     return Padding(

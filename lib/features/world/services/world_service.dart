@@ -47,18 +47,11 @@ class CommunityService implements ICommunityService {
 
   CommunityService(this.localStorageService);
 
-  @override
-  Future<List<UserModel>> getUsers(int segment) async {
-    final savedUsers = await localStorageService.getUsers();
-    
-      return _filterUsersBySegment(savedUsers, segment);
-   
-    // else {
-    //   // final mockUsers = _getMockUsers();
-    //   // await localStorageService.saveUsers(mockUsers);
-    //   // return _filterUsersBySegment(mockUsers, segment);
-    // }
-  }
+@override
+Future<List<UserModel>> getUsers(int segment) async {
+  final savedUsers = await localStorageService.getUsers();
+  return _filterUsersBySegment(savedUsers, segment);
+}
 
   List<UserModel> _filterUsersBySegment(List<UserModel> users, int segment) {
     switch (segment) {
@@ -72,34 +65,4 @@ class CommunityService implements ICommunityService {
     }
   }
 
-  List<UserModel> _getMockUsers() {
-    final random = Random();
-    final List<UserModel> mockUsers = [];
-
-    final List<String> names = ['John', 'Jane', 'Alice', 'Bob', 'Charlie', 'Diana'];
-    final List<String> levels = ['Beginner', 'Intermediate', 'Advanced'];
-    final List<String> languages = ['English', 'Spanish', 'French', 'German', 'Italian', 'Chinese'];
-    final List<String> locations = ['Nearby City', 'Far City', 'Another Country'];
-
-    for (int i = 0; i < 20; i++) {
-      String sourceLanguage = languages[random.nextInt(languages.length)];
-      String targetLanguage;
-      do {
-        targetLanguage = languages[random.nextInt(languages.length)];
-      } while (targetLanguage == sourceLanguage);
-
-      mockUsers.add(UserModel(
-        id: '${i + 1}',
-        name: names[random.nextInt(names.length)],
-        avatarUrl: 'assets/blank.png',
-        languageLevel: levels[random.nextInt(levels.length)],
-        sourceLanguage: sourceLanguage,
-        targetLanguage: targetLanguage,
-        location: locations[random.nextInt(locations.length)],
-        age: random.nextInt(30) + 18,
-      ));
-    }
-
-    return mockUsers;
-  }
 }

@@ -9,23 +9,38 @@ class UserService implements IUserService {
 
   @override
   Future<UserModel> getCurrentUser() async {
-    // Implement this based on your authentication system
+    // TODO: Implement this based on your authentication system
     // For now, we'll just return a mock user
-    return UserModel(
-      id: 'currentUser',
-      name: 'John Doe',
-      avatarUrl: 'https://example.com/avatar.jpg',
-      languageLevel: 'Intermediate',
-      sourceLanguage: 'English',
-      targetLanguage: 'Spanish',
-      location: 'New York',
-      age: 28,
-    );
+     UserModel? user = await _localStorageService.getCurrentUser();
+    
+    // If no user is found, return a default user
+    if (user == null) {
+      user = UserModel(
+        id: 'currentUser',
+        name: 'John Doe',
+        avatarUrl: 'assets/avatar-1.png',
+        languageLevel: 'Intermediate',
+        sourceLanguages: ['English'],
+        targetLanguages: ['Spanish'],
+        spokenLanguages: ['English', 'Spanish'],
+        location: 'New York',
+        age: 28,
+        bio: 'Language enthusiast',
+        interests: ['Reading', 'Traveling'],
+        occupation: 'Software Developer',
+        education: 'Bachelor in Computer Science',
+      );
+      await _localStorageService.saveUser(user);
+    }
+    return user;
+  }
+  @override
+  Future<void> updateUser(UserModel user) async {
+    await _localStorageService.saveUser(user);
   }
 
   @override
-  Future<void> updateUser(UserModel user) async {
-    // Implement user update logic
-    await _localStorageService.saveUser(user);
+  Future<UserModel?> getUserById(String userId) async {
+    return _localStorageService.getUserById(userId);
   }
 }
