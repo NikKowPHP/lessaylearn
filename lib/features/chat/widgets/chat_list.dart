@@ -17,29 +17,29 @@ class ChatList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final chatService = ref.watch(chatServiceProvider);
-
+    final chats = ref.watch(chatsProvider);
     final currentUserAsync = ref.watch(currentUserProvider);
+    
     return currentUserAsync.when(
-      data: (currentUser) {
-        return FutureBuilder<List<ChatModel>>(
-          future: chatService.getChats(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return _buildLoadingIndicator();
-            } else if (snapshot.hasError) {
-              return buildErrorWidget(snapshot.error.toString());
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return _buildEmptyListWidget();
-            }
-
-            final chats = snapshot.data!;
-            return _buildChatListView(context, ref, chats, currentUser, isWideScreen, selectedChatId);
-          },
-        );
-      },
-      loading: () => _buildLoadingIndicator(),
-      error: (error, stackTrace) => buildErrorWidget(error.toString()),
+      data: (currentUser) => CupertinoScrollbar(
+        child: CustomScrollView(
+          slivers: [
+            CupertinoSliverRefreshControl(
+              onRefresh: () async {
+                await ref.read(chatsProvider.notifier).loadChats();
+              },
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildChatListItem(context, ref, chats, index, currentUser, isWideScreen, selectedChatId),
+                childCount: chats.length,
+              ),
+            ),
+          ],
+        ),
+      ),
+      loading: () => Center(child: CupertinoActivityIndicator()),
+      error: (error, stack) => Center(child: Text('Error: $error')),
     );
   }
 
@@ -78,9 +78,9 @@ Widget _buildChatListView(BuildContext context, WidgetRef ref,
    return CupertinoScrollbar(
       child: CustomScrollView(
         slivers: [
-          CupertinoSliverRefreshControl(
+         CupertinoSliverRefreshControl(
             onRefresh: () async {
-              // Implement refresh logic here
+              await ref.read(chatsProvider.notifier).loadChats();
             },
           ),
           SliverList(

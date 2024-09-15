@@ -40,6 +40,12 @@ class LocalStorageService implements ILocalStorageService {
   Future<void> initializeBoxes() async {
     await Hive.openBox(_decksBoxName);
     await Hive.openBox(_flashcardsBoxName);
+    await Hive.openBox(_chatsBoxName);
+    await Hive.openBox(_usersBoxName);
+    await Hive.openBox(_messagesBoxName);
+    await Hive.openBox(_isLoggedInKey);
+    await Hive.openBox(_currentUserKey);
+
   }
 
   @override
@@ -82,7 +88,10 @@ Future<void> saveCurrentUser(UserModel user) async {
   @override
   Future<List<ChatModel>> getChats() async {
     final box = await _openChatsBox();
-
+    await getUsers();
+    await getDecks();
+    await getAllFlashcards();
+  
     // box.clear();
     //  await box.clear();
     List chatList = box.get(_chatsBoxName, defaultValue: []);

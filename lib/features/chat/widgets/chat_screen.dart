@@ -34,7 +34,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     _loadChatPartner();
   }
 
- Future<void> _loadChatPartner() async {
+Future<void> _loadChatPartner() async {
   final chatService = ref.read(chatServiceProvider);
   final currentUserAsync = ref.read(currentUserProvider);
   
@@ -43,18 +43,17 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       final partnerUserId = widget.chat.hostUserId == currentUser.id
           ? widget.chat.guestUserId
           : widget.chat.hostUserId;
-      debugPrint('Partner user id: $partnerUserId');
       final partner = await chatService.getUserById(partnerUserId);
-      debugPrint('Partner: $partner');
-      setState(() {
-        _chatPartner = partner;
-      });
+      if (mounted) {
+        setState(() {
+          _chatPartner = partner;
+        });
+      }
     },
     loading: () => null,
     error: (_, __) => null,
   );
 }
-
   Future<void> _loadMessages() async {
     final chatService = ref.read(chatServiceProvider);
     final messages = await chatService.getMessagesForChat(widget.chat.id);
@@ -175,34 +174,56 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     );
   }
 
-  void _sendMessage() async {
-    final messageContent = _messageController.text.trim();
-    if (messageContent.isNotEmpty) {
-      final currentUserId = 'user1'; // Replace with actual user ID
-      final receiverId = widget.chat.hostUserId == currentUserId
-          ? widget.chat.guestUserId
-          : widget.chat.hostUserId;
-
-      final newMessage = MessageModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        chatId: widget.chat.id,
-        senderId: currentUserId,
-        receiverId: receiverId,
-        content: messageContent,
-        timestamp: DateTime.now(),
+void _sendMessage() async {
+  final messageContent = _messageController.text.trim();
+  if (messageContent.isNotEmpty) {
+    final currentUser = ref.read(currentUserProvider);
+    
+    if (currentUser.value == null || _chatPartner == null) {
+      // Show an error message or wait for the data to load
+          // Show an error message or wait for the data to load
+      showCupertinoDialog(
+        context: context,
+        builder: (BuildContext context) => CupertinoAlertDialog(
+          title: Text('Error'),
+          content: Text('Unable to send message. Please try again.'),
+          actions: [
+            CupertinoDialogAction(
+              child: Text('OK'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
       );
-
-      setState(() {
-        _messages.add(newMessage);
-        _messageController.clear();
-      });
-
-      final chatService = ref.read(chatServiceProvider);
-      await chatService.sendMessage(newMessage);
-
-      _scrollToBottom();
+      return;
     }
+
+    final newMessage = MessageModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      chatId: widget.chat.id,
+      senderId: currentUser.value!.id,
+      receiverId: _chatPartner!.id,
+      content: messageContent,
+      timestamp: DateTime.now(),
+    );
+
+    setState(() {
+      _messages.add(newMessage);
+      _messageController.clear();
+    });
+
+    final chatService = ref.read(chatServiceProvider);
+    await chatService.sendMessage(newMessage);
+
+    // Update the chat in the chats list
+    ref.read(chatsProvider.notifier).updateChat(widget.chat.copyWith(
+      lastMessage: newMessage.content,
+      lastMessageTimestamp: newMessage.timestamp,
+    ));
+
+    _scrollToBottom();
   }
+}
 
   @override
   void dispose() {

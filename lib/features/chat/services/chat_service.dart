@@ -57,20 +57,31 @@ class ChatService implements IChatService {
     return await localStorageService.getMessagesForChat(chatId);
   }
 
-  @override
+ @override
   Future<void> sendMessage(MessageModel message) async {
     await localStorageService.saveMessage(message);
-    // Update the last message for the chat
+    final updatedChat = await _updateChatWithLastMessage(message);
+    // Notify listeners about the updated chat
+    _notifyChatsUpdated();
+  }
+
+    Future<ChatModel> _updateChatWithLastMessage(MessageModel message) async {
     final chat = await localStorageService.getChatById(message.chatId);
     if (chat != null) {
       final updatedChat = chat.copyWith(
         lastMessage: message.content,
         lastMessageTimestamp: message.timestamp,
       );
-      debugPrint('Updated chat: $updatedChat');
       await localStorageService.updateChat(updatedChat);
+      return updatedChat;
     }
+    throw Exception('Chat not found');
   }
+
+  void _notifyChatsUpdated() {
+    // Implement a method to notify listeners about updated chats
+  }
+
     @override
   Future<UserModel?> getUserById(String userId) async {
     return await localStorageService.getUserById(userId);
