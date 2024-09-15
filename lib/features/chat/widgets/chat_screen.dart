@@ -494,6 +494,7 @@ class _TappableTextState extends ConsumerState<TappableText> {
       backgroundColor: CupertinoColors.systemBackground,
       content: _buildTooltipContent(word, isFavorite),
       triggerMode: TooltipTriggerMode.manual,
+       isModal: true, 
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
