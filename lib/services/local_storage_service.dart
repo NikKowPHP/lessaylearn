@@ -1,4 +1,6 @@
 import 'package:hive/hive.dart';
+import 'package:lessay_learn/core/models/favorite_model.dart';
+import 'package:lessay_learn/core/models/known_word_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -16,6 +18,17 @@ class LocalStorageService implements ILocalStorageService {
   static const String _decksBoxName = 'decks';
   static const String _flashcardsBoxName = 'flashcards';
   static const String _currentUserKey = 'currentUser';
+   static const String _knownWordsBoxName = 'knownWords';
+  static const String _favoritesBoxName = 'favorites';
+
+
+   Future<Box> _openKnownWordsBox() async {
+    return await Hive.openBox(_knownWordsBoxName);
+  }
+
+  Future<Box> _openFavoritesBox() async {
+    return await Hive.openBox(_favoritesBoxName);
+  }
 
   Future<Box> _openChatsBox() async {
     return await Hive.openBox(_chatsBoxName);
@@ -45,8 +58,55 @@ class LocalStorageService implements ILocalStorageService {
     await Hive.openBox(_messagesBoxName);
     await Hive.openBox(_isLoggedInKey);
     await Hive.openBox(_currentUserKey);
+        await Hive.openBox(_knownWordsBoxName);
+    await Hive.openBox(_favoritesBoxName);
 
   }
+
+
+
+// Known Words methods
+  @override
+  Future<void> saveKnownWord(KnownWordModel knownWord) async {
+    final box = await _openKnownWordsBox();
+    await box.put(knownWord.id, knownWord.toJson());
+  }
+
+  @override
+  Future<List<KnownWordModel>> getKnownWords() async {
+    final box = await _openKnownWordsBox();
+    return box.values
+        .map((json) => KnownWordModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
+  Future<void> deleteKnownWord(String knownWordId) async {
+    final box = await _openKnownWordsBox();
+    await box.delete(knownWordId);
+  }
+
+  // Favorites methods
+  @override
+  Future<void> saveFavorite(FavoriteModel favorite) async {
+    final box = await _openFavoritesBox();
+    await box.put(favorite.id, favorite.toJson());
+  }
+
+  @override
+  Future<List<FavoriteModel>> getFavorites() async {
+    final box = await _openFavoritesBox();
+    return box.values
+        .map((json) => FavoriteModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
+  Future<void> deleteFavorite(String favoriteId) async {
+    final box = await _openFavoritesBox();
+    await box.delete(favoriteId);
+  }
+
 
   @override
   Future<bool> isUserLoggedIn() async {
@@ -425,6 +485,8 @@ Future<void> saveUser(UserModel user) async {
     await Hive.deleteBoxFromDisk(_usersBoxName);
     await Hive.deleteBoxFromDisk(_decksBoxName);
     await Hive.deleteBoxFromDisk(_flashcardsBoxName);
+    await Hive.deleteBoxFromDisk(_knownWordsBoxName);
+    await Hive.deleteBoxFromDisk(_favoritesBoxName);
 
     // Re-initialize the boxes
     await initializeBoxes();

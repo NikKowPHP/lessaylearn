@@ -1,3 +1,5 @@
+import 'package:lessay_learn/core/models/favorite_model.dart';
+import 'package:lessay_learn/core/models/known_word_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -36,5 +38,15 @@ Future<UserModel?> getUserById(String userId);
 Future<void> clearAllData();  
 Future<void> saveUser(UserModel user);
 Future<UserModel?> getCurrentUser();
+
+ // Known Words methods
+  Future<void> saveKnownWord(KnownWordModel knownWord);
+  Future<List<KnownWordModel>> getKnownWords();
+  Future<void> deleteKnownWord(String knownWordId);
+
+  // Favorites methods
+  Future<void> saveFavorite(FavoriteModel favorite);
+  Future<List<FavoriteModel>> getFavorites();
+  Future<void> deleteFavorite(String favoriteId);
 
 }
