@@ -248,7 +248,7 @@ class MessageBubble extends StatelessWidget {
     final isUserMessage = message.senderId == currentUserId;
 
     debugPrint('Message sender ID: ${message.senderId}');
-    return Align(
+      return Align(
       alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -259,10 +259,64 @@ class MessageBubble extends StatelessWidget {
               : CupertinoColors.systemGrey5,
           borderRadius: BorderRadius.circular(20),
         ),
-        child:
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
             TappableText(text: message.content, isUserMessage: isUserMessage),
+            SizedBox(height: 4),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _formatTimestamp(message.timestamp),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: isUserMessage
+                        ? CupertinoColors.white.withOpacity(0.7)
+                        : CupertinoColors.systemGrey,
+                  ),
+                ),
+                SizedBox(width: 4),
+                if (isUserMessage) _buildReadIndicator(message.isRead),
+              ],
+            ),
+          ],
+        ),
       ),
     );
+  
+  }
+
+ Widget _buildReadIndicator(bool isRead) {
+    return SizedBox(
+      width: 18,
+      height: 16,
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            child: Icon(
+              CupertinoIcons.checkmark_alt,
+              size: 16,
+              color: CupertinoColors.white,
+            ),
+          ),
+          if (isRead)
+            Positioned(
+              left: 5,
+              child: Icon(
+                CupertinoIcons.checkmark_alt,
+                size: 16 ,
+                color: CupertinoColors.white,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+   String _formatTimestamp(DateTime timestamp) {
+    return '${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}';
   }
 }
 
