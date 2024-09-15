@@ -310,11 +310,12 @@ final bool isLastInSequence;
                 ],
               ),
             ),
-            if (isLastInSequence)
+           if (isLastInSequence)
               Positioned(
-                bottom: 0,
-                right: isUserMessage ? 0 : null,
-                left: isUserMessage ? null : 0,
+                bottom: 3,
+                right: isUserMessage ? 8 : null,
+                left: isUserMessage ? null : 8,
+              
                 child: CustomPaint(
                   painter: BubbleWingPainter(
                     color: isUserMessage
@@ -452,11 +453,11 @@ class BubbleWingPainter extends CustomPainter {
     if (isUserMessage) {
       path.moveTo(0, 0);
       path.lineTo(size.width, 0);
-      path.lineTo(0, size.height);
+      path.lineTo(size.width, size.height);
     } else {
       path.moveTo(size.width, 0);
-      path.lineTo(size.width, size.height);
       path.lineTo(0, 0);
+      path.lineTo(0, size.height);
     }
     path.close();
 
