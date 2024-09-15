@@ -478,8 +478,14 @@ class _TappableTextState extends ConsumerState<TappableText> {
   Widget _buildTappableWord(String word, int index) {
     final isFavorite = widget.favorites.any((favorite) => favorite.sourceText == word);
     final isKnown = widget.knownWords.any((knownWord) => knownWord.word == word);
+
     return GestureDetector(
-      onTap: () => _toggleKnownWord(word, isKnown),
+      onTap: () {
+        if (!isKnown) {
+          _makeWordKnown(word);
+        }
+        _tooltipControllers[index].showTooltip();
+      },
       child: JustTheTooltip(
         controller: _tooltipControllers[index],
         preferredDirection: AxisDirection.up,
@@ -487,7 +493,7 @@ class _TappableTextState extends ConsumerState<TappableText> {
         tailBaseWidth: 20.0,
         backgroundColor: CupertinoColors.systemBackground,
         content: _buildTooltipContent(word, isFavorite),
-        triggerMode: TooltipTriggerMode.longPress,
+        triggerMode: TooltipTriggerMode.manual,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: Padding(
@@ -535,26 +541,20 @@ class _TappableTextState extends ConsumerState<TappableText> {
 
 
 
-   Future<void> _toggleKnownWord(String word, bool isKnown) async {
+    Future<void> _makeWordKnown(String word) async {
     final currentUser = ref.read(currentUserProvider).value;
     if (currentUser == null) return;
 
-    setState(() {
-      if (isKnown) {
-        widget.knownWords.removeWhere((knownWord) => knownWord.word == word);
-      } else {
+    if (!widget.knownWords.any((knownWord) => knownWord.word == word)) {
+      setState(() {
         widget.knownWords.add(KnownWordModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           userId: currentUser.id,
           word: word,
           language: 'en', // Replace with actual language
         ));
-      }
-    });
+      });
 
-    if (isKnown) {
-      await _knownWordService.removeKnownWord(word);
-    } else {
       final newKnownWord = KnownWordModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: currentUser.id,
