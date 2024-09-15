@@ -476,44 +476,59 @@ class _TappableTextState extends ConsumerState<TappableText> {
   }
 
   Widget _buildTappableWord(String word, int index) {
-    final isFavorite = widget.favorites.any((favorite) => favorite.sourceText == word);
-    final isKnown = widget.knownWords.any((knownWord) => knownWord.word == word);
+  final isFavorite = widget.favorites.any((favorite) => favorite.sourceText == word);
+  final isKnown = widget.knownWords.any((knownWord) => knownWord.word == word);
 
-    return GestureDetector(
-      onTap: () {
-        if (!isKnown) {
-          _makeWordKnown(word);
-        }
-        _tooltipControllers[index].showTooltip();
-      },
-      child: JustTheTooltip(
-        controller: _tooltipControllers[index],
-        preferredDirection: AxisDirection.up,
-        tailLength: 10.0,
-        tailBaseWidth: 20.0,
-        backgroundColor: CupertinoColors.systemBackground,
-        content: _buildTooltipContent(word, isFavorite),
-        triggerMode: TooltipTriggerMode.manual,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2),
-            child: Text(
-              word,
-              style: TextStyle(
-                color: widget.isUserMessage
-                    ? CupertinoColors.white
-                    : CupertinoColors.black,
-                fontWeight: isKnown ? FontWeight.bold : FontWeight.normal,
-                decoration: isFavorite ? TextDecoration.underline : TextDecoration.none,
-              ),
+  return GestureDetector(
+    onTap: () {
+      if (!isKnown) {
+        _makeWordKnown(word);
+      }
+      _tooltipControllers[index].showTooltip();
+    },
+    child: JustTheTooltip(
+      controller: _tooltipControllers[index],
+      preferredDirection: AxisDirection.up,
+      tailLength: 10.0,
+      tailBaseWidth: 20.0,
+      backgroundColor: CupertinoColors.systemBackground,
+      content: _buildTooltipContent(word, isFavorite),
+      triggerMode: TooltipTriggerMode.manual,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+            color: _getHighlightColor(isKnown, isFavorite),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            word,
+            style: TextStyle(
+              color: widget.isUserMessage
+                  ? CupertinoColors.white
+                  : CupertinoColors.black,
+              fontWeight: isKnown ? FontWeight.bold : FontWeight.normal,
+              decoration: isFavorite ? TextDecoration.underline : TextDecoration.none,
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
+Color _getHighlightColor(bool isKnown, bool isFavorite) {
+  if (!isKnown) {
+    return CupertinoColors.systemYellow.withOpacity(0.3);
+  } else if (isFavorite) {
+    return widget.isUserMessage
+        ? CupertinoColors.systemPink.withOpacity(0.3)  // Different color for current user's favorites
+        : CupertinoColors.systemBlue.withOpacity(0.3); // Slight blue for other user's favorites
+  } else {
+    return CupertinoColors.transparent;
+  }
+}
   Widget _buildTooltipContent(String word, bool isFavorite) {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
