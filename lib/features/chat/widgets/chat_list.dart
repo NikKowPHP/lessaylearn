@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -10,36 +12,44 @@ import 'package:lessay_learn/services/i_chat_service.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:go_router/go_router.dart';
 
-class ChatList extends ConsumerWidget {
-    final bool isWideScreen;
+class ChatList extends ConsumerStatefulWidget {
+  final bool isWideScreen;
   final String? selectedChatId;
-  ChatList({Key? key, this.isWideScreen = false, this.selectedChatId}) : super(key: key);
+  ChatList({Key? key, this.isWideScreen = false, this.selectedChatId})
+      : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChatList> createState() => _ChatListState();
+}
+
+class _ChatListState extends ConsumerState<ChatList> {
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(Duration(minutes: 1), (_) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final chats = ref.watch(chatsProvider);
     final currentUserAsync = ref.watch(currentUserProvider);
-    
-    return currentUserAsync.when(
-      data: (currentUser) => CupertinoScrollbar(
-        child: CustomScrollView(
-          slivers: [
-            CupertinoSliverRefreshControl(
-              onRefresh: () async {
-                await ref.read(chatsProvider.notifier).loadChats();
-              },
-            ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildChatListItem(context, ref, chats, index, currentUser, isWideScreen, selectedChatId),
-                childCount: chats.length,
-              ),
-            ),
-          ],
-        ),
-      ),
-      loading: () => Center(child: CupertinoActivityIndicator()),
-      error: (error, stack) => Center(child: Text('Error: $error')),
+    final isWideScreen = widget.isWideScreen;
+    final selectedChatId = widget.selectedChatId;
+
+   return currentUserAsync.when(
+      data: (currentUser) => _buildChatListView(context, ref, chats, currentUser, isWideScreen, selectedChatId),
+      loading: () => _buildLoadingIndicator(),
+      error: (error, stack) => buildErrorWidget(error.toString()),
     );
   }
 
@@ -73,29 +83,42 @@ Widget _buildEmptyListWidget() {
   return Center(child: Text('No chats available'));
 }
 
-Widget _buildChatListView(BuildContext context, WidgetRef ref,
-    List<ChatModel> chats, UserModel currentUser, bool isWideScreen, String? selectedChatId) {
-   return CupertinoScrollbar(
-      child: CustomScrollView(
-        slivers: [
-         CupertinoSliverRefreshControl(
-            onRefresh: () async {
-              await ref.read(chatsProvider.notifier).loadChats();
-            },
+Widget _buildChatListView(
+    BuildContext context,
+    WidgetRef ref,
+    List<ChatModel> chats,
+    UserModel currentUser,
+    bool isWideScreen,
+    String? selectedChatId) {
+      chats.sort((a, b) => b.lastMessageTimestamp.compareTo(a.lastMessageTimestamp));
+  return CupertinoScrollbar(
+    child: CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () async {
+            await ref.read(chatsProvider.notifier).loadChats();
+          },
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => _buildChatListItem(context, ref, chats, index,
+                currentUser, isWideScreen, selectedChatId),
+            childCount: chats.length,
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => _buildChatListItem(context, ref, chats, index, currentUser, isWideScreen, selectedChatId),
-              childCount: chats.length,
-            ),
-          ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  );
 }
 
- Widget _buildChatListItem(BuildContext context, WidgetRef ref,
-      List<ChatModel> chats, int index, UserModel currentUser, bool isWideScreen, String? selectedChatId) {
+Widget _buildChatListItem(
+    BuildContext context,
+    WidgetRef ref,
+    List<ChatModel> chats,
+    int index,
+    UserModel currentUser,
+    bool isWideScreen,
+    String? selectedChatId) {
   if (index.isOdd) {
     return _buildSeparator();
   }
@@ -117,12 +140,12 @@ Widget _buildChatListView(BuildContext context, WidgetRef ref,
             return CupertinoActivityIndicator();
           }
           final partner = snapshot.data;
-        return ChatListItem(
-              chat: chat,
-              partner: partner,
-              isWideScreen: isWideScreen,
-              selectedChatId: selectedChatId,
-            );
+          return ChatListItem(
+            chat: chat,
+            partner: partner,
+            isWideScreen: isWideScreen,
+            selectedChatId: selectedChatId,
+          );
         },
       ),
     ],
@@ -138,16 +161,16 @@ Widget _buildSeparator() {
 
 Widget _buildDateHeader(DateTime date) {
   return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Text(
-        _formatDate(date),
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: CupertinoColors.secondaryLabel,
-        ),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Text(
+      _formatDate(date),
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: CupertinoColors.secondaryLabel,
       ),
-    );
+    ),
+  );
 }
 
 String _formatDate(DateTime date) {
@@ -173,13 +196,19 @@ class ChatListItem extends ConsumerWidget {
   final bool isWideScreen;
   final String? selectedChatId;
 
-  const ChatListItem({Key? key, required this.chat, this.partner, this.isWideScreen = false, this.selectedChatId})
+  const ChatListItem(
+      {Key? key,
+      required this.chat,
+      this.partner,
+      this.isWideScreen = false,
+      this.selectedChatId})
       : super(key: key);
 
   Widget _buildCupertinoAvatar(String avatarUrl) {
     return AvatarWidget(imageUrl: avatarUrl, size: 50, isNetworkImage: false);
   }
-   Widget _buildAvatar() {
+
+  Widget _buildAvatar() {
     return Container(
       width: 50,
       height: 50,
@@ -198,7 +227,7 @@ class ChatListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-     return Container(
+    return Container(
       color: isWideScreen && chat.id == selectedChatId
           ? CupertinoColors.systemBackground
           : null,
@@ -207,7 +236,10 @@ class ChatListItem extends ConsumerWidget {
         leading: _buildAvatar(),
         title: Text(
           partner?.name ?? 'Unknown',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: CupertinoColors.systemGrey4),
+          style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: CupertinoColors.systemGrey4),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,27 +267,28 @@ class ChatListItem extends ConsumerWidget {
           children: [
             Text(
               _formatTime(chat.lastMessageTimestamp),
-              style: TextStyle(color: CupertinoColors.systemGrey2, fontSize: 12),
+              style:
+                  TextStyle(color: CupertinoColors.systemGrey2, fontSize: 12),
             ),
             SizedBox(height: 4),
             Icon(CupertinoIcons.chevron_right,
                 size: 16, color: CupertinoColors.systemGrey2),
           ],
         ),
-      onTap: () {
-        final screenWidth = MediaQuery.of(context).size.width;
-        final isWideScreen = screenWidth > 600;
-        if (isWideScreen) {
-          ref.read(selectedChatIdProvider.notifier).state = chat.id;
-        } else {
-          context.go('/chat/${chat.id}', extra: chat);
-        }
-      },
-  ),  
+        onTap: () {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final isWideScreen = screenWidth > 600;
+          if (isWideScreen) {
+            ref.read(selectedChatIdProvider.notifier).state = chat.id;
+          } else {
+            context.go('/chat/${chat.id}', extra: chat);
+          }
+        },
+      ),
     );
   }
 
-   Widget _buildTag(String text, Color color) {
+  Widget _buildTag(String text, Color color) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
