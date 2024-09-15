@@ -1,5 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/core/dependency_injection.dart';
+import 'package:lessay_learn/core/models/favorite_model.dart';
+import 'package:lessay_learn/core/models/known_word_model.dart';
+import 'package:lessay_learn/core/providers/favorite_repository_provider.dart';
+import 'package:lessay_learn/core/providers/known_word_repository_provider.dart';
+import 'package:lessay_learn/core/services/favorite_service.dart';
+import 'package:lessay_learn/core/services/known_word_service.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
@@ -29,11 +36,18 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   List<MessageModel> _messages = [];
   UserModel? _chatPartner;
   final FocusNode _rootFocusNode = FocusNode();
+  List<FavoriteModel> _favorites = [];
+  List<KnownWordModel> _knownWords = [];
+
+  final KnownWordService _knownWordService = getIt<KnownWordService>();
+  final FavoriteService _favoriteService = getIt<FavoriteService>();
+
   @override
   void initState() {
     super.initState();
     _loadMessages();
     _loadChatPartner();
+    _loadFavoritesAndKnownWords();
   }
 
   Future<void> _loadChatPartner() async {
@@ -55,6 +69,20 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       loading: () => null,
       error: (_, __) => null,
     );
+  }
+  Future<void> _loadFavoritesAndKnownWords() async {
+    final favoriteService = ref.read(favoriteServiceProvider);
+    final knownWordService = ref.read(knownWordServiceProvider);
+
+    final favorites = await favoriteService.getFavorites();
+    final knownWords = await knownWordService.getKnownWords();
+
+    if (mounted) {
+      setState(() {
+        _favorites = favorites;
+        _knownWords = knownWords;
+      });
+    }
   }
 
   Future<void> _loadMessages() async {
@@ -164,6 +192,8 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
             return MessageBubble(
               message: message,
               currentUserId: ref.read(currentUserProvider).value!.id,
+              favorites: _favorites,
+              knownWords: _knownWords,
               isLastInSequence: isLastInSequence,
             );
           },
@@ -263,11 +293,15 @@ class MessageBubble extends StatelessWidget {
   final MessageModel message;
   final String currentUserId;
   final bool isLastInSequence;
+  final List<FavoriteModel> favorites;
+  final List<KnownWordModel> knownWords;
   const MessageBubble({
     Key? key,
     required this.message,
     required this.currentUserId,
     required this.isLastInSequence,
+    required this.favorites,
+    required this.knownWords,
   }) : super(key: key);
 
   @override
@@ -308,7 +342,10 @@ class MessageBubble extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(right: 64),
                     child: TappableText(
-                        text: message.content, isUserMessage: isUserMessage),
+                        text: message.content,
+                        isUserMessage: isUserMessage,
+                        favorites: favorites,
+                        knownWords: knownWords),
                   ),
                   Positioned(
                     bottom: 0,
@@ -387,22 +424,28 @@ class MessageBubble extends StatelessWidget {
   }
 }
 
-class TappableText extends StatefulWidget {
-  final String text;
+class TappableText extends ConsumerStatefulWidget {
+   final String text;
   final bool isUserMessage;
+  final List<FavoriteModel> favorites;
+  final List<KnownWordModel> knownWords;
 
   const TappableText({
     Key? key,
     required this.text,
     required this.isUserMessage,
+    required this.favorites,
+    required this.knownWords,
   }) : super(key: key);
 
   @override
-  _TappableTextState createState() => _TappableTextState();
+  ConsumerState<TappableText> createState() => _TappableTextState();
 }
 
-class _TappableTextState extends State<TappableText> {
+class _TappableTextState extends ConsumerState<TappableText> {
   final List<JustTheController> _tooltipControllers = [];
+  final KnownWordService _knownWordService = getIt<KnownWordService>();
+  final FavoriteService _favoriteService = getIt<FavoriteService>();
 
   @override
   void initState() {
@@ -433,18 +476,18 @@ class _TappableTextState extends State<TappableText> {
   }
 
   Widget _buildTappableWord(String word, int index) {
-    return JustTheTooltip(
-      controller: _tooltipControllers[index],
-      preferredDirection: AxisDirection.up,
-      tailLength: 10.0,
-      tailBaseWidth: 20.0,
-      backgroundColor: CupertinoColors.systemBackground,
-      content: _buildTooltipContent(word),
-      triggerMode: TooltipTriggerMode.manual,
-      child: GestureDetector(
-        onTap: () {
-          _tooltipControllers[index].showTooltip();
-        },
+    final isFavorite = widget.favorites.any((favorite) => favorite.sourceText == word);
+    final isKnown = widget.knownWords.any((knownWord) => knownWord.word == word);
+    return GestureDetector(
+      onTap: () => _toggleKnownWord(word, isKnown),
+      child: JustTheTooltip(
+        controller: _tooltipControllers[index],
+        preferredDirection: AxisDirection.up,
+        tailLength: 10.0,
+        tailBaseWidth: 20.0,
+        backgroundColor: CupertinoColors.systemBackground,
+        content: _buildTooltipContent(word, isFavorite),
+        triggerMode: TooltipTriggerMode.longPress,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: Padding(
@@ -455,6 +498,8 @@ class _TappableTextState extends State<TappableText> {
                 color: widget.isUserMessage
                     ? CupertinoColors.white
                     : CupertinoColors.black,
+                fontWeight: isKnown ? FontWeight.bold : FontWeight.normal,
+                decoration: isFavorite ? TextDecoration.underline : TextDecoration.none,
               ),
             ),
           ),
@@ -463,10 +508,9 @@ class _TappableTextState extends State<TappableText> {
     );
   }
 
-  Widget _buildTooltipContent(String word) {
+  Widget _buildTooltipContent(String word, bool isFavorite) {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
-        bool isStarred = false;
         return Padding(
           padding: EdgeInsets.all(8),
           child: Row(
@@ -475,9 +519,9 @@ class _TappableTextState extends State<TappableText> {
               Text(word),
               SizedBox(width: 8),
               GestureDetector(
-                onTap: () => setState(() => isStarred = !isStarred),
+                onTap: () => _toggleFavorite(word, isFavorite),
                 child: Icon(
-                  isStarred ? CupertinoIcons.star_fill : CupertinoIcons.star,
+                  isFavorite ? CupertinoIcons.star_fill : CupertinoIcons.star,
                   color: CupertinoColors.activeBlue,
                   size: 20,
                 ),
@@ -487,6 +531,72 @@ class _TappableTextState extends State<TappableText> {
         );
       },
     );
+  }
+
+
+
+   Future<void> _toggleKnownWord(String word, bool isKnown) async {
+    final currentUser = ref.read(currentUserProvider).value;
+    if (currentUser == null) return;
+
+    setState(() {
+      if (isKnown) {
+        widget.knownWords.removeWhere((knownWord) => knownWord.word == word);
+      } else {
+        widget.knownWords.add(KnownWordModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          userId: currentUser.id,
+          word: word,
+          language: 'en', // Replace with actual language
+        ));
+      }
+    });
+
+    if (isKnown) {
+      await _knownWordService.removeKnownWord(word);
+    } else {
+      final newKnownWord = KnownWordModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: currentUser.id,
+        word: word,
+        language: 'en', // Replace with actual language
+      );
+      await _knownWordService.addKnownWord(newKnownWord);
+    }
+  }
+
+  Future<void> _toggleFavorite(String word, bool isFavorite) async {
+    final currentUser = ref.read(currentUserProvider).value;
+    if (currentUser == null) return;
+
+    setState(() {
+      if (isFavorite) {
+        widget.favorites.removeWhere((favorite) => favorite.sourceText == word);
+      } else {
+        widget.favorites.add(FavoriteModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          userId: currentUser.id,
+          sourceText: word,
+          translatedText: '', // You might want to add translation functionality
+          sourceLanguage: 'en', // Replace with actual source language
+          targetLanguage: 'es', // Replace with actual target language
+        ));
+      }
+    });
+
+    if (isFavorite) {
+      await _favoriteService.removeFavorite(word);
+    } else {
+      final newFavorite = FavoriteModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: currentUser.id,
+        sourceText: word,
+        translatedText: '', // You might want to add translation functionality
+        sourceLanguage: 'en', // Replace with actual source language
+        targetLanguage: 'es', // Replace with actual target language
+      );
+      await _favoriteService.addFavorite(newFavorite);
+    }
   }
 }
 
