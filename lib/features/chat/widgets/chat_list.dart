@@ -11,37 +11,36 @@ import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatList extends ConsumerWidget {
-
-
   ChatList({Key? key}) : super(key: key);
 
-@override
-Widget build(BuildContext context, WidgetRef ref) {
-      final chatService = ref.watch(chatServiceProvider);
- 
- final currentUserAsync = ref.watch(currentUserProvider);
-  return currentUserAsync.when(
-    data: (currentUser) {
-      return FutureBuilder<List<ChatModel>>(
-        future: chatService.getChats(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildLoadingIndicator();
-          } else if (snapshot.hasError) {
-            return buildErrorWidget(snapshot.error.toString());
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return _buildEmptyListWidget();
-          }
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final chatService = ref.watch(chatServiceProvider);
 
-          final chats = snapshot.data!;
-          return _buildChatListView(context, ref, chats, currentUser);
-        },
-      );
-    },
-    loading: () => _buildLoadingIndicator(),
-    error: (error, stackTrace) => buildErrorWidget(error.toString()),
-  );
-}
+    final currentUserAsync = ref.watch(currentUserProvider);
+    return currentUserAsync.when(
+      data: (currentUser) {
+        return FutureBuilder<List<ChatModel>>(
+          future: chatService.getChats(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildLoadingIndicator();
+            } else if (snapshot.hasError) {
+              return buildErrorWidget(snapshot.error.toString());
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return _buildEmptyListWidget();
+            }
+
+            final chats = snapshot.data!;
+            return _buildChatListView(context, ref, chats, currentUser);
+          },
+        );
+      },
+      loading: () => _buildLoadingIndicator(),
+      error: (error, stackTrace) => buildErrorWidget(error.toString()),
+    );
+  }
+
   String formatDate(DateTime date) {
     final now = DateTime.now();
     if (isSameDay(date, now)) {
@@ -54,144 +53,137 @@ Widget build(BuildContext context, WidgetRef ref) {
   }
 
   bool isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year && 
-           date1.month == date2.month && 
-           date1.day == date2.day;
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 }
 
 Widget _buildLoadingIndicator() {
-    return Center(child: CupertinoActivityIndicator());
-  }
+  return Center(child: CupertinoActivityIndicator());
+}
 
 Widget buildErrorWidget(String error) {
   return Center(child: Text('Error: $error'));
 }
 
-  Widget _buildEmptyListWidget() {
-    return Center(child: Text('No chats available'));
-  }
+Widget _buildEmptyListWidget() {
+  return Center(child: Text('No chats available'));
+}
 
- Widget _buildChatListView(BuildContext context, WidgetRef ref, List<ChatModel> chats, UserModel currentUser) {
-    return CustomScrollView( 
-      slivers: [
-        CupertinoSliverRefreshControl(
-          onRefresh: () async {
-            // Implement refresh logic here
-          },
+Widget _buildChatListView(BuildContext context, WidgetRef ref,
+    List<ChatModel> chats, UserModel currentUser) {
+  return CustomScrollView(
+    slivers: [
+      CupertinoSliverRefreshControl(
+        onRefresh: () async {
+          // Implement refresh logic here
+        },
+      ),
+      SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) =>
+              _buildChatListItem(context, ref, chats, index, currentUser),
+          childCount: chats.length * 2 - 1,
         ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-         (context, index) => _buildChatListItem(context, ref, chats, index, currentUser),
-            childCount: chats.length * 2 - 1,
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
-
-
-
-
-  Widget _buildChatListItem(BuildContext context, WidgetRef ref, List<ChatModel> chats, int index, UserModel currentUser) {
-    if (index.isOdd) {
+Widget _buildChatListItem(BuildContext context, WidgetRef ref,
+    List<ChatModel> chats, int index, UserModel currentUser) {
+  if (index.isOdd) {
     return _buildSeparator();
   }
   final chatService = ref.watch(chatServiceProvider);
   final chatIndex = index ~/ 2;
   final chat = chats[chatIndex];
-  final isFirstOfDay = chatIndex == 0 || 
-    !_isSameDay(chat.lastMessageTimestamp, chats[chatIndex - 1].lastMessageTimestamp);
+  final isFirstOfDay = chatIndex == 0 ||
+      !_isSameDay(
+          chat.lastMessageTimestamp, chats[chatIndex - 1].lastMessageTimestamp);
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-        if (isFirstOfDay) _buildDateHeader(chat.lastMessageTimestamp),
-        FutureBuilder<UserModel?>(
-          future: chatService.getChatPartner(chat.id, currentUser.id),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CupertinoActivityIndicator();
-            }
-            final partner = snapshot.data;
-            return ChatListItem(chat: chat, partner: partner);
-          },
-        ),
+      if (isFirstOfDay) _buildDateHeader(chat.lastMessageTimestamp),
+      FutureBuilder<UserModel?>(
+        future: chatService.getChatPartner(chat.id, currentUser.id),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CupertinoActivityIndicator();
+          }
+          final partner = snapshot.data;
+          return ChatListItem(chat: chat, partner: partner);
+        },
+      ),
     ],
   );
 }
 
-  Widget _buildSeparator() {
-    return Container(
-      height: 1,
-      color: CupertinoColors.separator,
-    );
-  }
+Widget _buildSeparator() {
+  return Container(
+    height: 1,
+    color: CupertinoColors.separator,
+  );
+}
 
-  Widget _buildDateHeader(DateTime date) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        _formatDate(date),
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: CupertinoColors.systemGrey,
-        ),
+Widget _buildDateHeader(DateTime date) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Text(
+      _formatDate(date),
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: CupertinoColors.systemGrey,
       ),
-    );
-  }
+    ),
+  );
+}
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    if (_isSameDay(date, now)) {
-      return 'Today';
-    } else if (_isSameDay(date, now.subtract(Duration(days: 1)))) {
-      return 'Yesterday';
-    } else {
-      return DateFormat('MMMM d, y').format(date);
-    }
+String _formatDate(DateTime date) {
+  final now = DateTime.now();
+  if (_isSameDay(date, now)) {
+    return 'Today';
+  } else if (_isSameDay(date, now.subtract(Duration(days: 1)))) {
+    return 'Yesterday';
+  } else {
+    return DateFormat('MMMM d, y').format(date);
   }
-   bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year && 
-           date1.month == date2.month && 
-           date1.day == date2.day;
-  }
+}
 
-class ChatListItem extends StatelessWidget {
+bool _isSameDay(DateTime date1, DateTime date2) {
+  return date1.year == date2.year &&
+      date1.month == date2.month &&
+      date1.day == date2.day;
+}
+
+class ChatListItem extends ConsumerWidget {
   final ChatModel chat;
   final UserModel? partner;
 
-  const ChatListItem({Key? key, required this.chat, this.partner}) : super(key: key);
+  const ChatListItem({Key? key, required this.chat, this.partner})
+      : super(key: key);
 
-
-   Widget _buildCupertinoAvatar(String avatarUrl) {
+  Widget _buildCupertinoAvatar(String avatarUrl) {
     return AvatarWidget(imageUrl: avatarUrl, size: 50, isNetworkImage: false);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return CupertinoListTile(
       leading: ClipOval(
         child: Container(
           width: 50,
           height: 50,
-          // child: Image.network(
-          //   chat.avatarUrl,
-          //   fit: BoxFit.cover,
-          //   errorBuilder: (context, error, stackTrace) {
-          //     return Container(
-          //       color: CupertinoColors.systemGrey,
-          //       child: Icon(CupertinoIcons.person_fill, color: CupertinoColors.white),
-          //     );
-          //   },
-          // ),
-           child: partner != null ? _buildCupertinoAvatar(partner!.avatarUrl) : Icon(CupertinoIcons.person_fill, color: CupertinoColors.systemGrey),
-         
+          child: partner != null
+              ? _buildCupertinoAvatar(partner!.avatarUrl)
+              : Icon(CupertinoIcons.person_fill,
+                  color: CupertinoColors.systemGrey),
         ),
-        
       ),
-      title: Text(partner?.name ?? 'Unknown', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: Text(partner?.name ?? 'Unknown',
+          style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -215,11 +207,18 @@ class ChatListItem extends StatelessWidget {
             style: TextStyle(color: CupertinoColors.systemGrey),
           ),
           SizedBox(height: 4),
-          Icon(CupertinoIcons.chevron_right, size: 16, color: CupertinoColors.systemGrey),
+          Icon(CupertinoIcons.chevron_right,
+              size: 16, color: CupertinoColors.systemGrey),
         ],
       ),
       onTap: () {
-        context.go('/chat/${chat.id}', extra: chat); 
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isWideScreen = screenWidth > 600;
+        if (isWideScreen) {
+          ref.read(selectedChatIdProvider.notifier).state = chat.id;
+        } else {
+          context.go('/chat/${chat.id}', extra: chat);
+        }
       },
     );
   }
@@ -237,7 +236,8 @@ class ChatListItem extends StatelessWidget {
       ),
     );
   }
-String _formatTime(DateTime dateTime) {
+
+  String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
@@ -251,6 +251,4 @@ String _formatTime(DateTime dateTime) {
       return 'Now';
     }
   }
-
 }
-

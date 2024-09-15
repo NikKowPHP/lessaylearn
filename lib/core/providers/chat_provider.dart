@@ -10,3 +10,4 @@ final chatServiceProvider = Provider<IChatService>((ref) {
   final localStorageService = ref.watch(localStorageServiceProvider);
   return ChatService(localStorageService);
 });
+final selectedChatIdProvider = StateProvider<String?>((ref) => null);

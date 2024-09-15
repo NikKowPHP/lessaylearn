@@ -78,8 +78,10 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+       final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth > 600;
     return CupertinoPageScaffold(
-      navigationBar: _buildNavigationBar(),
+       navigationBar: isWideScreen ? null : _buildNavigationBar(),
       child: SafeArea(
         child: Column(
           children: [
