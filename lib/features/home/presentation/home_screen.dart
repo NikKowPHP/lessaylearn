@@ -28,9 +28,13 @@ class HomeScreen extends ConsumerWidget {
             ? Row(
                 children: [
                   SizedBox(
-                    width: 400, // Adjust this width as needed
-                    child: ChatList(),
+                    width: 400,
+                    child: ChatList(
+                      isWideScreen: true,
+                      selectedChatId: ref.watch(selectedChatIdProvider),
+                    ),
                   ),
+                  const CupertinoVerticalSeparator(),
                   Expanded(
                     child: Consumer(
                       builder: (context, ref, _) {
@@ -66,6 +70,18 @@ class HomeScreen extends ConsumerWidget {
               )
             : ChatList(),
       ),
+    );
+  }
+}
+
+class CupertinoVerticalSeparator extends StatelessWidget {
+  const CupertinoVerticalSeparator({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      color: CupertinoColors.separator,
     );
   }
 }

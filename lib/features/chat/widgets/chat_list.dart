@@ -11,7 +11,9 @@ import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatList extends ConsumerWidget {
-  ChatList({Key? key}) : super(key: key);
+    final bool isWideScreen;
+  final String? selectedChatId;
+  ChatList({Key? key, this.isWideScreen = false, this.selectedChatId}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,7 +34,7 @@ class ChatList extends ConsumerWidget {
             }
 
             final chats = snapshot.data!;
-            return _buildChatListView(context, ref, chats, currentUser);
+            return _buildChatListView(context, ref, chats, currentUser, isWideScreen, selectedChatId);
           },
         );
       },
@@ -72,7 +74,7 @@ Widget _buildEmptyListWidget() {
 }
 
 Widget _buildChatListView(BuildContext context, WidgetRef ref,
-    List<ChatModel> chats, UserModel currentUser) {
+    List<ChatModel> chats, UserModel currentUser, bool isWideScreen, String? selectedChatId) {
   return CustomScrollView(
     slivers: [
       CupertinoSliverRefreshControl(
@@ -83,7 +85,7 @@ Widget _buildChatListView(BuildContext context, WidgetRef ref,
       SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) =>
-              _buildChatListItem(context, ref, chats, index, currentUser),
+              _buildChatListItem(context, ref, chats, index, currentUser, isWideScreen, selectedChatId),
           childCount: chats.length * 2 - 1,
         ),
       ),
@@ -91,8 +93,8 @@ Widget _buildChatListView(BuildContext context, WidgetRef ref,
   );
 }
 
-Widget _buildChatListItem(BuildContext context, WidgetRef ref,
-    List<ChatModel> chats, int index, UserModel currentUser) {
+ Widget _buildChatListItem(BuildContext context, WidgetRef ref,
+      List<ChatModel> chats, int index, UserModel currentUser, bool isWideScreen, String? selectedChatId) {
   if (index.isOdd) {
     return _buildSeparator();
   }
@@ -114,7 +116,12 @@ Widget _buildChatListItem(BuildContext context, WidgetRef ref,
             return CupertinoActivityIndicator();
           }
           final partner = snapshot.data;
-          return ChatListItem(chat: chat, partner: partner);
+        return ChatListItem(
+              chat: chat,
+              partner: partner,
+              isWideScreen: isWideScreen,
+              selectedChatId: selectedChatId,
+            );
         },
       ),
     ],
@@ -161,8 +168,10 @@ bool _isSameDay(DateTime date1, DateTime date2) {
 class ChatListItem extends ConsumerWidget {
   final ChatModel chat;
   final UserModel? partner;
+  final bool isWideScreen;
+  final String? selectedChatId;
 
-  const ChatListItem({Key? key, required this.chat, this.partner})
+  const ChatListItem({Key? key, required this.chat, this.partner, this.isWideScreen = false, this.selectedChatId})
       : super(key: key);
 
   Widget _buildCupertinoAvatar(String avatarUrl) {
@@ -220,6 +229,9 @@ class ChatListItem extends ConsumerWidget {
           context.go('/chat/${chat.id}', extra: chat);
         }
       },
+      backgroundColor: isWideScreen && chat.id == selectedChatId
+              ? CupertinoColors.systemGrey5
+              : null,
     );
   }
 
