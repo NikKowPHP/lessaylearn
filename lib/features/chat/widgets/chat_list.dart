@@ -75,22 +75,23 @@ Widget _buildEmptyListWidget() {
 
 Widget _buildChatListView(BuildContext context, WidgetRef ref,
     List<ChatModel> chats, UserModel currentUser, bool isWideScreen, String? selectedChatId) {
-  return CustomScrollView(
-    slivers: [
-      CupertinoSliverRefreshControl(
-        onRefresh: () async {
-          // Implement refresh logic here
-        },
+   return CupertinoScrollbar(
+      child: CustomScrollView(
+        slivers: [
+          CupertinoSliverRefreshControl(
+            onRefresh: () async {
+              // Implement refresh logic here
+            },
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _buildChatListItem(context, ref, chats, index, currentUser, isWideScreen, selectedChatId),
+              childCount: chats.length,
+            ),
+          ),
+        ],
       ),
-      SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) =>
-              _buildChatListItem(context, ref, chats, index, currentUser, isWideScreen, selectedChatId),
-          childCount: chats.length * 2 - 1,
-        ),
-      ),
-    ],
-  );
+    );
 }
 
  Widget _buildChatListItem(BuildContext context, WidgetRef ref,
@@ -137,15 +138,16 @@ Widget _buildSeparator() {
 
 Widget _buildDateHeader(DateTime date) {
   return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Text(
-      _formatDate(date),
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        color: CupertinoColors.systemGrey,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Text(
+        _formatDate(date),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: CupertinoColors.secondaryLabel,
+        ),
       ),
-    ),
-  );
+    );
 }
 
 String _formatDate(DateTime date) {
@@ -177,49 +179,69 @@ class ChatListItem extends ConsumerWidget {
   Widget _buildCupertinoAvatar(String avatarUrl) {
     return AvatarWidget(imageUrl: avatarUrl, size: 50, isNetworkImage: false);
   }
+   Widget _buildAvatar() {
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: CupertinoColors.systemGrey5,
+      ),
+      child: ClipOval(
+        child: partner != null
+            ? _buildCupertinoAvatar(partner!.avatarUrl)
+            : Icon(CupertinoIcons.person_fill,
+                color: CupertinoColors.systemGrey),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return CupertinoListTile(
-      leading: ClipOval(
-        child: Container(
-          width: 50,
-          height: 50,
-          child: partner != null
-              ? _buildCupertinoAvatar(partner!.avatarUrl)
-              : Icon(CupertinoIcons.person_fill,
-                  color: CupertinoColors.systemGrey),
+     return Container(
+      color: isWideScreen && chat.id == selectedChatId
+          ? CupertinoColors.systemBackground
+          : null,
+      child: CupertinoListTile(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        leading: _buildAvatar(),
+        title: Text(
+          partner?.name ?? 'Unknown',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: CupertinoColors.systemGrey4),
         ),
-      ),
-      title: Text(partner?.name ?? 'Unknown',
-          style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(chat.lastMessage, maxLines: 1, overflow: TextOverflow.ellipsis),
-          SizedBox(height: 4),
-          Row(
-            children: [
-              _buildTag(chat.languageLevel, CupertinoColors.activeBlue),
-              SizedBox(width: 8),
-              _buildTag(chat.chatTopic, CupertinoColors.activeGreen),
-            ],
-          ),
-        ],
-      ),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            _formatTime(chat.lastMessageTimestamp),
-            style: TextStyle(color: CupertinoColors.systemGrey),
-          ),
-          SizedBox(height: 4),
-          Icon(CupertinoIcons.chevron_right,
-              size: 16, color: CupertinoColors.systemGrey),
-        ],
-      ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 4),
+            Text(
+              chat.lastMessage,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: CupertinoColors.systemGrey, fontSize: 14),
+            ),
+            SizedBox(height: 6),
+            Row(
+              children: [
+                _buildTag(chat.languageLevel, CupertinoColors.activeBlue),
+                SizedBox(width: 8),
+                _buildTag(chat.chatTopic, CupertinoColors.activeGreen),
+              ],
+            ),
+          ],
+        ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              _formatTime(chat.lastMessageTimestamp),
+              style: TextStyle(color: CupertinoColors.systemGrey2, fontSize: 12),
+            ),
+            SizedBox(height: 4),
+            Icon(CupertinoIcons.chevron_right,
+                size: 16, color: CupertinoColors.systemGrey2),
+          ],
+        ),
       onTap: () {
         final screenWidth = MediaQuery.of(context).size.width;
         final isWideScreen = screenWidth > 600;
@@ -229,13 +251,11 @@ class ChatListItem extends ConsumerWidget {
           context.go('/chat/${chat.id}', extra: chat);
         }
       },
-      backgroundColor: isWideScreen && chat.id == selectedChatId
-              ? CupertinoColors.systemGrey5
-              : null,
+  ),  
     );
   }
 
-  Widget _buildTag(String text, Color color) {
+   Widget _buildTag(String text, Color color) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
