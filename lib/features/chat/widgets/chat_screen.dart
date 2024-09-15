@@ -248,39 +248,47 @@ class MessageBubble extends StatelessWidget {
     final isUserMessage = message.senderId == currentUserId;
 
     debugPrint('Message sender ID: ${message.senderId}');
-      return Align(
+        return Align(
       alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isUserMessage
-              ? CupertinoColors.activeBlue
-              : CupertinoColors.systemGrey5,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TappableText(text: message.content, isUserMessage: isUserMessage),
-            SizedBox(height: 4),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _formatTimestamp(message.timestamp),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: isUserMessage
-                        ? CupertinoColors.white.withOpacity(0.7)
-                        : CupertinoColors.systemGrey,
-                  ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isUserMessage
+                ? CupertinoColors.activeBlue
+                : CupertinoColors.systemGrey5,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(right: 50),
+                child: TappableText(text: message.content, isUserMessage: isUserMessage),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _formatTimestamp(message.timestamp),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: isUserMessage
+                            ? CupertinoColors.white.withOpacity(0.7)
+                            : CupertinoColors.systemGrey,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    if (isUserMessage) _buildReadIndicator(message.isRead),
+                  ],
                 ),
-                SizedBox(width: 4),
-                if (isUserMessage) _buildReadIndicator(message.isRead),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
