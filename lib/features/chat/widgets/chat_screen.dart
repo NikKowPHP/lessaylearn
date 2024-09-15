@@ -138,10 +138,17 @@ Future<void> _loadChatPartner() async {
         child: ListView.builder(
           controller: _scrollController,
           itemCount: _messages.length,
-          itemBuilder: (context, index) => MessageBubble(
-            message: _messages[index],
-            currentUserId: currentUserId,
-          ),
+        itemBuilder: (context, index) {
+          final message = _messages[index];
+          final isLastInSequence = index == _messages.length - 1 ||
+              _messages[index + 1].senderId != message.senderId;
+
+          return MessageBubble(
+            message: message,
+            currentUserId: ref.read(currentUserProvider).value!.id,
+            isLastInSequence: isLastInSequence,
+            );
+          },
         ),
       ),
     );
@@ -236,11 +243,12 @@ void _sendMessage() async {
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
   final String currentUserId;
-
+final bool isLastInSequence;
   const MessageBubble({
     Key? key,
     required this.message,
     required this.currentUserId,
+    required this.isLastInSequence,
   }) : super(key: key);
 
   @override
@@ -248,47 +256,76 @@ class MessageBubble extends StatelessWidget {
     final isUserMessage = message.senderId == currentUserId;
 
     debugPrint('Message sender ID: ${message.senderId}');
-        return Align(
+  return Align(
       alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          padding: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isUserMessage
-                ? CupertinoColors.activeBlue
-                : CupertinoColors.systemGrey5,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Stack(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: 50),
-                child: TappableText(text: message.content, isUserMessage: isUserMessage),
+        child: Stack(
+          children: [
+            Container(
+              margin: EdgeInsets.only(
+                top: 2,
+                bottom: isLastInSequence ? 8 : 2,
+                left: 8,
+                right: 8,
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _formatTimestamp(message.timestamp),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: isUserMessage
-                            ? CupertinoColors.white.withOpacity(0.7)
-                            : CupertinoColors.systemGrey,
-                      ),
-                    ),
-                    SizedBox(width: 4),
-                    if (isUserMessage) _buildReadIndicator(message.isRead),
-                  ],
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isUserMessage
+                    ? CupertinoColors.activeBlue
+                    : CupertinoColors.systemGrey5,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                  bottomLeft: Radius.circular(isUserMessage || !isLastInSequence ? 16 : 4),
+                  bottomRight: Radius.circular(isUserMessage && isLastInSequence ? 4 : 16),
                 ),
               ),
-            ],
-          ),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(right: 64),
+                    child: TappableText(text: message.content, isUserMessage: isUserMessage),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _formatTimestamp(message.timestamp),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isUserMessage
+                                ? CupertinoColors.white.withOpacity(0.7)
+                                : CupertinoColors.systemGrey,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        if (isUserMessage) _buildReadIndicator(message.isRead),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isLastInSequence)
+              Positioned(
+                bottom: 0,
+                right: isUserMessage ? 0 : null,
+                left: isUserMessage ? null : 0,
+                child: CustomPaint(
+                  painter: BubbleWingPainter(
+                    color: isUserMessage
+                        ? CupertinoColors.activeBlue
+                        : CupertinoColors.systemGrey5,
+                    isUserMessage: isUserMessage,
+                  ),
+                  size: Size(8, 8),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -396,4 +433,36 @@ class TappableText extends StatelessWidget {
       ),
     );
   }
+}
+
+
+class BubbleWingPainter extends CustomPainter {
+  final Color color;
+  final bool isUserMessage;
+
+  BubbleWingPainter({required this.color, required this.isUserMessage});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    if (isUserMessage) {
+      path.moveTo(0, 0);
+      path.lineTo(size.width, 0);
+      path.lineTo(0, size.height);
+    } else {
+      path.moveTo(size.width, 0);
+      path.lineTo(size.width, size.height);
+      path.lineTo(0, 0);
+    }
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
