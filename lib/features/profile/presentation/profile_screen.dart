@@ -7,8 +7,13 @@ import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
 
 class ProfileScreen extends ConsumerWidget {
   final String userId;
+  final bool showBackButton;
 
-  const ProfileScreen({Key? key, required this.userId}) : super(key: key);
+  const ProfileScreen({
+    Key? key,
+    required this.userId,
+    this.showBackButton = true,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
