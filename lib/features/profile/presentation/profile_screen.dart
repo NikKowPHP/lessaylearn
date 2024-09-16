@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
-
 import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
   final String userId;
@@ -23,6 +23,14 @@ class ProfileScreen extends ConsumerWidget {
      return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('Profile'),
+             leading: showBackButton
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: Icon(CupertinoIcons.back),
+              onPressed: () => context.pop(),
+            )
+          : null,
+      
       ),
       child: SafeArea(
         child: FutureBuilder<UserModel?>(

@@ -67,8 +67,8 @@ class CommunityList extends StatelessWidget {
         ],
       ),
       trailing: Icon(CupertinoIcons.chevron_right, size: 16, color: CupertinoColors.systemGrey),
-      onTap: () {
-        context.go('/profile/${user.id}', extra: user);
+     onTap: () {
+        context.push('/profile/${user.id}');
       },
     );
   }
