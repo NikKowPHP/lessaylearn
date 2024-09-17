@@ -31,4 +31,33 @@ class LanguageService implements ILanguageService {
   Future<void> removeLanguage(String languageId) async {
     await _localStorageService.deleteLanguage(languageId);
   }
+
+   @override
+  String calculateLanguageLevel(int score) {
+    if (score < 0 || score > 1000) {
+      throw ArgumentError('Score must be between 0 and 1000');
+    }
+
+    if (score < 200) {
+      return 'Beginner';
+    } else if (score < 400) {
+      return 'Elementary';
+    } else if (score < 600) {
+      return 'Intermediate';
+    } else if (score < 800) {
+      return 'Upper Intermediate';
+    } else if (score < 950) {
+      return 'Advanced';
+    } else {
+      return 'Proficient';
+    }
+  }
+   @override
+  Future<Map<String, String>> getUserLanguageLevels(String userId) async {
+    final languages = await fetchLanguages(userId);
+    return {
+      for (var lang in languages)
+        lang.id: calculateLanguageLevel(lang.score)
+    };
+  }
 }

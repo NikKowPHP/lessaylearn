@@ -6,4 +6,6 @@ abstract class ILanguageService {
   Future<LanguageModel?> fetchLanguageById(String languageId);
   Future<void> updateLanguage(LanguageModel language);
   Future<void> removeLanguage(String languageId);
+  String calculateLanguageLevel(int score);
+  Future<Map<String, String>> getUserLanguageLevels(String userId);
 }

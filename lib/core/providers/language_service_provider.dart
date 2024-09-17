@@ -27,3 +27,13 @@ final allLanguagesProvider = FutureProvider<List<LanguageModel>>((ref) async {
   final localStorageService = ref.watch(localStorageServiceProvider);
   return await localStorageService.getLanguages();
 });
+
+final calculateLanguageLevelProvider = Provider.family<String, int>((ref, score) {
+  final languageService = ref.watch(languageServiceProvider);
+  return languageService.calculateLanguageLevel(score);
+});
+
+final userLanguageLevelsProvider = FutureProvider.family<Map<String, String>, String>((ref, userId) {
+  final languageService = ref.watch(languageServiceProvider);
+  return languageService.getUserLanguageLevels(userId);
+});

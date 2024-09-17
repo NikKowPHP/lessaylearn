@@ -185,54 +185,55 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLearningLanguageChart(String languageId, WidgetRef ref) {
-    return FutureBuilder<LanguageModel?>(
-      future: ref.read(languageByIdProvider(languageId).future),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CupertinoActivityIndicator();
-        }
-        if (snapshot.hasError || !snapshot.hasData) {
-          return SizedBox.shrink();
-        }
-        final language = snapshot.data!;
-        final level = _getLevelAsInt(language.level);
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Row(
-            children: [
-              SizedBox(width: 80, child: Text(language.name)),
-              Expanded(
-                child: Stack(
-                  children: [
-                    Container(
+ Widget _buildLearningLanguageChart(String languageId, WidgetRef ref) {
+  return FutureBuilder<LanguageModel?>(
+    future: ref.read(languageByIdProvider(languageId).future),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CupertinoActivityIndicator();
+      }
+      if (snapshot.hasError || !snapshot.hasData) {
+        return SizedBox.shrink();
+      }
+      final language = snapshot.data!;
+      final level = ref.watch(calculateLanguageLevelProvider(language.score));
+      final levelAsInt = _getLevelAsInt(level);
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Row(
+          children: [
+            SizedBox(width: 80, child: Text(language.name)),
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.systemGrey5,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: levelAsInt / 6,
+                    child: Container(
                       height: 20,
                       decoration: BoxDecoration(
-                        color: CupertinoColors.systemGrey5,
+                        color: CupertinoColors.activeBlue,
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    FractionallySizedBox(
-                      widthFactor: level / 6,
-                      child: Container(
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: CupertinoColors.activeBlue,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              SizedBox(width: 8),
-              Text('${language.score}'),
-            ],
-          ),
-        );
-      },
-    );
-  }
+            ),
+            SizedBox(width: 8),
+            Text('$level (${language.score})'),
+          ],
+        ),
+      );
+    },
+  );
+}
 
   int _getLevelAsInt(String level) {
     switch (level.toLowerCase()) {
