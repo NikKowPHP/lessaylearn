@@ -1,11 +1,14 @@
+import 'package:lessay_learn/core/models/comment_model.dart';
 import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
+import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 
 abstract class ILocalStorageService {
   Future<bool> isUserLoggedIn();
@@ -31,16 +34,16 @@ abstract class ILocalStorageService {
   Future<void> addFlashcard(FlashcardModel flashcard);
   Future<void> updateFlashcard(FlashcardModel flashcard);
   Future<void> deleteFlashcard(String flashcardId);
-    Future<bool> hasFlashcards();
+  Future<bool> hasFlashcards();
   Future<DeckModel?> getDeckById(String deckId);
   Future<void> updateDeckLastStudied(String deckId, DateTime lastStudied);
-Future<void> saveChat(ChatModel chat);
-Future<UserModel?> getUserById(String userId);
-Future<void> clearAllData();  
-Future<void> saveUser(UserModel user);
-Future<UserModel?> getCurrentUser();
+  Future<void> saveChat(ChatModel chat);
+  Future<UserModel?> getUserById(String userId);
+  Future<void> clearAllData();
+  Future<void> saveUser(UserModel user);
+  Future<UserModel?> getCurrentUser();
 
- // Known Words methods
+  // Known Words methods
   Future<void> saveKnownWord(KnownWordModel knownWord);
   Future<List<KnownWordModel>> getKnownWords();
   Future<void> deleteKnownWord(String knownWordId);
@@ -57,5 +60,21 @@ Future<UserModel?> getCurrentUser();
   Future<void> updateLanguage(LanguageModel language);
   Future<void> deleteLanguage(String languageId);
   Future<List<LanguageModel>> getLanguages();
+// Profile Picture methods
+  Future<void> saveProfilePicture(ProfilePictureModel picture);
+  Future<List<ProfilePictureModel>> getProfilePicturesForUser(String userId);
+  Future<ProfilePictureModel?> getProfilePictureById(String pictureId);
+  Future<void> deleteProfilePicture(String pictureId);
 
+  // Like methods
+  Future<void> saveLike(LikeModel like);
+  Future<void> deleteLike(String likeId);
+  Future<List<LikeModel>> getLikesForPicture(String pictureId);
+  Future<List<LikeModel>> getLikes();
+  // Comment methods
+  Future<void> saveComment(CommentModel comment);
+  Future<void> deleteComment(String commentId);
+  Future<List<CommentModel>> getCommentsForPicture(String pictureId);
+   Future<List<CommentModel>> getComments();
+  
 }

@@ -1,12 +1,15 @@
 import 'package:hive/hive.dart';
+import 'package:lessay_learn/core/models/comment_model.dart';
 import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
+import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/mock_storage_service.dart';
 import 'package:flutter/foundation.dart';
@@ -19,12 +22,15 @@ class LocalStorageService implements ILocalStorageService {
   static const String _decksBoxName = 'decks';
   static const String _flashcardsBoxName = 'flashcards';
   static const String _currentUserKey = 'currentUser';
-   static const String _knownWordsBoxName = 'knownWords';
+  static const String _knownWordsBoxName = 'knownWords';
   static const String _favoritesBoxName = 'favorites';
-   static const String _languagesBoxName = 'languages';
+  static const String _languagesBoxName = 'languages';
 
+  static const String _profilePicturesBoxName = 'profilePictures';
+  static const String _likesBoxName = 'likes';
+  static const String _commentsBoxName = 'comments';
 
-   Future<Box> _openKnownWordsBox() async {
+  Future<Box> _openKnownWordsBox() async {
     return await Hive.openBox(_knownWordsBoxName);
   }
 
@@ -56,6 +62,18 @@ class LocalStorageService implements ILocalStorageService {
     return await Hive.openBox(_flashcardsBoxName);
   }
 
+  Future<Box> _openProfilePicturesBox() async {
+    return await Hive.openBox(_profilePicturesBoxName);
+  }
+
+  Future<Box> _openLikesBox() async {
+    return await Hive.openBox(_likesBoxName);
+  }
+
+  Future<Box> _openCommentsBox() async {
+    return await Hive.openBox(_commentsBoxName);
+  }
+
   Future<void> initializeBoxes() async {
     await Hive.openBox(_decksBoxName);
     await Hive.openBox(_flashcardsBoxName);
@@ -64,13 +82,10 @@ class LocalStorageService implements ILocalStorageService {
     await Hive.openBox(_messagesBoxName);
     await Hive.openBox(_isLoggedInKey);
     await Hive.openBox(_currentUserKey);
-        await Hive.openBox(_knownWordsBoxName);
+    await Hive.openBox(_knownWordsBoxName);
     await Hive.openBox(_favoritesBoxName);
     await Hive.openBox(_languagesBoxName);
-
   }
-
-
 
 // Known Words methods
   @override
@@ -114,8 +129,7 @@ class LocalStorageService implements ILocalStorageService {
     await box.delete(favoriteId);
   }
 
-
-@override
+  @override
   Future<void> saveLanguage(LanguageModel language) async {
     final box = await _openLanguagesBox();
     await box.put(language.id, language.toJson());
@@ -161,28 +175,30 @@ class LocalStorageService implements ILocalStorageService {
     final box = await _openChatsBox();
     return box.get(_isLoggedInKey, defaultValue: false);
   }
-@override
-Future<UserModel?> getCurrentUser() async {
-  final box = await _openUsersBox();
-  final userJson = box.get(_currentUserKey);
-  if (userJson != null) {
-    return UserModel.fromJson(Map<String, dynamic>.from(userJson));
-  }
-  
-  // If there's no current user, add the first user from mock data
-  final mockUsers = MockStorageService.getUsers();
-  if (mockUsers.isNotEmpty) {
-    final firstUser = mockUsers.first;
-    await saveCurrentUser(firstUser);
+
+  @override
+  Future<UserModel?> getCurrentUser() async {
+    final box = await _openUsersBox();
+    final userJson = box.get(_currentUserKey);
+    if (userJson != null) {
+      return UserModel.fromJson(Map<String, dynamic>.from(userJson));
+    }
+
+    // If there's no current user, add the first user from mock data
+    final mockUsers = MockStorageService.getUsers();
+    if (mockUsers.isNotEmpty) {
+      final firstUser = mockUsers.first;
+      await saveCurrentUser(firstUser);
       return firstUser;
+    }
+
+    return null;
   }
-  
-  return null;
-}
-Future<void> saveCurrentUser(UserModel user) async {
-  final box = await _openUsersBox();
-  await box.put(_currentUserKey, user.toJson());
-}
+
+  Future<void> saveCurrentUser(UserModel user) async {
+    final box = await _openUsersBox();
+    await box.put(_currentUserKey, user.toJson());
+  }
 
   @override
   Future<void> saveChats(List<ChatModel> chats) async {
@@ -193,14 +209,20 @@ Future<void> saveCurrentUser(UserModel user) async {
     }
   }
 
+
+
   @override
   Future<List<ChatModel>> getChats() async {
     final box = await _openChatsBox();
+    await initializeDatabase();
     await getUsers();
     await getLanguages();
     await getDecks();
     await getAllFlashcards();
-  
+
+   
+    
+
     // box.clear();
     //  await box.clear();
     List chatList = box.get(_chatsBoxName, defaultValue: []);
@@ -217,10 +239,10 @@ Future<void> saveCurrentUser(UserModel user) async {
         .toList();
   }
 
-   @override
+  @override
   Future<List<LanguageModel>> getLanguages() async {
     final box = await _openLanguagesBox();
-    
+
     if (box.isEmpty) {
       // If the box is empty, populate it with mock data
       final mockLanguages = MockStorageService.getLanguages();
@@ -317,7 +339,6 @@ Future<void> saveCurrentUser(UserModel user) async {
   Future<List<MessageModel>> getMessagesForChat(String chatId) async {
     final box = await _openMessagesBox();
     final messagesJson = box.get(chatId) as List?;
-    
 
     if (messagesJson == null || messagesJson.isEmpty) {
       // If no messages exist, get mock messages from MockStorageService
@@ -357,31 +378,32 @@ Future<void> saveCurrentUser(UserModel user) async {
     await box.deleteAll(keysToDelete);
   }
 
-Future<void> _populateUsersWithMockData() async {
-  final box = await _openUsersBox();
-  final mockUsers = MockStorageService.getUsers();
-  
-  for (var user in mockUsers) {
-    await box.put(user.id, user.toJson());
-  }
-  
-  debugPrint('Populated users box with ${mockUsers.length} mock users');
-}
+  Future<void> _populateUsersWithMockData() async {
+    final box = await _openUsersBox();
+    final mockUsers = MockStorageService.getUsers();
 
-@override
-Future<List<UserModel>> getUsers() async {
-  final box = await _openUsersBox();
-  
-  // await box.clear();
-  if (box.isEmpty) {
-    await _populateUsersWithMockData();
+    for (var user in mockUsers) {
+      await box.put(user.id, user.toJson());
+    }
+
+    debugPrint('Populated users box with ${mockUsers.length} mock users');
   }
-  debugPrint('Users: ${box.values}');
-  
-  return box.values
-      .map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson)))
-      .toList();
-}
+
+  @override
+  Future<List<UserModel>> getUsers() async {
+    final box = await _openUsersBox();
+
+    // await box.clear();
+    if (box.isEmpty) {
+      await _populateUsersWithMockData();
+    }
+    debugPrint('Users: ${box.values}');
+
+    return box.values
+        .map((userJson) =>
+            UserModel.fromJson(Map<String, dynamic>.from(userJson)))
+        .toList();
+  }
 
   @override
   Future<void> saveUsers(List<UserModel> users) async {
@@ -390,17 +412,17 @@ Future<List<UserModel>> getUsers() async {
     await box.put('users', userList);
   }
 
-@override
-Future<void> saveUser(UserModel user) async {
-  final box = await _openUsersBox();
-  await box.put(user.id, user.toJson());
-  
-  // Only set as current user if there isn't one already
-  final currentUser = await getCurrentUser();
-  if (currentUser == null) {
-    await saveCurrentUser(user);
+  @override
+  Future<void> saveUser(UserModel user) async {
+    final box = await _openUsersBox();
+    await box.put(user.id, user.toJson());
+
+    // Only set as current user if there isn't one already
+    final currentUser = await getCurrentUser();
+    if (currentUser == null) {
+      await saveCurrentUser(user);
+    }
   }
-}
 
   @override
   Future<List<DeckModel>> getDecks() async {
@@ -553,9 +575,191 @@ Future<void> saveUser(UserModel user) async {
     await Hive.deleteBoxFromDisk(_flashcardsBoxName);
     await Hive.deleteBoxFromDisk(_knownWordsBoxName);
     await Hive.deleteBoxFromDisk(_favoritesBoxName);
+    await Hive.deleteBoxFromDisk(_profilePicturesBoxName);
+    await Hive.deleteBoxFromDisk(_likesBoxName);
+    await Hive.deleteBoxFromDisk(_commentsBoxName);
 
     // Re-initialize the boxes
     await initializeBoxes();
   }
+
+  @override
+  Future<void> saveProfilePicture(ProfilePictureModel picture) async {
+    final box = await _openProfilePicturesBox();
+    await box.put(picture.id, picture.toJson());
+  }
+
+  @override
+  Future<List<ProfilePictureModel>> getProfilePicturesForUser(
+      String userId) async {
+    final box = await _openProfilePicturesBox();
+    return box.values
+        .where((json) => json['userId'] == userId)
+        .map((json) =>
+            ProfilePictureModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
+  Future<ProfilePictureModel?> getProfilePictureById(String pictureId) async {
+    final box = await _openProfilePicturesBox();
+    final json = box.get(pictureId);
+    return json != null
+        ? ProfilePictureModel.fromJson(Map<String, dynamic>.from(json))
+        : null;
+  }
+
+  @override
+  Future<void> deleteProfilePicture(String pictureId) async {
+    final box = await _openProfilePicturesBox();
+    await box.delete(pictureId);
+  }
+
+  @override
+  Future<void> saveLike(LikeModel like) async {
+    final box = await _openLikesBox();
+    await box.put(like.id, like.toJson());
+  }
+
+  @override
+  Future<void> deleteLike(String likeId) async {
+    final box = await _openLikesBox();
+    await box.delete(likeId);
+  }
+
+  @override
+  Future<List<LikeModel>> getLikesForPicture(String pictureId) async {
+    final box = await _openLikesBox();
+    return box.values
+        .where((json) => json['toId'] == pictureId)
+        .map((json) => LikeModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
+  Future<void> saveComment(CommentModel comment) async {
+    final box = await _openCommentsBox();
+    await box.put(comment.id, comment.toJson());
+  }
+
+  @override
+  Future<void> deleteComment(String commentId) async {
+    final box = await _openCommentsBox();
+    await box.delete(commentId);
+  }
+
+  @override
+  Future<List<CommentModel>> getCommentsForPicture(String pictureId) async {
+    final box = await _openCommentsBox();
+    return box.values
+        .where((json) => json['toId'] == pictureId)
+        .map((json) => CommentModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+   Future<void> initializeDatabase() async {
+    await initializeBoxes();
+
+    final usersBox = await _openUsersBox();
+    final chatsBox = await _openChatsBox();
+    final messagesBox = await _openMessagesBox();
+    final decksBox = await _openDecksBox();
+    final flashcardsBox = await _openFlashcardsBox();
+    final knownWordsBox = await _openKnownWordsBox();
+    final favoritesBox = await _openFavoritesBox();
+    final languagesBox = await _openLanguagesBox();
+    final profilePicturesBox = await _openProfilePicturesBox();
+    final likesBox = await _openLikesBox();
+    final commentsBox = await _openCommentsBox();
+
+    if (usersBox.isEmpty) {
+      await _populateUsersWithMockData();
+    }
+
+    if (chatsBox.isEmpty) {
+      final mockChats = MockStorageService.getChats();
+      await saveChats(mockChats);
+    }
+
+    if (messagesBox.isEmpty) {
+      final mockMessages = MockStorageService.getMessages();
+      for (var message in mockMessages) {
+        await saveMessage(message);
+      }
+    }
+
+    if (decksBox.isEmpty) {
+      final mockDecks = MockStorageService.getDecks();
+      for (var deck in mockDecks) {
+        await addDeck(deck);
+      }
+    }
+
+    if (flashcardsBox.isEmpty) {
+      final mockFlashcards = MockStorageService.getFlashcards();
+      for (var flashcard in mockFlashcards) {
+        await addFlashcard(flashcard);
+      }
+    }
+
+    if (knownWordsBox.isEmpty) {
+      final mockKnownWords = MockStorageService.getKnownWords();
+      for (var knownWord in mockKnownWords) {
+        await saveKnownWord(knownWord);
+      }
+    }
+
+    if (favoritesBox.isEmpty) {
+      final mockFavorites = MockStorageService.getFavorites();
+      for (var favorite in mockFavorites) {
+        await saveFavorite(favorite);
+      }
+    }
+
+    if (languagesBox.isEmpty) {
+      final mockLanguages = MockStorageService.getLanguages();
+      for (var language in mockLanguages) {
+        await saveLanguage(language);
+      }
+    }
+
+    if (profilePicturesBox.isEmpty) {
+      final mockProfilePictures = MockStorageService.getProfilePictures();
+      for (var picture in mockProfilePictures) {
+        await saveProfilePicture(picture);
+      }
+    }
+
+    if (likesBox.isEmpty) {
+      final mockLikes = MockStorageService.getLikes();
+      for (var like in mockLikes) {
+        await saveLike(like);
+      }
+    }
+
+    if (commentsBox.isEmpty) {
+      final mockComments = MockStorageService.getComments();
+      for (var comment in mockComments) {
+        await saveComment(comment);
+      }
+    }
+  }
+    @override
+  Future<List<LikeModel>> getLikes() async {
+    final box = await _openLikesBox();
+    return box.values
+        .map((json) => LikeModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
+  Future<List<CommentModel>> getComments() async {
+    final box = await _openCommentsBox();
+    return box.values
+        .map((json) => CommentModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  
 
 }
