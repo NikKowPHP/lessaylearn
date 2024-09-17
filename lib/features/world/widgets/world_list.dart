@@ -61,7 +61,7 @@ class CommunityList extends StatelessWidget {
             children: [
               _buildTag(user.languageLevel, CupertinoColors.activeBlue),
               SizedBox(width: 8),
-            _buildTag('${user.sourceLanguages.first} → ${user.targetLanguages.first}', CupertinoColors.activeGreen),
+           _buildTag('${user.sourceLanguageIds.first} → ${user.targetLanguageIds.first}', CupertinoColors.activeGreen),
           ], 
           ),
         ],
