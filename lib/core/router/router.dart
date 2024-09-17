@@ -17,6 +17,7 @@ import 'package:lessay_learn/features/learn/presentation/study_session_screen.da
 import 'package:lessay_learn/features/profile/presentation/profile_screen.dart';
 import 'package:lessay_learn/features/profile/presentation/user_gallery_screen.dart';
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
+import 'package:lessay_learn/features/statistics/presentation/statistics_screen.dart';
 
 
 
@@ -73,6 +74,12 @@ GoRouter createAppRouter() {
             path: '/learn',
             pageBuilder: (context, state) => CupertinoPage(
               child: const LearnScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/statistics',
+            pageBuilder: (context, state) => CupertinoPage(
+              child: const StatisticsScreen(),
             ),
           ),
           GoRoute(
