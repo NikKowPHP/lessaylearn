@@ -1,7 +1,9 @@
 import 'package:lessay_learn/core/models/comment_model.dart';
+import 'package:lessay_learn/core/models/language_model.dart';
 import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
+import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 import 'package:lessay_learn/services/i_user_service.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 
@@ -41,6 +43,27 @@ class UserService implements IUserService {
   @override
   Future<void> updateUser(UserModel user) async {
     await _localStorageService.saveUser(user);
+  }
+  
+
+@override
+  Future<void> saveUserChart(ChartModel chart) async {
+    await _localStorageService.saveChart(chart);
+  }
+
+  @override
+  Future<List<ChartModel>> getUserChart(String userId) async {
+    return await _localStorageService.getUserCharts(userId);
+  }
+
+  @override
+  Future<void> updateUserChart(ChartModel chart) async {
+    await _localStorageService.updateChart(chart);
+  }
+
+  @override
+  Future<void> deleteUserChart(String chartId) async {
+    await _localStorageService.deleteChart(chartId);
   }
 
   @override
@@ -109,6 +132,23 @@ class UserService implements IUserService {
     final allComments = await _localStorageService.getComments();
     return allComments.where((comment) => comment.userId == userId).toList();
   }
+
+@override
+  Future<List<LanguageModel>> getUserLanguages(String userId) async {
+    // Fetch the user by ID
+    UserModel? user = await getUserById(userId);
+    if (user != null) {
+      // Retrieve languages from local storage based on userId
+      return await _localStorageService.getLanguagesByUserId(userId);
+    }
+    return []; // Return an empty list if user is not found
+  }
+   @override
+  Future<List<ChartModel>> getUserCharts(String userId) async {
+    return await _localStorageService.getUserCharts(userId);
+  }
+
+
   
   
 }
