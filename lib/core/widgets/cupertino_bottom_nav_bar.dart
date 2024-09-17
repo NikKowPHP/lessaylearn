@@ -5,8 +5,7 @@ import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/learn_screen.dart';
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
-
-
+import 'package:lessay_learn/features/statistics/presentation/statistics_screen.dart';
 
 class CupertinoBottomNavBar extends StatefulWidget {
   const CupertinoBottomNavBar({Key? key}) : super(key: key);
@@ -34,6 +33,10 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
             label: 'Learn',
           ),
           BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.graph_square),
+            label: 'Statistics',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.settings),
             label: 'Settings',
           ),
@@ -46,20 +49,20 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
               case 0:
                 return Consumer(
                   builder: (context, ref, child) {
-           
                     return HomeScreen();
                   },
                 );
               case 1:
-                return const CommunityScreen(); // Use your Calls screen here
+                return const CommunityScreen();
               case 2:
-                return const LearnScreen(); // Use your Camera screen here
+                return const LearnScreen();
               case 3:
+                return const StatisticsScreen();
+              case 4:
                 return const SettingsScreen();
               default:
                 return Consumer(
                   builder: (context, ref, child) {
-        
                     return HomeScreen();
                   },
                 );
