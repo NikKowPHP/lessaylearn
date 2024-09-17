@@ -503,7 +503,6 @@ class LocalStorageService implements ILocalStorageService {
   Future<UserModel?> getUserById(String userId) async {
     final box = await _openUsersBox();
     final userJson = box.get(userId);
-    debugPrint('User JSON: $userJson');
     return userJson != null
         ? UserModel.fromJson(Map<String, dynamic>.from(userJson))
         : null;
@@ -804,12 +803,22 @@ class LocalStorageService implements ILocalStorageService {
   }
 @override
   Future<List<ChartModel>> getUserCharts(String userId) async {
-    final box = await _openUserChartsBox();
-    return box.values
-        .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
-        .where((chart) => chart.userId == userId)
-        .toList();
-  }
-  
+  // Open the user charts box
+  final box = await _openUserChartsBox();
+  debugPrint('Opened user charts box: ${box.keys}'); // Log the keys in the box
+
+  // Retrieve and map the values to ChartModel
+  final charts = box.values
+      .map((json) {
+        final chart = ChartModel.fromJson(Map<String, dynamic>.from(json));
+        print('Chart retrieved: ${chart.toJson()}'); // Log each chart retrieved
+        return chart;
+      })
+      .where((chart) => chart.userId == userId) // Filter by userId
+      .toList();
+
+  debugPrint('Filtered charts for user $userId: ${charts.length} charts found'); // Log the number of charts found
+  return charts;
+}
 
 }

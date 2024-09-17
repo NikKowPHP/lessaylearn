@@ -16,5 +16,5 @@ final userChartsProvider = FutureProvider.family<List<ChartModel>, String>((ref,
 
 final languageChartProvider = FutureProvider.family<ChartModel?, ({String userId, String languageId})>((ref, params) async {
   final chartService = ref.watch(chartServiceProvider);
-  return await chartService.getChartForLangua`ge(params.userId, params.languageId);
+  return await chartService.getChartForLanguage(params.userId, params.languageId);
 });
