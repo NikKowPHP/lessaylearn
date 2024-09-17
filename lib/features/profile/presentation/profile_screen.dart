@@ -5,6 +5,7 @@ import 'package:lessay_learn/core/providers/language_service_provider.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
 
 class ProfileScreen extends ConsumerWidget {
   final String userId;
@@ -19,6 +20,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userByIdProvider(userId));
+    final profilePicturesAsync = ref.watch(userProfilePicturesProvider(userId));
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
@@ -89,6 +91,8 @@ class ProfileScreen extends ConsumerWidget {
                   if (user.education != null)
                     _buildInfoTile('Education', user.education!),
                   SizedBox(height: 30),
+                  SizedBox(height: 20),
+                  _buildGalleryPreview(context, ref, user),
                 ],
               ),
             );
@@ -97,6 +101,51 @@ class ProfileScreen extends ConsumerWidget {
           error: (error, stack) => Center(child: Text('Error loading profile')),
         ),
       ),
+    );
+  }
+
+  Widget _buildGalleryPreview(BuildContext context, WidgetRef ref, UserModel user) {
+    final profilePicturesAsync = ref.watch(userProfilePicturesProvider(user.id));
+
+    return profilePicturesAsync.when(
+      data: (pictures) {
+        if (pictures.isEmpty) {
+          return SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Gallery',
+              style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+            ),
+            SizedBox(height: 12),
+            SizedBox(
+              height: 100,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: pictures.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsets.only(right: 8),
+                    child: GestureDetector(
+                      onTap: () => context.push('/user-gallery/${user.id}'),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        
+                        child: AvatarWidget(imageUrl: pictures[index].imageUrl, isNetworkImage: false,size: 150,)
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => CupertinoActivityIndicator(),
+      error: (_, __) => Text('Failed to load gallery'),
     );
   }
 

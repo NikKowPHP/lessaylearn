@@ -13,6 +13,7 @@ class UserModel {
   final String? occupation;
   final String? education;
   final List<String> languageIds;
+  final List<String> profilePictureIds;
 
   UserModel({
     required this.id,
@@ -29,6 +30,7 @@ class UserModel {
     this.occupation,
     this.education,
     this.languageIds = const [],
+    this.profilePictureIds = const [],
   });
 
   @override
@@ -47,7 +49,8 @@ class UserModel {
       interests: $interests,
       occupation: $occupation,
       education: $education,
-      languageIds: $languageIds
+      languageIds: $languageIds,
+      profilePictureIds: $profilePictureIds
     )''';
   }
 
@@ -67,6 +70,7 @@ class UserModel {
       occupation: json['occupation'],
       education: json['education'],
        languageIds: List<String>.from(json['languageIds'] ?? []),
+      profilePictureIds: List<String>.from(json['profilePictureIds'] ?? []),
     );
   }
 
@@ -86,6 +90,7 @@ class UserModel {
       'occupation': occupation,
       'education': education,
         'languageIds': languageIds,
+      'profilePictureIds': profilePictureIds,
     };
   }
    UserModel copyWith({
@@ -103,6 +108,7 @@ class UserModel {
     String? occupation,
     String? education,
     List<String>? languageIds,
+    List<String>? profilePictureIds,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -119,6 +125,7 @@ class UserModel {
       occupation: occupation ?? this.occupation,
       education: education ?? this.education,
       languageIds: languageIds ?? this.languageIds,
+      profilePictureIds: profilePictureIds ?? this.profilePictureIds,
     );
   }
 }

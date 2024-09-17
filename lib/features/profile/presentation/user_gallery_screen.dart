@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
+import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 
 class UserGalleryScreen extends ConsumerStatefulWidget {
   final String userId;
@@ -31,7 +32,7 @@ class _UserGalleryScreenState extends ConsumerState<UserGalleryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userAsync = ref.watch(userByIdProvider(widget.userId));
+    final profilePicturesAsync = ref.watch(userProfilePicturesProvider(widget.userId));
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
@@ -43,91 +44,180 @@ class _UserGalleryScreenState extends ConsumerState<UserGalleryScreen> {
         ),
       ),
       child: SafeArea(
-        child: userAsync.when(
-          data: (user) {
-            if (user == null) {
-              return Center(child: Text('User not found'));
+        child: profilePicturesAsync.when(
+          data: (pictures) {
+            if (pictures.isEmpty) {
+              return Center(child: Text('No pictures found'));
             }
-
-            // For this example, we'll use a list of dummy image URLs
-            // In a real app, you'd fetch these from the user's data
-            final List<String> imageUrls = [
-              user.avatarUrl,
-              'assets/avatar-1.png',
-              'assets/avatar-2.png',
-              'assets/avatar-3.png',
-            ];
 
             return Column(
               children: [
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,
-                    itemCount: imageUrls.length,
+                    itemCount: pictures.length,
                     onPageChanged: (int page) {
                       setState(() {
                         _currentPage = page;
                       });
                     },
                     itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onHorizontalDragEnd: (details) {
-                          if (details.primaryVelocity! > 0) {
-                            // Swipe right
-                            _pageController.previousPage(
-                              duration: Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          } else if (details.primaryVelocity! < 0) {
-                            // Swipe left
-                            _pageController.nextPage(
-                              duration: Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          }
-                        },
-                        child: Center(
-                          child: Container(
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.8,
-                              maxHeight: MediaQuery.of(context).size.height * 0.6,
-                            ),
-                            child: Image.asset(
-                              imageUrls[index],
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                      );
+                      return _buildPictureView(pictures[index]);
                     },
                   ),
                 ),
                 SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    imageUrls.length,
-                    (index) => Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4),
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _currentPage == index
-                            ? CupertinoColors.activeBlue
-                            : CupertinoColors.systemGrey3,
-                      ),
-                    ),
-                  ),
+                Container(
+                  height: 100,
+                  child: _buildGalleryGrid(pictures),
                 ),
-                SizedBox(height: 20),
               ],
             );
           },
           loading: () => Center(child: CupertinoActivityIndicator()),
-          error: (error, stack) => Center(child: Text('Error loading user data')),
+          error: (error, stack) => Center(child: Text('Error loading gallery')),
         ),
       ),
+    );
+  }
+
+  Widget _buildPictureView(ProfilePictureModel picture) {
+    final likesAsync = ref.watch(likesForPictureProvider(picture.id));
+    final commentsAsync = ref.watch(commentsForPictureProvider(picture.id));
+
+    return Column(
+      children: [
+        Expanded(
+          child: buildGalleryImage(
+            imageUrl: picture.imageUrl,
+            isNetworkImage: false,
+            fit: BoxFit.contain,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: Icon(CupertinoIcons.heart),
+                    onPressed: () {
+                      // Implement like functionality
+                    },
+                  ),
+                  SizedBox(width: 16),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: Icon(CupertinoIcons.chat_bubble),
+                    onPressed: () {
+                      // Implement comment functionality
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              likesAsync.when(
+                data: (likes) => Text('${likes.length} likes'),
+                loading: () => CupertinoActivityIndicator(),
+                error: (_, __) => Text('Failed to load likes'),
+              ),
+              SizedBox(height: 8),
+              commentsAsync.when(
+                data: (comments) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: comments.take(2).map((comment) {
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: 4),
+                      child: Text('${comment.userId}: ${comment.content}'),
+                    );
+                  }).toList(),
+                ),
+                loading: () => CupertinoActivityIndicator(),
+                error: (_, __) => Text('Failed to load comments'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildGalleryImage({
+    required String imageUrl,
+    bool isNetworkImage = true,
+    double? width,
+    double? height,
+    BoxFit fit = BoxFit.cover,
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(8)),
+    VoidCallback? onTap,
+  }) {
+    Widget image;
+    if (isNetworkImage) {
+      image = Image.network(
+        imageUrl,
+        fit: fit,
+        width: width,
+        height: height,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CupertinoActivityIndicator(),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: width,
+            height: height,
+            color: CupertinoColors.systemGrey5,
+            child: Icon(CupertinoIcons.photo, color: CupertinoColors.systemGrey),
+          );
+        },
+      );
+    } else {
+      image = Image.asset(
+        imageUrl,
+        fit: fit,
+        width: width,
+        height: height,
+      );
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: image,
+      ),
+    );
+  }
+
+  Widget _buildGalleryGrid(List<ProfilePictureModel> pictures) {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
+      ),
+      itemCount: pictures.length,
+      itemBuilder: (context, index) {
+        final picture = pictures[index];
+        return buildGalleryImage(
+          imageUrl: picture.imageUrl,
+          isNetworkImage: false, // Assuming all profile pictures are network images
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.cover,
+          onTap: () {
+            // Navigate to full-screen view or update current view
+            _pageController.jumpToPage(index);
+          },
+        );
+      },
     );
   }
 }
