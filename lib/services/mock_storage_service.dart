@@ -1,75 +1,84 @@
+import 'package:lessay_learn/core/models/comment_model.dart';
+import 'package:lessay_learn/core/models/favorite_model.dart';
+import 'package:lessay_learn/core/models/known_word_model.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
-import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
+import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
+import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 
 class MockStorageService {
   static final List<UserModel> _users = [
-      UserModel(
+    UserModel(
       id: 'user1',
       name: 'Alice',
       avatarUrl: 'assets/avatar-1.png',
       languageLevel: 'Intermediate',
-      sourceLanguageIds: ['lang_en'], // Updated to use language IDs
-      targetLanguageIds: ['lang_es'], // Updated to use language IDs
-      spokenLanguageIds: ['lang_en', 'lang_es'], // Updated to use language IDs
+      sourceLanguageIds: ['lang_en'],
+      targetLanguageIds: ['lang_es'],
+      spokenLanguageIds: ['lang_en', 'lang_es'],
       location: 'New York',
       age: 28,
       bio: 'Language enthusiast and travel lover',
       interests: ['Reading', 'Cooking', 'Hiking'],
       occupation: 'Software Developer',
       education: 'Bachelor in Computer Science',
-      languageIds: ['lang_en', 'lang_es'], // Updated to use language IDs
+      languageIds: ['lang_en', 'lang_es'],
+      profilePictureIds: ['pic1', 'pic2'],
     ),
     UserModel(
       id: 'user2',
       name: 'Bob',
       avatarUrl: 'assets/avatar-2.png',
       languageLevel: 'Beginner',
-      sourceLanguageIds: ['lang_en'], // Updated to use language IDs
-      targetLanguageIds: ['lang_fr', 'lang_ja'], // Updated to use language IDs
-      spokenLanguageIds: ['lang_en', 'lang_fr'], // Updated to use language IDs
+      sourceLanguageIds: ['lang_en'],
+      targetLanguageIds: ['lang_fr', 'lang_ja'],
+      spokenLanguageIds: ['lang_en', 'lang_fr'],
       location: 'London',
       age: 32,
       bio: 'Aspiring polyglot and coffee addict',
       interests: ['Coffee', 'Photography', 'Yoga'],
       occupation: 'Marketing Manager',
       education: 'MBA',
-      languageIds: ['lang_en', 'lang_fr', 'lang_ja'], // Updated to use language IDs
+      languageIds: ['lang_en', 'lang_fr', 'lang_ja'],
+      profilePictureIds: ['pic3', 'pic4'],
     ),
     UserModel(
       id: 'user3',
       name: 'Charlie',
       avatarUrl: 'assets/avatar-3.png',
       languageLevel: 'Advanced',
-      sourceLanguageIds: ['lang_en', 'lang_fr'], // Updated to use language IDs
-      targetLanguageIds: ['lang_es', 'lang_it'], // Updated to use language IDs
-      spokenLanguageIds: ['lang_en', 'lang_fr', 'lang_es'], // Updated to use language IDs
+      sourceLanguageIds: ['lang_en', 'lang_fr'],
+      targetLanguageIds: ['lang_es', 'lang_it'],
+      spokenLanguageIds: ['lang_en', 'lang_fr', 'lang_es'],
       location: 'Madrid',
       age: 25,
       bio: 'Passionate about languages and cultures',
       interests: ['Traveling', 'Dancing', 'Cooking'],
       occupation: 'Teacher',
       education: 'Master in Education',
-      languageIds: ['lang_en', 'lang_fr', 'lang_es', 'lang_it'], // Updated to use language IDs
+      languageIds: ['lang_en', 'lang_fr', 'lang_es', 'lang_it'],
+      profilePictureIds: ['pic5', 'pic6'],
     ),
     UserModel(
       id: 'user4',
       name: 'Diana',
       avatarUrl: 'assets/avatar-4.png',
       languageLevel: 'Advanced',
-      sourceLanguageIds: ['lang_en', 'lang_de'], // Updated to use language IDs
-      targetLanguageIds: ['lang_fr', 'lang_zh'], // Updated to use language IDs
-      spokenLanguageIds: ['lang_en', 'lang_de', 'lang_fr', 'lang_it'], // Updated to use language IDs
+      sourceLanguageIds: ['lang_en', 'lang_de'],
+      targetLanguageIds: ['lang_fr', 'lang_zh'],
+      spokenLanguageIds: ['lang_en', 'lang_de', 'lang_fr', 'lang_it'],
       location: 'Paris',
       age: 30,
       bio: 'Language lover and art enthusiast',
       interests: ['Painting', 'Museums', 'Wine tasting'],
       occupation: 'Art Curator',
       education: 'PhD in Art History',
-      languageIds: ['lang_en', 'lang_de', 'lang_fr', 'lang_zh'], // Updated to use language IDs
+      languageIds: ['lang_en', 'lang_de', 'lang_fr', 'lang_zh'],
+      profilePictureIds: ['pic7', 'pic8'],
     ),
   ];
 
@@ -110,97 +119,27 @@ class MockStorageService {
   ];
 
   static final List<DeckModel> _decks = [
-  DeckModel(
-    id: 'deck1',
-    name: 'Spanish Vocabulary',
-    description: 'Basic Spanish words and phrases',
-    cardCount: 2,
-    lastStudied: DateTime.now().subtract(Duration(days: 1)),
-    languageLevel: 'Beginner',
-    sourceLanguage: 'English',
-    targetLanguage: 'Spanish',
-  ),
-  DeckModel(
-    id: 'deck2',
-    name: 'French Verbs',
-    description: 'Common French verbs and conjugations',
-    cardCount: 2,
-    lastStudied: DateTime.now().subtract(Duration(days: 3)),
-    languageLevel: 'Intermediate',
-    sourceLanguage: 'English',
-    targetLanguage: 'French',
-  ),
-];
-
-
-
-  static final List<LanguageModel> _languages = [
-    LanguageModel(
-      id: 'lang_en',
-      userId: 'user1', // Associate with user1
-      name: 'English',
-      shortcut: 'EN',
-      timestamp: DateTime.now(),
-      level: 'Advanced',
-      score: 85,
+    DeckModel(
+      id: 'deck1',
+      name: 'Spanish Vocabulary',
+      description: 'Basic Spanish words and phrases',
+      cardCount: 2,
+      lastStudied: DateTime.now().subtract(Duration(days: 1)),
+      languageLevel: 'Beginner',
+      sourceLanguage: 'English',
+      targetLanguage: 'Spanish',
     ),
-    LanguageModel(
-      id: 'lang_es',
-      userId: 'user1', // Associate with user1
-      name: 'Spanish',
-      shortcut: 'ES',
-      timestamp: DateTime.now(),
-      level: 'Intermediate',
-      score: 70,
-    ),
-    LanguageModel(
-      id: 'lang_fr',
-      userId: 'user2', // Associate with user2
-      name: 'French',
-      shortcut: 'FR',
-      timestamp: DateTime.now(),
-      level: 'Beginner',
-      score: 50,
-    ),
-    LanguageModel(
-      id: 'lang_de',
-      userId: 'user4', // Associate with user4
-      name: 'German',
-      shortcut: 'DE',
-      timestamp: DateTime.now(),
-      level: 'Advanced',
-      score: 90,
-    ),
-    LanguageModel(
-      id: 'lang_ja',
-      userId: 'user2', // Associate with user2
-      name: 'Japanese',
-      shortcut: 'JA',
-      timestamp: DateTime.now(),
-      level: 'Beginner',
-      score: 40,
-    ),
-    LanguageModel(
-      id: 'lang_it',
-      userId: 'user3', // Associate with user3
-      name: 'Italian',
-      shortcut: 'IT',
-      timestamp: DateTime.now(),
-      level: 'Intermediate',
-      score: 65,
-    ),
-    LanguageModel(
-      id: 'lang_zh',
-      userId: 'user4', // Associate with user4
-      name: 'Chinese',
-      shortcut: 'ZH',
-      timestamp: DateTime.now(),
-      level: 'Beginner',
-      score: 30,
+    DeckModel(
+      id: 'deck2',
+      name: 'French Verbs',
+      description: 'Common French verbs and conjugations',
+      cardCount: 2,
+      lastStudied: DateTime.now().subtract(Duration(days: 3)),
+      languageLevel: 'Intermediate',
+      sourceLanguage: 'English',
+      targetLanguage: 'French',
     ),
   ];
-
-
 
   static final List<FlashcardModel> _flashcards = [
     FlashcardModel(
@@ -237,63 +176,241 @@ class MockStorageService {
     ),
   ];
 
+  static final List<MessageModel> _messages = [
+    MessageModel(
+      id: 'msg1',
+      chatId: 'chat1',
+      senderId: 'user1',
+      receiverId: 'user2',
+      content: 'Hola! ¿Cómo estás?',
+      timestamp: DateTime.now().subtract(Duration(minutes: 5)),
+      isRead: true,
+    ),
+    MessageModel(
+      id: 'msg2',
+      chatId: 'chat1',
+      senderId: 'user2',
+      receiverId: 'user1',
+      content: 'Bien, gracias. ¿Y tú?',
+      timestamp: DateTime.now().subtract(Duration(minutes: 4)),
+      isRead: true,
+    ),
+    MessageModel(
+      id: 'msg3',
+      chatId: 'chat2',
+      senderId: 'user2',
+      receiverId: 'user1',
+      content: 'Bonjour! Comment allez-vous?',
+      timestamp: DateTime.now().subtract(Duration(hours: 1)),
+      isRead: true,
+    ),
+    MessageModel(
+      id: 'msg4',
+      chatId: 'chat2',
+      senderId: 'user1',
+      receiverId: 'user2',
+      content: 'Je vais bien, merci. Et vous?',
+      timestamp: DateTime.now().subtract(Duration(minutes: 55)),
+      isRead: false,
+    ),
+    MessageModel(
+      id: 'msg5',
+      chatId: 'chat3',
+      senderId: 'user3',
+      receiverId: 'user1',
+      content: 'Hola! ¿Cómo estás?',
+      timestamp: DateTime.now().subtract(Duration(minutes: 5)),
+      isRead: true,
+    ),
+    MessageModel(
+      id: 'msg6',
+      chatId: 'chat3',
+      senderId: 'user1',
+      receiverId: 'user3',
+      content: 'Bien, gracias. ¿Y tú?',
+      timestamp: DateTime.now().subtract(Duration(minutes: 4)),
+      isRead: true,
+    ),
+  ];
 
- static final List<MessageModel> _messages = [
-  MessageModel(
-    id: 'msg1',
-    chatId: 'chat1',
-    senderId: 'user1',
-    receiverId: 'user2',
-    content: 'Hola! ¿Cómo estás?',
-    timestamp: DateTime.now().subtract(Duration(minutes: 5)),
-    isRead: true,
-  ),
-  MessageModel(
-    id: 'msg2',
-    chatId: 'chat1',
-    senderId: 'user2',
-    receiverId: 'user1',
-    content: 'Bien, gracias. ¿Y tú?',
-    timestamp: DateTime.now().subtract(Duration(minutes: 4)),
-    isRead: true,
-  ),
-  MessageModel(
-    id: 'msg3',
-    chatId: 'chat2',
-    senderId: 'user2',
-    receiverId: 'user1',
-    content: 'Bonjour! Comment allez-vous?',
-    timestamp: DateTime.now().subtract(Duration(hours: 1)),
-    isRead: true,
-  ),
-  MessageModel(
-    id: 'msg4',
-    chatId: 'chat2',
-    senderId: 'user1',
-    receiverId: 'user2',
-    content: 'Je vais bien, merci. Et vous?',
-    timestamp: DateTime.now().subtract(Duration(minutes: 55)),
-    isRead: false,
-  ),
-  MessageModel(
-    id: 'msg5',
-    chatId: 'chat3',
-    senderId: 'user3',
-    receiverId: 'user1',
-    content: 'Hola! ¿Cómo estás?',
-    timestamp: DateTime.now().subtract(Duration(minutes: 5)),
-    isRead: true,
-  ),
-  MessageModel(
-    id: 'msg6',
-    chatId: 'chat3',
-    senderId: 'user1',
-    receiverId: 'user3',
-    content: 'Bien, gracias. ¿Y tú?',
-    timestamp: DateTime.now().subtract(Duration(minutes: 4)),
-    isRead: true,
-  ),
-];
+  static final List<ProfilePictureModel> _profilePictures = [
+    ProfilePictureModel(
+      id: 'pic1',
+      userId: 'user1',
+      imageUrl: 'assets/avatar-1.png',
+      likeIds: ['like1', 'like2'],
+      commentIds: ['comment1', 'comment2'],
+    ),
+    ProfilePictureModel(
+      id: 'pic2',
+      userId: 'user1',
+      imageUrl: 'assets/avatar-1.png',
+      likeIds: [],
+      commentIds: [],
+    ),
+    ProfilePictureModel(
+      id: 'pic3',
+      userId: 'user2',
+      imageUrl: 'assets/avatar-2.png',
+      likeIds: ['like3'],
+      commentIds: ['comment3'],
+    ),
+    ProfilePictureModel(
+      id: 'pic4',
+      userId: 'user2',
+      imageUrl: 'assets/avatar-2.png',
+      likeIds: [],
+      commentIds: [],
+    ),
+    ProfilePictureModel(
+      id: 'pic5',
+      userId: 'user3',
+      imageUrl: 'assets/avatar-3.png',
+      likeIds: ['like4', 'like5'],
+      commentIds: ['comment4', 'comment5'],
+    ),
+    ProfilePictureModel(
+      id: 'pic6',
+      userId: 'user3',
+      imageUrl: 'assets/avatar-3.png',
+      likeIds: [],
+      commentIds: [],
+    ),
+    ProfilePictureModel(
+      id: 'pic7',
+      userId: 'user4',
+      imageUrl: 'assets/avatar-4.png',
+      likeIds: ['like6', 'like7'],
+      commentIds: ['comment6', 'comment7'],
+    ),
+    ProfilePictureModel(
+      id: 'pic8',
+      userId: 'user4',
+      imageUrl: 'assets/avatar-4.png',
+      likeIds: [],
+      commentIds: [],
+    ),
+  ];
+
+  static final List<LikeModel> _likes = [
+    LikeModel(id: 'like1', userId: 'user2', toId: 'pic1'),
+    LikeModel(id: 'like2', userId: 'user3', toId: 'pic1'),
+    LikeModel(id: 'like3', userId: 'user1', toId: 'pic3'),
+    LikeModel(id: 'like4', userId: 'user2', toId: 'pic5'),
+    LikeModel(id: 'like5', userId: 'user4', toId: 'pic5'),
+    LikeModel(id: 'like6', userId: 'user1', toId: 'pic7'),
+    LikeModel(id: 'like7', userId: 'user3', toId: 'pic7'),
+  ];
+
+  static final List<CommentModel> _comments = [
+    CommentModel(id: 'comment1', userId: 'user2', toId: 'pic1', content: 'Great picture!'),
+    CommentModel(id: 'comment2', userId: 'user3', toId: 'pic1', content: 'Love this!'),
+    CommentModel(id: 'comment3', userId: 'user1', toId: 'pic3', content: 'Nice avatar!'),
+    CommentModel(id: 'comment4', userId: 'user2', toId: 'pic5', content: 'Cool!'),
+    CommentModel(id: 'comment5', userId: 'user4', toId: 'pic5', content: 'Awesome!'),
+    CommentModel(id: 'comment6', userId: 'user1', toId: 'pic7', content: 'Beautiful!'),
+    CommentModel(id: 'comment7', userId: 'user3', toId: 'pic7', content: 'Amazing!'),
+  ];
+
+  static final List<KnownWordModel> _knownWords = [
+    KnownWordModel(id: 'kw1', userId: 'user1', word: 'bonjour', language: 'French'),
+    KnownWordModel(id: 'kw2', userId: 'user1', word: 'merci', language: 'French'),
+    KnownWordModel(id: 'kw3', userId: 'user2', word: 'hola', language: 'Spanish'),
+    KnownWordModel(id: 'kw4', userId: 'user2', word: 'gracias', language: 'Spanish'),
+  ];
+
+  static final List<FavoriteModel> _favorites = [
+    FavoriteModel(
+      id: 'fav1',
+      userId: 'user1',
+      sourceText: 'Hello',
+      translatedText: 'Hola',
+      sourceLanguage: 'English',
+      targetLanguage: 'Spanish',
+    ),
+    FavoriteModel(
+      id: 'fav2',
+      userId: 'user2',
+      sourceText: 'Goodbye',
+      translatedText: 'Adiós',
+      sourceLanguage: 'English',
+      targetLanguage: 'Spanish',
+    ),
+    FavoriteModel(
+      id: 'fav3',
+      userId: 'user1',
+      sourceText: 'Thank you',
+      translatedText: 'Merci',
+      sourceLanguage: 'English',
+      targetLanguage: 'French',
+    ),
+  ];
+
+  static final List<LanguageModel> _languages = [
+    LanguageModel(
+      id: 'lang_en',
+      userId: 'user1',
+      name: 'English',
+      shortcut: 'en',
+      timestamp: DateTime.now(),
+      level: 'Advanced',
+      score: 900,
+    ),
+    LanguageModel(
+      id: 'lang_fr',
+      userId: 'user1',
+      name: 'French',
+      shortcut: 'fr',
+      timestamp: DateTime.now(),
+      level: 'Intermediate',
+      score: 750,
+    ),
+    LanguageModel(
+      id: 'lang_es',
+      userId: 'user2',
+      name: 'Spanish',
+      shortcut: 'es',
+      timestamp: DateTime.now(),
+      level: 'Beginner',
+      score: 300,
+    ),
+    LanguageModel(
+      id: 'lang_de',
+      userId: 'user2',
+      name: 'German',
+      shortcut: 'de',
+      timestamp: DateTime.now(),
+      level: 'Intermediate',
+      score: 600,
+    ),
+    LanguageModel(
+      id: 'lang_it',
+      userId: 'user3',
+      name: 'Italian',
+      shortcut: 'it',
+      timestamp: DateTime.now(),
+      level: 'Advanced',
+      score: 850,
+    ),
+    LanguageModel(
+      id: 'lang_ja',
+      userId: 'user3',
+      name: 'Japanese',
+      shortcut: 'ja',
+      timestamp: DateTime.now(),
+      level: 'Beginner',
+      score: 200,
+    ),
+    LanguageModel(
+      id: 'lang_zh',
+      userId: 'user4',
+      name: 'Chinese',
+      shortcut: 'zh',
+      timestamp: DateTime.now(),
+      level: 'Intermediate',
+      score: 500,
+    ),
+  ];
 
 
   // Methods to access mock data
@@ -302,11 +419,14 @@ class MockStorageService {
   static List<DeckModel> getDecks() => _decks;
   static List<FlashcardModel> getFlashcards() => _flashcards;
   static List<LanguageModel> getLanguages() => _languages;
-
-    static List<MessageModel> getMessages() => _messages;
+  static List<MessageModel> getMessages() => _messages;
+  static List<ProfilePictureModel> getProfilePictures() => _profilePictures;
+  static List<LikeModel> getLikes() => _likes;
+  static List<CommentModel> getComments() => _comments;
+  static List<KnownWordModel> getKnownWords() => _knownWords;
+  static List<FavoriteModel> getFavorites() => _favorites;
 
   static List<MessageModel> getMessagesForChat(String chatId) {
     return _messages.where((message) => message.chatId == chatId).toList();
   }
-
 }
