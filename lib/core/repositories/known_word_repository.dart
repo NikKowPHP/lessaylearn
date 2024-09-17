@@ -17,4 +17,7 @@ class KnownWordRepository {
   Future<void> deleteKnownWord(String knownWordId) async {
     await _localStorageService.deleteKnownWord(knownWordId);
   }
+   Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId) async {
+    return await _localStorageService.getKnownWordsByUserAndLanguage(userId, languageId);
+  }
 }

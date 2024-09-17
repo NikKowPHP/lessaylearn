@@ -6,6 +6,8 @@ import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 import 'package:lessay_learn/features/statistics/providers/chart_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart' show LinearProgressIndicator;
+import 'package:lessay_learn/core/providers/known_word_repository_provider.dart';
+import 'package:lessay_learn/core/providers/favorite_repository_provider.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
@@ -85,6 +87,12 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
               _buildSkillChart(userId, 'Speaking'),
               _buildSkillChart(userId, 'Listening'),
             ]),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _buildWordStats(userId),
+            ),
           ),
         ],
       ],
@@ -231,6 +239,45 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
       },
       loading: () => const CupertinoActivityIndicator(),
       error: (error, _) => Text('Error: $error'),
+    );
+  }
+
+  Widget _buildWordStats(String userId) {
+    final knownWordsAsync = ref.watch(knownWordsByUserAndLanguageProvider((userId, selectedLanguageId!)));
+    final favoritesAsync = ref.watch(favoritesByUserAndLanguageProvider((userId, selectedLanguageId!)));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Word Statistics',
+          style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+        ),
+        const SizedBox(height: 16),
+        _buildWordStatItem('Known Words', knownWordsAsync),
+        const SizedBox(height: 8),
+        _buildWordStatItem('Favorite Words', favoritesAsync),
+      ],
+    );
+  }
+
+  Widget _buildWordStatItem(String title, AsyncValue<List<dynamic>> asyncValue) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: CupertinoTheme.of(context).textTheme.textStyle),
+        asyncValue.when(
+          data: (data) => Text(
+            data.length.toString(),
+            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: CupertinoColors.activeBlue,
+                ),
+          ),
+          loading: () => const CupertinoActivityIndicator(),
+          error: (_, __) => const Icon(CupertinoIcons.exclamationmark_circle, color: CupertinoColors.destructiveRed),
+        ),
+      ],
     );
   }
 }

@@ -18,3 +18,7 @@ final knownWordsProvider = FutureProvider<List<KnownWordModel>>((ref) async {
   final service = ref.watch(knownWordServiceProvider);
   return await service.getKnownWords();
 });
+final knownWordsByUserAndLanguageProvider = FutureProvider.family<List<KnownWordModel>, (String, String)>((ref, params) async {
+  final service = ref.watch(knownWordServiceProvider);
+  return await service.getKnownWordsByUserAndLanguage(params.$1, params.$2);
+});

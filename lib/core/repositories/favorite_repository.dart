@@ -17,4 +17,7 @@ class FavoriteRepository {
   Future<void> deleteFavorite(String favoriteId) async {
     await _localStorageService.deleteFavorite(favoriteId);
   }
+   Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId) async {
+    return await _localStorageService.getFavoritesByUserAndLanguage(userId, languageId);
+  }
 }

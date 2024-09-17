@@ -84,4 +84,7 @@ Future<void> saveChart(ChartModel chart);
 Future<void> updateChart(ChartModel chart);
   Future<void> deleteChart(String chartId) ;
    Future<List<ChartModel>> getUserCharts(String userId);
+
+   Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId);
+  Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId);
 }

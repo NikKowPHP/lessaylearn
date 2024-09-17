@@ -17,4 +17,9 @@ class KnownWordService {
   Future<void> removeKnownWord(String knownWordId) async {
     await _repository.deleteKnownWord(knownWordId);
   }
+
+  // Add the missing method
+  Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId) async {
+    return await _repository.getKnownWordsByUserAndLanguage(userId, languageId);
+  }
 }

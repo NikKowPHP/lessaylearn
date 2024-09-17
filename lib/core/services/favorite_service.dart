@@ -17,4 +17,9 @@ class FavoriteService {
   Future<void> removeFavorite(String favoriteId) async {
     await _repository.deleteFavorite(favoriteId);
   }
+
+  // Add the missing method
+  Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId) async {
+    return await _repository.getFavoritesByUserAndLanguage(userId, languageId);
+  }
 }

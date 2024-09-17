@@ -97,6 +97,27 @@ class LocalStorageService implements ILocalStorageService {
     await Hive.openBox(_languagesBoxName);
   }
 
+ @override
+  Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId) async {
+    final box = await Hive.openBox(_favoritesBoxName);
+    return box.values
+        .where((favorite) => 
+            favorite['userId'] == userId && favorite['languageId'] == languageId)
+        .map((json) => FavoriteModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
+  Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId) async {
+    final box = await Hive.openBox(_knownWordsBoxName);
+    return box.values
+        .where((knownWord) => 
+            knownWord['userId'] == userId && knownWord['languageId'] == languageId)
+        .map((json) => KnownWordModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+
 // Known Words methods
   @override
   Future<void> saveKnownWord(KnownWordModel knownWord) async {

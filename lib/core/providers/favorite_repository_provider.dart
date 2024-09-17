@@ -18,3 +18,7 @@ final favoritesProvider = FutureProvider<List<FavoriteModel>>((ref) async {
   final service = ref.watch(favoriteServiceProvider);
   return await service.getFavorites();
 });
+final favoritesByUserAndLanguageProvider = FutureProvider.family<List<FavoriteModel>, (String, String)>((ref, params) async {
+  final service = ref.watch(favoriteServiceProvider);
+  return await service.getFavoritesByUserAndLanguage(params.$1, params.$2);
+});
