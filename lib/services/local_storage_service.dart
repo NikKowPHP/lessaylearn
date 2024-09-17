@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
+import 'package:lessay_learn/core/models/language_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -20,10 +21,15 @@ class LocalStorageService implements ILocalStorageService {
   static const String _currentUserKey = 'currentUser';
    static const String _knownWordsBoxName = 'knownWords';
   static const String _favoritesBoxName = 'favorites';
+   static const String _languagesBoxName = 'languages';
 
 
    Future<Box> _openKnownWordsBox() async {
     return await Hive.openBox(_knownWordsBoxName);
+  }
+
+  Future<Box> _openLanguagesBox() async {
+    return await Hive.openBox(_languagesBoxName);
   }
 
   Future<Box> _openFavoritesBox() async {
@@ -60,6 +66,7 @@ class LocalStorageService implements ILocalStorageService {
     await Hive.openBox(_currentUserKey);
         await Hive.openBox(_knownWordsBoxName);
     await Hive.openBox(_favoritesBoxName);
+    await Hive.openBox(_languagesBoxName);
 
   }
 
@@ -107,6 +114,47 @@ class LocalStorageService implements ILocalStorageService {
     await box.delete(favoriteId);
   }
 
+
+@override
+  Future<void> saveLanguage(LanguageModel language) async {
+    final box = await _openLanguagesBox();
+    await box.put(language.id, language.toJson());
+  }
+
+  @override
+  Future<List<LanguageModel>> getLanguagesByUserId(String userId) async {
+    final box = await _openLanguagesBox();
+    final languages = box.values
+        .map((json) => LanguageModel.fromJson(Map<String, dynamic>.from(json)))
+        .where((language) => language.userId == userId)
+        .toList();
+    return languages;
+  }
+
+  @override
+  Future<LanguageModel?> getLanguageById(String languageId) async {
+    final box = await _openLanguagesBox();
+    final languageJson = box.get(languageId);
+    return languageJson != null
+        ? LanguageModel.fromJson(Map<String, dynamic>.from(languageJson))
+        : null;
+  }
+
+  @override
+  Future<void> updateLanguage(LanguageModel language) async {
+    final box = await _openLanguagesBox();
+    if (box.containsKey(language.id)) {
+      await box.put(language.id, language.toJson());
+    } else {
+      throw Exception('Language not found');
+    }
+  }
+
+  @override
+  Future<void> deleteLanguage(String languageId) async {
+    final box = await _openLanguagesBox();
+    await box.delete(languageId);
+  }
 
   @override
   Future<bool> isUserLoggedIn() async {
@@ -491,4 +539,5 @@ Future<void> saveUser(UserModel user) async {
     // Re-initialize the boxes
     await initializeBoxes();
   }
+
 }

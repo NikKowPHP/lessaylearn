@@ -1,5 +1,6 @@
 import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
+import 'package:lessay_learn/core/models/language_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -48,5 +49,12 @@ Future<UserModel?> getCurrentUser();
   Future<void> saveFavorite(FavoriteModel favorite);
   Future<List<FavoriteModel>> getFavorites();
   Future<void> deleteFavorite(String favoriteId);
+
+  // Language methods
+  Future<void> saveLanguage(LanguageModel language);
+  Future<List<LanguageModel>> getLanguagesByUserId(String userId);
+  Future<LanguageModel?> getLanguageById(String languageId);
+  Future<void> updateLanguage(LanguageModel language);
+  Future<void> deleteLanguage(String languageId);
 
 }
