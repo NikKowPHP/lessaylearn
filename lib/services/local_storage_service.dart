@@ -10,11 +10,15 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
+import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/mock_storage_service.dart';
 import 'package:flutter/foundation.dart';
 
 class LocalStorageService implements ILocalStorageService {
+  static const String _chartsBoxName = 'charts';
+
+
   static const String _chatsBoxName = 'chats';
   static const String _isLoggedInKey = 'isLoggedIn';
   static const String _messagesBoxName = 'messages';
@@ -29,7 +33,11 @@ class LocalStorageService implements ILocalStorageService {
   static const String _profilePicturesBoxName = 'profilePictures';
   static const String _likesBoxName = 'likes';
   static const String _commentsBoxName = 'comments';
+  static const String _userChartsBoxName = 'userCharts';
 
+  Future<Box> _openChartsBox() async {
+    return await Hive.openBox(_chartsBoxName);
+  }
   Future<Box> _openKnownWordsBox() async {
     return await Hive.openBox(_knownWordsBoxName);
   }
@@ -73,6 +81,9 @@ class LocalStorageService implements ILocalStorageService {
   Future<Box> _openCommentsBox() async {
     return await Hive.openBox(_commentsBoxName);
   }
+  Future<Box> _openUserChartsBox() async {
+  return await Hive.openBox(_userChartsBoxName);
+}
 
   Future<void> initializeBoxes() async {
     await Hive.openBox(_decksBoxName);
@@ -255,6 +266,7 @@ class LocalStorageService implements ILocalStorageService {
         .map((json) => LanguageModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
   }
+
 
   Future<ChatModel?> getChatById(String chatId) async {
     final box = await _openChatsBox();
@@ -671,6 +683,8 @@ class LocalStorageService implements ILocalStorageService {
     final profilePicturesBox = await _openProfilePicturesBox();
     final likesBox = await _openLikesBox();
     final commentsBox = await _openCommentsBox();
+     final chartsBox = await _openChartsBox();
+
 
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
@@ -743,6 +757,12 @@ class LocalStorageService implements ILocalStorageService {
         await saveComment(comment);
       }
     }
+    if (chartsBox.isEmpty) {
+      final mockCharts = MockStorageService.getCharts();
+      for (var chart in mockCharts) {
+        await saveChart(chart);
+      }
+    }
   }
     @override
   Future<List<LikeModel>> getLikes() async {
@@ -760,6 +780,36 @@ class LocalStorageService implements ILocalStorageService {
         .toList();
   }
 
+ @override
+  Future<List<ChartModel>> getCharts() async {
+    final box = await _openChartsBox();
+    return box.values.map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json))).toList();
+  }
+
+  @override
+  Future<void> saveChart(ChartModel chart) async {
+    final box = await _openChartsBox();
+    await box.put(chart.id, chart.toJson());
+  }
+
+  @override
+  Future<void> updateChart(ChartModel chart) async {
+    await saveChart(chart);
+  }
+
+  @override
+  Future<void> deleteChart(String chartId) async {
+    final box = await _openChartsBox();
+    await box.delete(chartId);
+  }
+@override
+  Future<List<ChartModel>> getUserCharts(String userId) async {
+    final box = await _openUserChartsBox();
+    return box.values
+        .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
+        .where((chart) => chart.userId == userId)
+        .toList();
+  }
   
 
 }

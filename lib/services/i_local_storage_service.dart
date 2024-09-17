@@ -9,6 +9,7 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
+import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 
 abstract class ILocalStorageService {
   Future<bool> isUserLoggedIn();
@@ -76,5 +77,11 @@ abstract class ILocalStorageService {
   Future<void> deleteComment(String commentId);
   Future<List<CommentModel>> getCommentsForPicture(String pictureId);
    Future<List<CommentModel>> getComments();
-  
+  // Add these methods to the ILocalStorageService abstract class
+
+Future<List<ChartModel>> getCharts();
+Future<void> saveChart(ChartModel chart);
+Future<void> updateChart(ChartModel chart);
+  Future<void> deleteChart(String chartId) ;
+   Future<List<ChartModel>> getUserCharts(String userId);
 }
