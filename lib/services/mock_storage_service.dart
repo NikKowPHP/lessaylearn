@@ -431,7 +431,7 @@ class MockStorageService {
     ChartModel(
       id: 'chart1',
       userId: 'user1',
-      languageId: 'lang_es',
+      languageId: 'lang_en',
       reading: 0.7,
       writing: 0.6,
       speaking: 0.5,
@@ -448,7 +448,7 @@ class MockStorageService {
     ),
     ChartModel(
       id: 'chart3',
-      userId: 'user2',
+      userId: 'user1',
       languageId: 'lang_es',
       reading: 0.3,
       writing: 0.2,
@@ -457,7 +457,7 @@ class MockStorageService {
     ),
     ChartModel(
       id: 'chart4',
-      userId: 'user2',
+      userId: 'user1',
       languageId: 'lang_fr',
       reading: 0.6,
       writing: 0.5,
