@@ -108,23 +108,55 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId) async {
+ Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId) async {
     final box = await Hive.openBox(_knownWordsBoxName);
-    return box.values
-        .where((knownWord) => 
-            knownWord['userId'] == userId && knownWord['languageId'] == languageId)
+      // Step 1: Retrieve all known words from the box
+    final allKnownWords = box.values
         .map((json) => KnownWordModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
-  }
 
+    // Debug print for all known words
+    debugPrint('Total known words retrieved from box: ${allKnownWords.length}');
+    debugPrint('All known words: ${allKnownWords.map((kw) => kw.toJson()).toList()}');
+
+    // Step 2: Filter known words by userId
+    final userKnownWords = allKnownWords
+        .where((knownWord) => knownWord.userId == userId)
+        .toList();
+
+    // Debug print for known words filtered by userId
+    debugPrint('Total known words for user $userId: ${userKnownWords.length}');
+    debugPrint('Known words for user $userId: ${userKnownWords.map((kw) => kw.toJson()).toList()}');
+
+    // Step 3: Apply languageId filter
+    final filteredKnownWords = userKnownWords
+        .where((knownWord) => knownWord.language == languageId)
+        .toList();
+
+    // Debug print for known words filtered by userId and languageId
+    debugPrint('Total known words for user $userId and language $languageId: ${filteredKnownWords.length}');
+    if (filteredKnownWords.isNotEmpty) {
+        debugPrint('Filtered known words: ${filteredKnownWords.map((kw) => kw.toJson()).toList()}');
+    } else {
+        debugPrint('No known words found for user $userId and language $languageId.');
+    }
+
+    return filteredKnownWords;
+  }
 
 // Known Words methods
-  @override
+ @override
   Future<void> saveKnownWord(KnownWordModel knownWord) async {
     final box = await _openKnownWordsBox();
+    
+    // Debug print before saving
+    debugPrint('Saving known word: ${knownWord.toJson()} with ID: ${knownWord.id}');
+    
     await box.put(knownWord.id, knownWord.toJson());
+    
+    // Debug print after saving
+    debugPrint('Known word saved successfully with ID: ${knownWord.id}');
   }
-
   @override
   Future<List<KnownWordModel>> getKnownWords() async {
     final box = await _openKnownWordsBox();
@@ -334,8 +366,7 @@ class LocalStorageService implements ILocalStorageService {
     await updateChatWithLastMessage(
         message.chatId, message.content, message.timestamp);
 
-    debugPrint('Message saved: $message');
-    debugPrint('Messages JSON: $messagesJson');
+   
   }
 
   Future<void> updateChatWithLastMessage(
@@ -699,6 +730,7 @@ class LocalStorageService implements ILocalStorageService {
     final chartsBox = await _openChartsBox();
 
     print('chartsBox is empty: ${chartsBox.isEmpty}');
+    print('chartsBox is empty: ${knownWordsBox.isEmpty}');
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
     }
@@ -729,11 +761,22 @@ class LocalStorageService implements ILocalStorageService {
       }
     }
 
+    
     if (knownWordsBox.isEmpty) {
       final mockKnownWords = MockStorageService.getKnownWords();
       for (var knownWord in mockKnownWords) {
         await saveKnownWord(knownWord);
       }
+    }
+
+    // Debug print for known words
+    final allKnownWords = knownWordsBox.values
+        .map((json) => KnownWordModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+
+    print('Current contents of knownWordsBox:');
+    for (var knownWord in allKnownWords) {
+      print(knownWord.toJson());
     }
 
     if (favoritesBox.isEmpty) {
@@ -779,17 +822,18 @@ class LocalStorageService implements ILocalStorageService {
         print('Saving chart: ${chart.toJson()}');
         await saveChart(chart);
       }
-    } else {
-      print('chartsBox already populated with data.');
-      final allCharts = chartsBox.values
-          .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
-          .toList();
+    } 
+    // else {
+    //   print('chartsBox already populated with data.');
+    //   final allCharts = chartsBox.values
+    //       .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
+    //       .toList();
 
-      print('Current contents of chartsBox:');
-      for (var chart in allCharts) {
-        print(chart.toJson());
-      }
-    }
+  
+    //   for (var chart in allCharts) {
+    //     print(chart.toJson());
+    //   }
+    // }
   
   }
 

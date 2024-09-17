@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/core/models/known_word_model.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
 import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';
@@ -18,14 +19,18 @@ class StatisticsScreen extends ConsumerStatefulWidget {
 
 class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   String? selectedLanguageId;
+  
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeDefaultLanguage();
+     
     });
   }
+
+
 
   void _initializeDefaultLanguage() async {
     final currentUser = await ref.read(currentUserProvider.future);
@@ -243,39 +248,48 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   }
 
   Widget _buildWordStats(String userId) {
-    final knownWordsAsync = ref.watch(knownWordsByUserAndLanguageProvider((userId, selectedLanguageId!)));
-    final favoritesAsync = ref.watch(favoritesByUserAndLanguageProvider((userId, selectedLanguageId!)));
+  final knownWordsAsync = ref.watch(knownWordsByUserAndLanguageProvider((userId, selectedLanguageId!)));
+  final favoritesAsync = ref.watch(favoritesByUserAndLanguageProvider((userId, selectedLanguageId!)));
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Word Statistics',
-          style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
-        ),
-        const SizedBox(height: 16),
-        _buildWordStatItem('Known Words', knownWordsAsync),
-        const SizedBox(height: 8),
-        _buildWordStatItem('Favorite Words', favoritesAsync),
-      ],
-    );
-  }
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        'Word Statistics',
+        style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+      ),
+      const SizedBox(height: 16),
+      knownWordsAsync.when(
+        data: (knownWords) {
+          debugPrint('Known words received: ${knownWords.map((kw) => kw.toJson()).toList()}'); // Debug print
+          return _buildWordStatItem('Known Words', knownWords); // Use the retrieved known words
+        },
+        loading: () => const Center(child: CupertinoActivityIndicator()),
+        error: (error, _) => Center(child: Text('Error: $error')),
+      ),
+      const SizedBox(height: 8),
+      favoritesAsync.when(
+        data: (favorites) {
+          return _buildWordStatItem('Favorite Words', favorites.cast<KnownWordModel>()); // Update this line
+        },
+        loading: () => const Center(child: CupertinoActivityIndicator()),
+        error: (error, _) => Center(child: Text('Error: $error')),
+      ),
+    ],
+  );
+}
 
-  Widget _buildWordStatItem(String title, AsyncValue<List<dynamic>> asyncValue) {
+  Widget _buildWordStatItem(String title, List<KnownWordModel> knownWords) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: CupertinoTheme.of(context).textTheme.textStyle),
-        asyncValue.when(
-          data: (data) => Text(
-            data.length.toString(),
-            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.activeBlue,
-                ),
-          ),
-          loading: () => const CupertinoActivityIndicator(),
-          error: (_, __) => const Icon(CupertinoIcons.exclamationmark_circle, color: CupertinoColors.destructiveRed),
+        Text(
+          knownWords.length.toString(),
+          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.activeBlue,
+              ),
         ),
       ],
     );

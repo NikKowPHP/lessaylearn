@@ -325,13 +325,13 @@ class MockStorageService {
 
   static final List<KnownWordModel> _knownWords = [
     KnownWordModel(
-        id: 'kw1', userId: 'user1', word: 'bonjour', language: 'French'),
+        id: 'kw1', userId: 'user1', word: 'bonjour', language: 'lang_en'),
     KnownWordModel(
-        id: 'kw2', userId: 'user1', word: 'merci', language: 'French'),
+        id: 'kw2', userId: 'user1', word: 'merci', language: 'lang_es'),
     KnownWordModel(
-        id: 'kw3', userId: 'user2', word: 'hola', language: 'Spanish'),
+        id: 'kw3', userId: 'user2', word: 'hola', language: 'lang_es'),
     KnownWordModel(
-        id: 'kw4', userId: 'user2', word: 'gracias', language: 'Spanish'),
+        id: 'kw4', userId: 'user2', word: 'gracias', language: 'lang_en'),
   ];
 
   static final List<FavoriteModel> _favorites = [

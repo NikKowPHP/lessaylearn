@@ -308,7 +308,7 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUserMessage = message.senderId == currentUserId;
 
-    debugPrint('Message sender ID: ${message.senderId}');
+  
     return Align(
       alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
@@ -563,11 +563,12 @@ Color _getHighlightColor(bool isKnown, bool isFavorite) {
 
     if (!widget.knownWords.any((knownWord) => knownWord.word == word)) {
       setState(() {
+        
         widget.knownWords.add(KnownWordModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           userId: currentUser.id,
           word: word,
-          language: 'en', // Replace with actual language
+          language: 'lang_en', // Replace with actual language
         ));
       });
 
@@ -575,7 +576,7 @@ Color _getHighlightColor(bool isKnown, bool isFavorite) {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: currentUser.id,
         word: word,
-        language: 'en', // Replace with actual language
+        language: 'lang_en', // Replace with actual language
       );
       await _knownWordService.addKnownWord(newKnownWord);
     }
