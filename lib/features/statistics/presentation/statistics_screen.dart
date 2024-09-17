@@ -261,7 +261,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
       const SizedBox(height: 16),
       knownWordsAsync.when(
         data: (knownWords) {
-          debugPrint('Known words received: ${knownWords.map((kw) => kw.toJson()).toList()}'); // Debug print
+          // debugPrint('Known words received: ${knownWords.map((kw) => kw.toJson()).toList()}'); // Debug print
           return _buildWordStatItem('Known Words', knownWords); // Use the retrieved known words
         },
         loading: () => const Center(child: CupertinoActivityIndicator()),

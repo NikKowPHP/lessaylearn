@@ -340,24 +340,24 @@ class MockStorageService {
       userId: 'user1',
       sourceText: 'Hello',
       translatedText: 'Hola',
-      sourceLanguage: 'English',
-      targetLanguage: 'Spanish',
+      sourceLanguage: 'lang_en', // Updated to 'lang_en'
+      targetLanguage: 'lang_es',
     ),
     FavoriteModel(
       id: 'fav2',
       userId: 'user2',
       sourceText: 'Goodbye',
       translatedText: 'Adiós',
-      sourceLanguage: 'English',
-      targetLanguage: 'Spanish',
+         sourceLanguage: 'lang_es', // Updated to 'lang_en'
+      targetLanguage: 'lang_en',
     ),
     FavoriteModel(
       id: 'fav3',
       userId: 'user1',
       sourceText: 'Thank you',
       translatedText: 'Merci',
-      sourceLanguage: 'English',
-      targetLanguage: 'French',
+      sourceLanguage: 'lang_es', // Updated to 'lang_en'
+      targetLanguage: 'lang_en',
     ),
   ];
 

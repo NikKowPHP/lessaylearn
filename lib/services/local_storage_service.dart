@@ -97,16 +97,46 @@ class LocalStorageService implements ILocalStorageService {
     await Hive.openBox(_languagesBoxName);
   }
 
- @override
+@override
   Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId) async {
     final box = await Hive.openBox(_favoritesBoxName);
-    return box.values
-        .where((favorite) => 
-            favorite['userId'] == userId && favorite['languageId'] == languageId)
+    
+    // Debug print for the box state
+    debugPrint('Total favorites in box: ${box.values.length}');
+    
+    // Step 1: Retrieve all favorites from the box
+    final allFavorites = box.values
         .map((json) => FavoriteModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
-  }
 
+    // Debug print for all favorites retrieved
+    debugPrint('All favorites retrieved: ${allFavorites.length}');
+    debugPrint('Favorites details: ${allFavorites.map((fav) => fav.toJson()).toList()}');
+
+    // Step 2: Filter favorites by userId
+    final userFavorites = allFavorites
+        .where((favorite) => favorite.userId == userId)
+        .toList();
+
+    // Debug print for favorites filtered by userId
+    debugPrint('Total favorites for user $userId: ${userFavorites.length}');
+    debugPrint('User favorites details: ${userFavorites.map((fav) => fav.toJson()).toList()}');
+
+    // Step 3: Apply languageId filter
+    final filteredFavorites = userFavorites
+        .where((favorite) => favorite.targetLanguage == languageId)
+        .toList();
+
+    // Debug print for favorites filtered by userId and languageId
+    debugPrint('Total favorites for user $userId and language $languageId: ${filteredFavorites.length}');
+    if (filteredFavorites.isNotEmpty) {
+        debugPrint('Filtered favorites: ${filteredFavorites.map((fav) => fav.toJson()).toList()}');
+    } else {
+        debugPrint('No favorites found for user $userId and language $languageId.');
+    }
+
+    return filteredFavorites;
+  }
   @override
  Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId) async {
     final box = await Hive.openBox(_knownWordsBoxName);
@@ -116,8 +146,8 @@ class LocalStorageService implements ILocalStorageService {
         .toList();
 
     // Debug print for all known words
-    debugPrint('Total known words retrieved from box: ${allKnownWords.length}');
-    debugPrint('All known words: ${allKnownWords.map((kw) => kw.toJson()).toList()}');
+    // debugPrint('Total known words retrieved from box: ${allKnownWords.length}');
+    // debugPrint('All known words: ${allKnownWords.map((kw) => kw.toJson()).toList()}');
 
     // Step 2: Filter known words by userId
     final userKnownWords = allKnownWords
@@ -125,8 +155,8 @@ class LocalStorageService implements ILocalStorageService {
         .toList();
 
     // Debug print for known words filtered by userId
-    debugPrint('Total known words for user $userId: ${userKnownWords.length}');
-    debugPrint('Known words for user $userId: ${userKnownWords.map((kw) => kw.toJson()).toList()}');
+    // debugPrint('Total known words for user $userId: ${userKnownWords.length}');
+    // debugPrint('Known words for user $userId: ${userKnownWords.map((kw) => kw.toJson()).toList()}');
 
     // Step 3: Apply languageId filter
     final filteredKnownWords = userKnownWords
@@ -134,9 +164,9 @@ class LocalStorageService implements ILocalStorageService {
         .toList();
 
     // Debug print for known words filtered by userId and languageId
-    debugPrint('Total known words for user $userId and language $languageId: ${filteredKnownWords.length}');
+    // debugPrint('Total known words for user $userId and language $languageId: ${filteredKnownWords.length}');
     if (filteredKnownWords.isNotEmpty) {
-        debugPrint('Filtered known words: ${filteredKnownWords.map((kw) => kw.toJson()).toList()}');
+        // debugPrint('Filtered known words: ${filteredKnownWords.map((kw) => kw.toJson()).toList()}');
     } else {
         debugPrint('No known words found for user $userId and language $languageId.');
     }
@@ -769,15 +799,17 @@ class LocalStorageService implements ILocalStorageService {
       }
     }
 
-    // Debug print for known words
-    final allKnownWords = knownWordsBox.values
-        .map((json) => KnownWordModel.fromJson(Map<String, dynamic>.from(json)))
-        .toList();
+    // // Debug print for known words
+    // final allKnownWords = knownWordsBox.values
+    //     .map((json) => KnownWordModel.fromJson(Map<String, dynamic>.from(json)))
+    //     .toList();
 
-    print('Current contents of knownWordsBox:');
-    for (var knownWord in allKnownWords) {
-      print(knownWord.toJson());
-    }
+  
+    // for (var knownWord in allKnownWords) {
+    //   print(knownWord.toJson());
+    // }
+
+    // await favoritesBox.clear();
 
     if (favoritesBox.isEmpty) {
       final mockFavorites = MockStorageService.getFavorites();
