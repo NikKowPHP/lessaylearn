@@ -49,9 +49,10 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
               ),
             ),
             Expanded(
-              child: CommunityList(
+              child: WorldList(
                 communityService: communityService,
                 segment: _selectedSegment,
+
               ),
             ),
           ],

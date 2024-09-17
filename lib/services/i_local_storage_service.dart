@@ -56,5 +56,6 @@ Future<UserModel?> getCurrentUser();
   Future<LanguageModel?> getLanguageById(String languageId);
   Future<void> updateLanguage(LanguageModel language);
   Future<void> deleteLanguage(String languageId);
+  Future<List<LanguageModel>> getLanguages();
 
 }

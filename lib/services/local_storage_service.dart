@@ -197,6 +197,7 @@ Future<void> saveCurrentUser(UserModel user) async {
   Future<List<ChatModel>> getChats() async {
     final box = await _openChatsBox();
     await getUsers();
+    await getLanguages();
     await getDecks();
     await getAllFlashcards();
   
@@ -213,6 +214,23 @@ Future<void> saveCurrentUser(UserModel user) async {
 
     return chatList
         .map((chat) => ChatModel.fromJson(Map<String, dynamic>.from(chat)))
+        .toList();
+  }
+
+   @override
+  Future<List<LanguageModel>> getLanguages() async {
+    final box = await _openLanguagesBox();
+    
+    if (box.isEmpty) {
+      // If the box is empty, populate it with mock data
+      final mockLanguages = MockStorageService.getLanguages();
+      for (var language in mockLanguages) {
+        await box.put(language.id, language.toJson());
+      }
+    }
+
+    return box.values
+        .map((json) => LanguageModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
   }
 

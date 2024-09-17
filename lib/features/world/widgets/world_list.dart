@@ -1,20 +1,24 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
+import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
 import 'package:lessay_learn/features/world/services/world_service.dart';
+import 'package:lessay_learn/core/providers/language_service_provider.dart';
+import 'package:lessay_learn/core/models/language_model.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
-class CommunityList extends StatelessWidget {
+
+class WorldList extends ConsumerWidget {
   final ICommunityService communityService;
   final int segment;
 
-  const CommunityList({
+  const WorldList({
     Key? key,
     required this.communityService,
     required this.segment,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder<List<UserModel>>(
       future: communityService.getUsers(segment),
       builder: (context, snapshot) {
@@ -36,7 +40,7 @@ class CommunityList extends StatelessWidget {
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildUserListItem(context, users[index]),
+                (context, index) => _buildUserListItem(context, ref, users[index]),
                 childCount: users.length,
               ),
             ),
@@ -46,10 +50,11 @@ class CommunityList extends StatelessWidget {
     );
   }
 
-  Widget _buildUserListItem(BuildContext context, UserModel user) {
+  Widget _buildUserListItem(BuildContext context, WidgetRef ref, UserModel user) {
     return CupertinoListTile(
-      leading: CircleAvatar(
-        backgroundImage: AssetImage(user.avatarUrl),
+      leading: AvatarWidget(
+         imageUrl: user.avatarUrl,
+         isNetworkImage: false,
       ),
       title: Text(user.name, style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Column(
@@ -61,14 +66,38 @@ class CommunityList extends StatelessWidget {
             children: [
               _buildTag(user.languageLevel, CupertinoColors.activeBlue),
               SizedBox(width: 8),
-           _buildTag('${user.sourceLanguageIds.first} → ${user.targetLanguageIds.first}', CupertinoColors.activeGreen),
-          ], 
+              _buildLanguageTags(ref, user),
+            ],
           ),
         ],
       ),
       trailing: Icon(CupertinoIcons.chevron_right, size: 16, color: CupertinoColors.systemGrey),
-     onTap: () {
+      onTap: () {
         context.push('/profile/${user.id}');
+      },
+    );
+  }
+
+  Widget _buildLanguageTags(WidgetRef ref, UserModel user) {
+    return FutureBuilder<List<LanguageModel?>>(
+      future: Future.wait(user.sourceLanguageIds.map((id) => 
+        ref.read(languageByIdProvider(id).future))),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CupertinoActivityIndicator();
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Text('Error loading languages');
+        }
+        final languages = snapshot.data!.whereType<LanguageModel>().toList();
+        if (languages.isEmpty) {
+          return Text('No languages');
+        }
+        return Row(
+          children: languages.map((lang) => 
+            _buildTag('${lang.shortcut} → ${user.targetLanguageIds.first}', CupertinoColors.activeGreen)
+          ).toList(),
+        );
       },
     );
   }

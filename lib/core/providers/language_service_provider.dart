@@ -23,3 +23,7 @@ final languageByIdProvider = FutureProvider.family<LanguageModel?, String>((ref,
   final languageService = ref.watch(languageServiceProvider);
   return languageService.fetchLanguageById(languageId);
 });
+final allLanguagesProvider = FutureProvider<List<LanguageModel>>((ref) async {
+  final localStorageService = ref.watch(localStorageServiceProvider);
+  return await localStorageService.getLanguages();
+});
