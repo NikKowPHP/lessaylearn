@@ -45,8 +45,8 @@ class ProfileScreen extends ConsumerWidget {
                   SizedBox(height: 30),
                   // Avatar
                   Container(
-                    width: 150,
-                    height: 150,
+                    width: 200,
+                    height: 200,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
@@ -125,73 +125,132 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildLanguagesSection(
       BuildContext context, WidgetRef ref, UserModel user) {
-    // Combine all language IDs
-    final allLanguageIds = [
-      ...user.sourceLanguageIds,
-      ...user.targetLanguageIds,
-      ...user.spokenLanguageIds,
-    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLanguageCategory('Source Languages', user.sourceLanguageIds, ref),
+        SizedBox(height: 10),
+        _buildLanguageCategory('Spoken Languages', user.spokenLanguageIds, ref),
+        SizedBox(height: 10),
+        _buildLearningLanguages('Learning Languages', user.targetLanguageIds, ref),
+      ],
+    );
+  }
 
-    // Remove duplicates
-    final uniqueLanguageIds = allLanguageIds.toSet().toList();
+  Widget _buildLanguageCategory(String title, List<String> languageIds, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 5),
+        Wrap(
+          spacing: 8,
+          children: languageIds.map((id) => _buildLanguageChip(id, ref)).toList(),
+        ),
+      ],
+    );
+  }
 
-    return FutureBuilder<List<LanguageModel>>(
-      future: _fetchLanguages(ref, uniqueLanguageIds),
+  Widget _buildLanguageChip(String languageId, WidgetRef ref) {
+    return FutureBuilder<LanguageModel?>(
+      future: ref.read(languageByIdProvider(languageId).future),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CupertinoActivityIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error loading languages');
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Text('No languages found');
-        } else {
-          final languages = snapshot.data!;
-          return ListView.separated(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: languages.length,
-            separatorBuilder: (context, index) => Container(
-              height: 1,
-              color: CupertinoColors.systemGrey,
-            ),
-            itemBuilder: (context, index) {
-              final language = languages[index];
-              return Padding(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(language.name),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text('Level: ${language.level}'),
-                        Text('Score: ${language.score}'),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
         }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return SizedBox.shrink();
+        }
+        final language = snapshot.data!;
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemGrey5,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(language.name),
+        );
       },
     );
   }
 
-  Future<List<LanguageModel>> _fetchLanguages(
-      WidgetRef ref, List<String> languageIds) async {
-    final languageService = ref.read(languageServiceProvider);
-    List<LanguageModel> languages = [];
+  Widget _buildLearningLanguages(String title, List<String> languageIds, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 10),
+        ...languageIds.map((id) => _buildLearningLanguageChart(id, ref)),
+      ],
+    );
+  }
 
-    for (var id in languageIds) {
-      final language = await languageService.fetchLanguageById(id);
-      if (language != null) {
-        languages.add(language);
-      }
+  Widget _buildLearningLanguageChart(String languageId, WidgetRef ref) {
+    return FutureBuilder<LanguageModel?>(
+      future: ref.read(languageByIdProvider(languageId).future),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CupertinoActivityIndicator();
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return SizedBox.shrink();
+        }
+        final language = snapshot.data!;
+        final level = _getLevelAsInt(language.level);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Row(
+            children: [
+              SizedBox(width: 80, child: Text(language.name)),
+              Expanded(
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemGrey5,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    FractionallySizedBox(
+                      widthFactor: level / 6,
+                      child: Container(
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.activeBlue,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 8),
+              Text('${language.score}'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  int _getLevelAsInt(String level) {
+    switch (level.toLowerCase()) {
+      case 'beginner':
+        return 1;
+      case 'elementary':
+        return 2;
+      case 'intermediate':
+        return 3;
+      case 'upper intermediate':
+        return 4;
+      case 'advanced':
+        return 5;
+      case 'proficient':
+        return 6;
+      default:
+        return 1;
     }
-
-    return languages;
   }
 
   Widget _buildInterestChip(String interest) {
