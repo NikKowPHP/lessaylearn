@@ -1,3 +1,4 @@
+import 'package:lessay_learn/core/models/language_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -6,67 +7,71 @@ import 'package:lessay_learn/features/learn/models/deck_model.dart';
 
 class MockStorageService {
   static final List<UserModel> _users = [
-  UserModel(
-    id: 'user1',
-    name: 'Alice',
-    avatarUrl: 'assets/avatar-1.png',
-    languageLevel: 'Intermediate',
-    sourceLanguages: ['English', 'Spanish'],
-    targetLanguages: ['French', 'German'],
-    spokenLanguages: ['English', 'Spanish', 'French'],
-    location: 'New York',
-    age: 28,
-    bio: 'Language enthusiast and travel lover',
-    interests: ['Reading', 'Cooking', 'Hiking'],
-    occupation: 'Software Developer',
-    education: 'Bachelor in Computer Science',
-  ),
-  UserModel(
-    id: 'user2',
-    name: 'Bob',
-    avatarUrl: 'assets/avatar-2.png',
-    languageLevel: 'Beginner',
-    sourceLanguages: ['English'],
-    targetLanguages: ['French', 'Japanese'],
-    spokenLanguages: ['English', 'French'],
-    location: 'London',
-    age: 32,
-    bio: 'Aspiring polyglot and coffee addict',
-    interests: ['Coffee', 'Photography', 'Yoga'],
-    occupation: 'Marketing Manager',
-    education: 'MBA',
-  ),
-  UserModel(
-    id: 'user3',
-    name: 'Charlie',
-    avatarUrl: 'assets/avatar-3.png',
-    languageLevel: 'Advanced',
-    sourceLanguages: ['English', 'French'],
-    targetLanguages: ['Spanish', 'Italian'],
-    spokenLanguages: ['English', 'French', 'Spanish'],
-    location: 'Madrid',
-    age: 25,
-    bio: 'Passionate about languages and cultures',
-    interests: ['Traveling', 'Dancing', 'Cooking'],
-    occupation: 'Teacher',
-    education: 'Master in Education',
-  ),
-  UserModel(
-    id: 'user4',
-    name: 'Diana',
-    avatarUrl: 'assets/avatar-4.png',
-    languageLevel: 'Advanced',
-    sourceLanguages: ['English', 'German'],
-    targetLanguages: ['French', 'Chinese'],
-    spokenLanguages: ['English', 'German', 'French', 'Italian'],
-    location: 'Paris',
-    age: 30,
-    bio: 'Language lover and art enthusiast',
-    interests: ['Painting', 'Museums', 'Wine tasting'],
-    occupation: 'Art Curator',
-    education: 'PhD in Art History',
-  ),
-];
+      UserModel(
+      id: 'user1',
+      name: 'Alice',
+      avatarUrl: 'assets/avatar-1.png',
+      languageLevel: 'Intermediate',
+      sourceLanguageIds: ['lang_en'], // Updated to use language IDs
+      targetLanguageIds: ['lang_es'], // Updated to use language IDs
+      spokenLanguageIds: ['lang_en', 'lang_es'], // Updated to use language IDs
+      location: 'New York',
+      age: 28,
+      bio: 'Language enthusiast and travel lover',
+      interests: ['Reading', 'Cooking', 'Hiking'],
+      occupation: 'Software Developer',
+      education: 'Bachelor in Computer Science',
+      languageIds: ['lang_en', 'lang_es'], // Updated to use language IDs
+    ),
+    UserModel(
+      id: 'user2',
+      name: 'Bob',
+      avatarUrl: 'assets/avatar-2.png',
+      languageLevel: 'Beginner',
+      sourceLanguageIds: ['lang_en'], // Updated to use language IDs
+      targetLanguageIds: ['lang_fr', 'lang_ja'], // Updated to use language IDs
+      spokenLanguageIds: ['lang_en', 'lang_fr'], // Updated to use language IDs
+      location: 'London',
+      age: 32,
+      bio: 'Aspiring polyglot and coffee addict',
+      interests: ['Coffee', 'Photography', 'Yoga'],
+      occupation: 'Marketing Manager',
+      education: 'MBA',
+      languageIds: ['lang_en', 'lang_fr', 'lang_ja'], // Updated to use language IDs
+    ),
+    UserModel(
+      id: 'user3',
+      name: 'Charlie',
+      avatarUrl: 'assets/avatar-3.png',
+      languageLevel: 'Advanced',
+      sourceLanguageIds: ['lang_en', 'lang_fr'], // Updated to use language IDs
+      targetLanguageIds: ['lang_es', 'lang_it'], // Updated to use language IDs
+      spokenLanguageIds: ['lang_en', 'lang_fr', 'lang_es'], // Updated to use language IDs
+      location: 'Madrid',
+      age: 25,
+      bio: 'Passionate about languages and cultures',
+      interests: ['Traveling', 'Dancing', 'Cooking'],
+      occupation: 'Teacher',
+      education: 'Master in Education',
+      languageIds: ['lang_en', 'lang_fr', 'lang_es', 'lang_it'], // Updated to use language IDs
+    ),
+    UserModel(
+      id: 'user4',
+      name: 'Diana',
+      avatarUrl: 'assets/avatar-4.png',
+      languageLevel: 'Advanced',
+      sourceLanguageIds: ['lang_en', 'lang_de'], // Updated to use language IDs
+      targetLanguageIds: ['lang_fr', 'lang_zh'], // Updated to use language IDs
+      spokenLanguageIds: ['lang_en', 'lang_de', 'lang_fr', 'lang_it'], // Updated to use language IDs
+      location: 'Paris',
+      age: 30,
+      bio: 'Language lover and art enthusiast',
+      interests: ['Painting', 'Museums', 'Wine tasting'],
+      occupation: 'Art Curator',
+      education: 'PhD in Art History',
+      languageIds: ['lang_en', 'lang_de', 'lang_fr', 'lang_zh'], // Updated to use language IDs
+    ),
+  ];
 
   static final List<ChatModel> _chats = [
     ChatModel(
@@ -126,6 +131,76 @@ class MockStorageService {
     targetLanguage: 'French',
   ),
 ];
+
+
+
+  static final List<LanguageModel> _languages = [
+    LanguageModel(
+      id: 'lang_en',
+      userId: 'user1', // Associate with user1
+      name: 'English',
+      shortcut: 'EN',
+      timestamp: DateTime.now(),
+      level: 'Advanced',
+      score: 85,
+    ),
+    LanguageModel(
+      id: 'lang_es',
+      userId: 'user1', // Associate with user1
+      name: 'Spanish',
+      shortcut: 'ES',
+      timestamp: DateTime.now(),
+      level: 'Intermediate',
+      score: 70,
+    ),
+    LanguageModel(
+      id: 'lang_fr',
+      userId: 'user2', // Associate with user2
+      name: 'French',
+      shortcut: 'FR',
+      timestamp: DateTime.now(),
+      level: 'Beginner',
+      score: 50,
+    ),
+    LanguageModel(
+      id: 'lang_de',
+      userId: 'user4', // Associate with user4
+      name: 'German',
+      shortcut: 'DE',
+      timestamp: DateTime.now(),
+      level: 'Advanced',
+      score: 90,
+    ),
+    LanguageModel(
+      id: 'lang_ja',
+      userId: 'user2', // Associate with user2
+      name: 'Japanese',
+      shortcut: 'JA',
+      timestamp: DateTime.now(),
+      level: 'Beginner',
+      score: 40,
+    ),
+    LanguageModel(
+      id: 'lang_it',
+      userId: 'user3', // Associate with user3
+      name: 'Italian',
+      shortcut: 'IT',
+      timestamp: DateTime.now(),
+      level: 'Intermediate',
+      score: 65,
+    ),
+    LanguageModel(
+      id: 'lang_zh',
+      userId: 'user4', // Associate with user4
+      name: 'Chinese',
+      shortcut: 'ZH',
+      timestamp: DateTime.now(),
+      level: 'Beginner',
+      score: 30,
+    ),
+  ];
+
+
 
   static final List<FlashcardModel> _flashcards = [
     FlashcardModel(
@@ -226,6 +301,7 @@ class MockStorageService {
   static List<ChatModel> getChats() => _chats;
   static List<DeckModel> getDecks() => _decks;
   static List<FlashcardModel> getFlashcards() => _flashcards;
+  static List<LanguageModel> getLanguages() => _languages;
 
     static List<MessageModel> getMessages() => _messages;
 
