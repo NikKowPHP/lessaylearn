@@ -5,7 +5,7 @@ class LanguageModel {
   final String shortcut;
   final DateTime timestamp;
   final String level;
-  final int score;
+  final int score; // from 1 to 1000
 
   LanguageModel({
     required this.id,
