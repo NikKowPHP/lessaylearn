@@ -20,15 +20,16 @@ class UserService implements IUserService {
         name: 'John Doe',
         avatarUrl: 'assets/avatar-1.png',
         languageLevel: 'Intermediate',
-        sourceLanguages: ['English'],
-        targetLanguages: ['Spanish'],
-        spokenLanguages: ['English', 'Spanish'],
+          sourceLanguageIds: ['lang_en'], // Replace with actual language IDs
+        targetLanguageIds: ['lang_es'], // Replace with actual language IDs
+        spokenLanguageIds: ['lang_en', 'lang_es'], // Replace with actual language IDs
         location: 'New York',
         age: 28,
         bio: 'Language enthusiast',
         interests: ['Reading', 'Traveling'],
         occupation: 'Software Developer',
         education: 'Bachelor in Computer Science',
+         languageIds: ['lang_en', 'lang_es'],
       );
       await _localStorageService.saveUser(user);
     }
@@ -43,4 +44,5 @@ class UserService implements IUserService {
   Future<UserModel?> getUserById(String userId) async {
     return _localStorageService.getUserById(userId);
   }
+  
 }
