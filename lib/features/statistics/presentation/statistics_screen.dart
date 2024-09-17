@@ -5,6 +5,7 @@ import 'package:lessay_learn/features/home/providers/current_user_provider.dart'
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 import 'package:lessay_learn/features/statistics/providers/chart_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart' show LinearProgressIndicator;
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
@@ -53,16 +54,40 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   }
 
   Widget _buildContent(String userId) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildLanguageSelector(userId),
-          const SizedBox(height: 20),
-          if (selectedLanguageId != null) _buildChart(userId),
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildLanguageSelector(userId),
+          ),
+        ),
+        if (selectedLanguageId != null) ...[
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: _buildOverallProgressChart(userId),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Skill Breakdown',
+                style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+              ),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              _buildSkillChart(userId, 'Reading'),
+              _buildSkillChart(userId, 'Writing'),
+              _buildSkillChart(userId, 'Speaking'),
+              _buildSkillChart(userId, 'Listening'),
+            ]),
+          ),
         ],
-      ),
+      ],
     );
   }
 
@@ -70,43 +95,29 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
     final userLanguagesAsync = ref.watch(userLanguagesProvider(userId));
 
     return userLanguagesAsync.when(
-      data: (languages) => CupertinoButton(
-        child: Text(selectedLanguageId == null
-            ? 'Select a language'
-            : languages.firstWhere((lang) => lang.id == selectedLanguageId).name),
-        onPressed: () => _showLanguageSelector(languages),
+      data: (languages) => CupertinoSlidingSegmentedControl<String>(
+        groupValue: selectedLanguageId,
+        children: {
+          for (var lang in languages)
+            lang.id: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(lang.name),
+            ),
+        },
+        onValueChanged: (value) {
+          if (value != null) {
+            setState(() {
+              selectedLanguageId = value;
+            });
+          }
+        },
       ),
       loading: () => const CupertinoActivityIndicator(),
       error: (error, _) => Text('Error: $error'),
     );
   }
 
-  void _showLanguageSelector(List<LanguageModel> languages) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: languages
-            .map((lang) => CupertinoActionSheetAction(
-                  child: Text(lang.name),
-                  onPressed: () {
-                    setState(() {
-                      selectedLanguageId = lang.id;
-                    });
-                    Navigator.pop(context);
-                  },
-                ))
-            .toList(),
-        cancelButton: CupertinoActionSheetAction(
-          child: const Text('Cancel'),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildChart(String userId) {
+  Widget _buildOverallProgressChart(String userId) {
     final chartAsync = ref.watch(languageChartProvider((userId: userId, languageId: selectedLanguageId!)));
 
     return chartAsync.when(
@@ -120,6 +131,8 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
             RadarChartData(
               dataSets: [
                 RadarDataSet(
+                  fillColor: CupertinoColors.activeBlue.withOpacity(0.2),
+                  borderColor: CupertinoColors.activeBlue,
                   dataEntries: [
                     RadarEntry(value: chart.reading),
                     RadarEntry(value: chart.writing),
@@ -129,9 +142,9 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                 ),
               ],
               radarShape: RadarShape.polygon,
-              radarBackgroundColor: CupertinoColors.systemGrey6,
+              radarBackgroundColor: CupertinoColors.systemBackground,
               borderData: FlBorderData(show: false),
-              radarBorderData: BorderSide(color: CupertinoColors.systemGrey, width: 2),
+              radarBorderData: BorderSide(color: CupertinoColors.systemGrey, width: 1),
               titlePositionPercentageOffset: 0.2,
               titleTextStyle: const TextStyle(color: CupertinoColors.label, fontSize: 14),
               getTitle: (index, _) {
@@ -151,13 +164,105 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
               tickCount: 5,
               ticksTextStyle: const TextStyle(color: CupertinoColors.systemGrey, fontSize: 10),
               tickBorderData: BorderSide(color: CupertinoColors.systemGrey.withOpacity(0.3)),
-              gridBorderData: BorderSide(color: CupertinoColors.systemGrey.withOpacity(0.3), width: 2),
+              gridBorderData: BorderSide(color: CupertinoColors.systemGrey.withOpacity(0.3), width: 1),
             ),
           ),
         );
       },
       loading: () => const CupertinoActivityIndicator(),
       error: (error, _) => Text('Error: $error'),
+    );
+  }
+
+  Widget _buildSkillChart(String userId, String skill) {
+    final chartAsync = ref.watch(languageChartProvider((userId: userId, languageId: selectedLanguageId!)));
+
+    return chartAsync.when(
+      data: (chart) {
+        if (chart == null) {
+          return const SizedBox.shrink();
+        }
+        double value;
+        switch (skill) {
+          case 'Reading':
+            value = chart.reading;
+            break;
+          case 'Writing':
+            value = chart.writing;
+            break;
+          case 'Speaking':
+            value = chart.speaking;
+            break;
+          case 'Listening':
+            value = chart.listening;
+            break;
+          default:
+            value = 0;
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                skill,
+                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 20,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: CupertinoLinearProgressIndicator(
+                    value: value,
+                    backgroundColor: CupertinoColors.systemGrey5,
+                    valueColor: CupertinoColors.activeBlue,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${(value * 100).toStringAsFixed(1)}%',
+                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(color: CupertinoColors.systemGrey),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const CupertinoActivityIndicator(),
+      error: (error, _) => Text('Error: $error'),
+    );
+  }
+}
+
+class CupertinoLinearProgressIndicator extends StatelessWidget {
+  final double value;
+  final Color backgroundColor;
+  final Color valueColor;
+
+  const CupertinoLinearProgressIndicator({
+    Key? key,
+    required this.value,
+    required this.backgroundColor,
+    required this.valueColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: FractionallySizedBox(
+        widthFactor: value,
+        child: Container(
+          decoration: BoxDecoration(
+            color: valueColor,
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
     );
   }
 }
