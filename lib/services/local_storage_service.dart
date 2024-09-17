@@ -18,7 +18,6 @@ import 'package:flutter/foundation.dart';
 class LocalStorageService implements ILocalStorageService {
   static const String _chartsBoxName = 'charts';
 
-
   static const String _chatsBoxName = 'chats';
   static const String _isLoggedInKey = 'isLoggedIn';
   static const String _messagesBoxName = 'messages';
@@ -33,11 +32,12 @@ class LocalStorageService implements ILocalStorageService {
   static const String _profilePicturesBoxName = 'profilePictures';
   static const String _likesBoxName = 'likes';
   static const String _commentsBoxName = 'comments';
-  static const String _userChartsBoxName = 'userCharts';
+
 
   Future<Box> _openChartsBox() async {
     return await Hive.openBox(_chartsBoxName);
   }
+
   Future<Box> _openKnownWordsBox() async {
     return await Hive.openBox(_knownWordsBoxName);
   }
@@ -81,9 +81,8 @@ class LocalStorageService implements ILocalStorageService {
   Future<Box> _openCommentsBox() async {
     return await Hive.openBox(_commentsBoxName);
   }
-  Future<Box> _openUserChartsBox() async {
-  return await Hive.openBox(_userChartsBoxName);
-}
+
+
 
   Future<void> initializeBoxes() async {
     await Hive.openBox(_decksBoxName);
@@ -220,8 +219,6 @@ class LocalStorageService implements ILocalStorageService {
     }
   }
 
-
-
   @override
   Future<List<ChatModel>> getChats() async {
     final box = await _openChatsBox();
@@ -230,9 +227,6 @@ class LocalStorageService implements ILocalStorageService {
     await getLanguages();
     await getDecks();
     await getAllFlashcards();
-
-   
-    
 
     // box.clear();
     //  await box.clear();
@@ -266,7 +260,6 @@ class LocalStorageService implements ILocalStorageService {
         .map((json) => LanguageModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
   }
-
 
   Future<ChatModel?> getChatById(String chatId) async {
     final box = await _openChatsBox();
@@ -409,7 +402,7 @@ class LocalStorageService implements ILocalStorageService {
     if (box.isEmpty) {
       await _populateUsersWithMockData();
     }
-    debugPrint('Users: ${box.values}');
+    // debugPrint('Users: ${box.values}');
 
     return box.values
         .map((userJson) =>
@@ -668,7 +661,7 @@ class LocalStorageService implements ILocalStorageService {
         .toList();
   }
 
-   Future<void> initializeDatabase() async {
+  Future<void> initializeDatabase() async {
     await initializeBoxes();
 
     final usersBox = await _openUsersBox();
@@ -682,9 +675,9 @@ class LocalStorageService implements ILocalStorageService {
     final profilePicturesBox = await _openProfilePicturesBox();
     final likesBox = await _openLikesBox();
     final commentsBox = await _openCommentsBox();
-     final chartsBox = await _openChartsBox();
+    final chartsBox = await _openChartsBox();
 
-
+    print('chartsBox is empty: ${chartsBox.isEmpty}');
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
     }
@@ -757,13 +750,29 @@ class LocalStorageService implements ILocalStorageService {
       }
     }
     if (chartsBox.isEmpty) {
+      print('chartsBox is empty. Populating with mock data.');
       final mockCharts = MockStorageService.getCharts();
+      print('Retrieved ${mockCharts.length} mock charts.');
+
       for (var chart in mockCharts) {
+        print('Saving chart: ${chart.toJson()}');
         await saveChart(chart);
       }
+    } else {
+      print('chartsBox already populated with data.');
+      final allCharts = chartsBox.values
+          .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
+          .toList();
+
+      print('Current contents of chartsBox:');
+      for (var chart in allCharts) {
+        print(chart.toJson());
+      }
     }
+  
   }
-    @override
+
+  @override
   Future<List<LikeModel>> getLikes() async {
     final box = await _openLikesBox();
     return box.values
@@ -779,46 +788,44 @@ class LocalStorageService implements ILocalStorageService {
         .toList();
   }
 
- @override
+  @override
   Future<List<ChartModel>> getCharts() async {
     final box = await _openChartsBox();
-    return box.values.map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json))).toList();
+    return box.values
+        .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
   }
 
   @override
   Future<void> saveChart(ChartModel chart) async {
     final box = await _openChartsBox();
     await box.put(chart.id, chart.toJson());
+    debugPrint('Saved chart: ${chart.toJson()}');
   }
 
   @override
   Future<void> updateChart(ChartModel chart) async {
-    await saveChart(chart);
+    final box = await _openChartsBox();
+    await box.put(chart.id, chart.toJson());
+    print('Updated chart: ${chart.toJson()}');
   }
 
-  @override
+ @override
   Future<void> deleteChart(String chartId) async {
     final box = await _openChartsBox();
     await box.delete(chartId);
+    print('Deleted chart with id: $chartId');
   }
-@override
+
+  @override
   Future<List<ChartModel>> getUserCharts(String userId) async {
-  // Open the user charts box
-  final box = await _openUserChartsBox();
-  debugPrint('Opened user charts box: ${box.keys}'); // Log the keys in the box
-
-  // Retrieve and map the values to ChartModel
-  final charts = box.values
-      .map((json) {
-        final chart = ChartModel.fromJson(Map<String, dynamic>.from(json));
-        print('Chart retrieved: ${chart.toJson()}'); // Log each chart retrieved
-        return chart;
-      })
-      .where((chart) => chart.userId == userId) // Filter by userId
-      .toList();
-
-  debugPrint('Filtered charts for user $userId: ${charts.length} charts found'); // Log the number of charts found
-  return charts;
-}
-
+    final box = await _openChartsBox();
+    final allCharts = box.values
+        .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
+        .where((chart) => chart.userId == userId)
+        .toList();
+    
+    debugPrint('Retrieved ${allCharts.length} charts for user $userId');
+    return allCharts;
+  }
 }
