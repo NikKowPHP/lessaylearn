@@ -1,4 +1,7 @@
+import 'package:lessay_learn/core/models/comment_model.dart';
+import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
+import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 import 'package:lessay_learn/services/i_user_service.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 
@@ -44,5 +47,68 @@ class UserService implements IUserService {
   Future<UserModel?> getUserById(String userId) async {
     return _localStorageService.getUserById(userId);
   }
+
+   @override
+  Future<List<ProfilePictureModel>> getUserProfilePictures(String userId) async {
+    return await _localStorageService.getProfilePicturesForUser(userId);
+  }
+
+  @override
+  Future<void> addProfilePicture(ProfilePictureModel picture) async {
+    await _localStorageService.saveProfilePicture(picture);
+  }
+
+  @override
+  Future<void> removeProfilePicture(String pictureId) async {
+    await _localStorageService.deleteProfilePicture(pictureId);
+  }
+
+  @override
+  Future<void> addLike(LikeModel like) async {
+    await _localStorageService.saveLike(like);
+  }
+
+  @override
+  Future<void> removeLike(String likeId) async {
+    await _localStorageService.deleteLike(likeId);
+  }
+
+  @override
+  Future<void> addComment(CommentModel comment) async {
+    await _localStorageService.saveComment(comment);
+  }
+
+  @override
+  Future<void> removeComment(String commentId) async {
+    await _localStorageService.deleteComment(commentId);
+  }
+
+  @override
+  Future<List<LikeModel>> getLikesForPicture(String pictureId) async {
+    return await _localStorageService.getLikesForPicture(pictureId);
+  }
+
+  @override
+  Future<List<CommentModel>> getCommentsForPicture(String pictureId) async {
+    return await _localStorageService.getCommentsForPicture(pictureId);
+  }
+
+  @override
+  Future<ProfilePictureModel?> getProfilePictureById(String pictureId) async {
+    return await _localStorageService.getProfilePictureById(pictureId);
+  }
+
+  @override
+  Future<List<LikeModel>> getUserLikes(String userId) async {
+    final allLikes = await _localStorageService.getLikes();
+    return allLikes.where((like) => like.userId == userId).toList();
+  }
+
+  @override
+  Future<List<CommentModel>> getUserComments(String userId) async {
+    final allComments = await _localStorageService.getComments();
+    return allComments.where((comment) => comment.userId == userId).toList();
+  }
+  
   
 }
