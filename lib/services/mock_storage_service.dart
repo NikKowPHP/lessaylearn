@@ -9,6 +9,7 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
+import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 
 class MockStorageService {
   static final List<UserModel> _users = [
@@ -303,20 +304,34 @@ class MockStorageService {
   ];
 
   static final List<CommentModel> _comments = [
-    CommentModel(id: 'comment1', userId: 'user2', toId: 'pic1', content: 'Great picture!'),
-    CommentModel(id: 'comment2', userId: 'user3', toId: 'pic1', content: 'Love this!'),
-    CommentModel(id: 'comment3', userId: 'user1', toId: 'pic3', content: 'Nice avatar!'),
-    CommentModel(id: 'comment4', userId: 'user2', toId: 'pic5', content: 'Cool!'),
-    CommentModel(id: 'comment5', userId: 'user4', toId: 'pic5', content: 'Awesome!'),
-    CommentModel(id: 'comment6', userId: 'user1', toId: 'pic7', content: 'Beautiful!'),
-    CommentModel(id: 'comment7', userId: 'user3', toId: 'pic7', content: 'Amazing!'),
+    CommentModel(
+        id: 'comment1',
+        userId: 'user2',
+        toId: 'pic1',
+        content: 'Great picture!'),
+    CommentModel(
+        id: 'comment2', userId: 'user3', toId: 'pic1', content: 'Love this!'),
+    CommentModel(
+        id: 'comment3', userId: 'user1', toId: 'pic3', content: 'Nice avatar!'),
+    CommentModel(
+        id: 'comment4', userId: 'user2', toId: 'pic5', content: 'Cool!'),
+    CommentModel(
+        id: 'comment5', userId: 'user4', toId: 'pic5', content: 'Awesome!'),
+    CommentModel(
+        id: 'comment6', userId: 'user1', toId: 'pic7', content: 'Beautiful!'),
+    CommentModel(
+        id: 'comment7', userId: 'user3', toId: 'pic7', content: 'Amazing!'),
   ];
 
   static final List<KnownWordModel> _knownWords = [
-    KnownWordModel(id: 'kw1', userId: 'user1', word: 'bonjour', language: 'French'),
-    KnownWordModel(id: 'kw2', userId: 'user1', word: 'merci', language: 'French'),
-    KnownWordModel(id: 'kw3', userId: 'user2', word: 'hola', language: 'Spanish'),
-    KnownWordModel(id: 'kw4', userId: 'user2', word: 'gracias', language: 'Spanish'),
+    KnownWordModel(
+        id: 'kw1', userId: 'user1', word: 'bonjour', language: 'French'),
+    KnownWordModel(
+        id: 'kw2', userId: 'user1', word: 'merci', language: 'French'),
+    KnownWordModel(
+        id: 'kw3', userId: 'user2', word: 'hola', language: 'Spanish'),
+    KnownWordModel(
+        id: 'kw4', userId: 'user2', word: 'gracias', language: 'Spanish'),
   ];
 
   static final List<FavoriteModel> _favorites = [
@@ -412,6 +427,71 @@ class MockStorageService {
     ),
   ];
 
+  static final List<ChartModel> charts = [
+    ChartModel(
+      id: 'chart1',
+      userId: 'user1',
+      languageId: 'lang_es',
+      reading: 0.7,
+      writing: 0.6,
+      speaking: 0.5,
+      listening: 0.8,
+    ),
+    ChartModel(
+      id: 'chart2',
+      userId: 'user1',
+      languageId: 'lang_fr',
+      reading: 0.5,
+      writing: 0.4,
+      speaking: 0.3,
+      listening: 0.6,
+    ),
+    ChartModel(
+      id: 'chart3',
+      userId: 'user2',
+      languageId: 'lang_es',
+      reading: 0.3,
+      writing: 0.2,
+      speaking: 0.4,
+      listening: 0.5,
+    ),
+    ChartModel(
+      id: 'chart4',
+      userId: 'user2',
+      languageId: 'lang_fr',
+      reading: 0.6,
+      writing: 0.5,
+      speaking: 0.7,
+      listening: 0.8,
+    ),
+    ChartModel(
+      id: 'chart5',
+      userId: 'user3',
+      languageId: 'lang_it',
+      reading: 0.8,
+      writing: 0.7,
+      speaking: 0.9,
+      listening: 0.8,
+    ),
+    ChartModel(
+      id: 'chart6',
+      userId: 'user3',
+      languageId: 'lang_ja',
+      reading: 0.2,
+      writing: 0.1,
+      speaking: 0.3,
+      listening: 0.4,
+    ),
+    ChartModel(
+      id: 'chart7',
+      userId: 'user4',
+      languageId: 'lang_zh',
+      reading: 0.5,
+      writing: 0.4,
+      speaking: 0.6,
+      listening: 0.7,
+    ),
+  ];
 
   // Methods to access mock data
   static List<UserModel> getUsers() => _users;
@@ -429,4 +509,5 @@ class MockStorageService {
   static List<MessageModel> getMessagesForChat(String chatId) {
     return _messages.where((message) => message.chatId == chatId).toList();
   }
+  static List<ChartModel> getCharts() => charts;
 }
