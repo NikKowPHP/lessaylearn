@@ -44,14 +44,17 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   SizedBox(height: 30),
                   // Avatar
-                  Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage(user.avatarUrl),
-                        fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: () => context.push('/user-gallery/$userId'),
+                    child: Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: AssetImage(user.avatarUrl),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),

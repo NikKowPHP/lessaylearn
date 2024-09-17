@@ -15,6 +15,7 @@ import 'package:lessay_learn/features/learn/presentation/deck_detail_screen.dart
 import 'package:lessay_learn/features/learn/presentation/learn_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/study_session_screen.dart';
 import 'package:lessay_learn/features/profile/presentation/profile_screen.dart';
+import 'package:lessay_learn/features/profile/presentation/user_gallery_screen.dart';
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 
 
@@ -150,6 +151,17 @@ GoRoute(
           final flashcards = state.extra as List<FlashcardModel>;
           return CupertinoPage(
             child: StudySessionScreen(flashcards: flashcards),
+          );
+        },
+      ),
+
+       // Add this new route for the user gallery
+      GoRoute(
+        path: '/user-gallery/:userId',
+        pageBuilder: (context, state) {
+          final userId = state.pathParameters['userId']!;
+          return CupertinoPage(
+            child: UserGalleryScreen(userId: userId),
           );
         },
       ),
