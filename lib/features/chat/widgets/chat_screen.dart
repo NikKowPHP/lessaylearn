@@ -71,10 +71,8 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     );
   }
   Future<void> _loadFavoritesAndKnownWords() async {
-    final favoriteService = ref.read(favoriteServiceProvider);
+    final favorites = ref.read(favoritesProvider);
     final knownWords = ref.read(knownWordsProvider);
-
-    final favorites = await favoriteService.getFavorites();
 
     if (mounted) {
       setState(() {
@@ -110,6 +108,12 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     ref.listen<List<KnownWordModel>>(knownWordsProvider, (previous, next) {
       setState(() {
         _knownWords = next;
+      });
+    });
+
+    ref.listen<List<FavoriteModel>>(favoritesProvider, (previous, next) {
+      setState(() {
+        _favorites = next;
       });
     });
 
@@ -497,7 +501,7 @@ class _TappableTextState extends ConsumerState<TappableText> {
       tailLength: 10.0,
       tailBaseWidth: 20.0,
       backgroundColor: CupertinoColors.systemBackground,
-      content: _buildTooltipContent(word, isFavorite),
+      content: _buildTooltipContent(word),
       triggerMode: TooltipTriggerMode.manual,
        isModal: true, 
       child: MouseRegion(
@@ -535,9 +539,12 @@ Color _getHighlightColor(bool isKnown, bool isFavorite) {
     return CupertinoColors.transparent;
   }
 }
-  Widget _buildTooltipContent(String word, bool isFavorite) {
-    return StatefulBuilder(
-      builder: (BuildContext context, StateSetter setState) {
+  Widget _buildTooltipContent(String word) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final favorites = ref.watch(favoritesProvider);
+        bool isFavorite = favorites.any((favorite) => favorite.sourceText == word);
+
         return Padding(
           padding: EdgeInsets.all(8),
           child: Row(
@@ -560,7 +567,25 @@ Color _getHighlightColor(bool isKnown, bool isFavorite) {
     );
   }
 
+  Future<void> _toggleFavorite(String word, bool isFavorite) async {
+    final currentUser = ref.read(currentUserProvider).value;
+    if (currentUser == null) return;
 
+    if (isFavorite) {
+      final favoriteToRemove = ref.read(favoritesProvider).firstWhere((fav) => fav.sourceText == word);
+      await ref.read(favoritesProvider.notifier).removeFavorite(favoriteToRemove.id);
+    } else {
+      final newFavorite = FavoriteModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: currentUser.id,
+        sourceText: word,
+        translatedText: '', // You might want to add translation functionality
+        sourceLanguage: 'en', // Replace with actual source language
+        targetLanguage: 'es', // Replace with actual target language
+      );
+      await ref.read(favoritesProvider.notifier).addFavorite(newFavorite);
+    }
+  }
 
     Future<void> _makeWordKnown(String word) async {
     final currentUser = ref.read(currentUserProvider).value;
@@ -574,25 +599,6 @@ Color _getHighlightColor(bool isKnown, bool isFavorite) {
         language: 'lang_en', // Replace with actual language
       );
       await ref.read(knownWordsProvider.notifier).addKnownWord(newKnownWord);
-    }
-  }
-
-  Future<void> _toggleFavorite(String word, bool isFavorite) async {
-    final currentUser = ref.read(currentUserProvider).value;
-    if (currentUser == null) return;
-
-    if (isFavorite) {
-      await _favoriteService.removeFavorite(word);
-    } else {
-      final newFavorite = FavoriteModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: currentUser.id,
-        sourceText: word,
-        translatedText: '', // You might want to add translation functionality
-        sourceLanguage: 'en', // Replace with actual source language
-        targetLanguage: 'es', // Replace with actual target language
-      );
-      await _favoriteService.addFavorite(newFavorite);
     }
   }
 }
