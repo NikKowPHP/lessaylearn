@@ -21,6 +21,7 @@ class _RecordingScreenState extends ConsumerState<RecordingScreen> {
   String? selectedLanguageId;
   bool isRecording = false;
   Duration recordingDuration = Duration.zero;
+  bool isPaused = false; // New variable to track pause state
 
   @override
   Widget build(BuildContext context) {
@@ -108,17 +109,32 @@ class _RecordingScreenState extends ConsumerState<RecordingScreen> {
             style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 20),
-          CupertinoButton(
-            onPressed: _toggleRecording,
-            child: Icon(
-              isRecording ? CupertinoIcons.stop_circle : CupertinoIcons.mic,
-              size: 64,
-              color: isRecording ? CupertinoColors.destructiveRed : CupertinoColors.activeBlue,
-            ),
+          Row( // Changed to Row to accommodate multiple buttons
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CupertinoButton(
+                onPressed: isPaused ? _continueRecording : _toggleRecording,
+                child: Icon(
+                  isPaused ? CupertinoIcons.play_circle : CupertinoIcons.mic,
+                  size: 64,
+                  color: isPaused ? CupertinoColors.activeBlue : (isRecording ? CupertinoColors.destructiveRed : CupertinoColors.activeBlue),
+                ),
+              ),
+              SizedBox(width: 20), // Space between buttons
+              if (isRecording) // Show stop button only when recording
+                CupertinoButton(
+                  onPressed: _stopRecording, // Disable if not recording
+                  child: Icon(
+                    CupertinoIcons.stop_circle,
+                    size: 64,
+                    color: CupertinoColors.destructiveRed,
+                  ),
+                ),
+            ],
           ),
           SizedBox(height: 20),
           Text(
-            isRecording ? 'Tap to stop' : 'Tap to start recording',
+            isRecording ? (isPaused ? 'Tap to continue' : 'Tap to stop') : 'Tap to start recording',
             style: TextStyle(color: CupertinoColors.inactiveGray),
           ),
         ],
@@ -140,32 +156,47 @@ class _RecordingScreenState extends ConsumerState<RecordingScreen> {
 
   void _toggleRecording() {
     setState(() {
-      isRecording = !isRecording;
-      if (isRecording) {
-        _startRecording();
+      if (isPaused) {
+        _continueRecording(); // Resume recording
       } else {
-        _stopRecording();
+        isRecording = !isRecording; // Toggle recording state
+        if (isRecording) {
+          _startRecording(); // Start recording
+        } else {
+          _stopRecording(); // Stop recording
+        }
       }
+    });
+  }
+
+  void _continueRecording() {
+    setState(() {
+      isPaused = false; // Set paused state to false
+      _updateRecordingDuration(); // Resume duration update
     });
   }
 
   void _startRecording() {
     // TODO: Implement actual recording logic
-    // This is a mock implementation for UI demonstration
-    recordingDuration = Duration.zero;
-    _updateRecordingDuration();
+    if (!isRecording) { // Only reset duration if starting fresh
+        recordingDuration = Duration.zero; // Reset duration when starting
+    }
+    isPaused = false; // Reset pause state when starting
+    _updateRecordingDuration(); // Start updating duration
   }
 
   void _stopRecording() {
     // TODO: Implement actual recording stop logic and saving the recording
+    isPaused = false; // Reset pause state when stopping
+    isRecording = false; // Set recording state to false
   }
 
   void _updateRecordingDuration() {
     if (isRecording) {
       Future.delayed(Duration(seconds: 1), () {
         setState(() {
-          recordingDuration += Duration(seconds: 1);
-          _updateRecordingDuration();
+          recordingDuration += Duration(seconds: 1); // Increment duration
+          _updateRecordingDuration(); // Continue updating
         });
       });
     }
