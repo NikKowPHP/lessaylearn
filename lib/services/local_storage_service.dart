@@ -204,6 +204,7 @@ class LocalStorageService implements ILocalStorageService {
   // Favorites methods
   @override
   Future<void> saveFavorite(FavoriteModel favorite) async {
+    debugPrint('favorite : $favorite');
     final box = await _openFavoritesBox();
     await box.put(favorite.id, favorite.toJson());
   }

@@ -580,8 +580,8 @@ Color _getHighlightColor(bool isKnown, bool isFavorite) {
         userId: currentUser.id,
         sourceText: word,
         translatedText: '', // You might want to add translation functionality
-        sourceLanguage: 'en', // Replace with actual source language
-        targetLanguage: 'es', // Replace with actual target language
+        sourceLanguage: 'lang_en', // Replace with actual source language
+        targetLanguage: 'lang_en', // Replace with actual target language
       );
       await ref.read(favoritesProvider.notifier).addFavorite(newFavorite);
     }
