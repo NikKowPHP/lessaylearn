@@ -11,6 +11,7 @@ import 'package:lessay_learn/core/providers/known_word_repository_provider.dart'
 import 'package:lessay_learn/core/providers/favorite_repository_provider.dart';
 import 'package:word_cloud/word_cloud.dart';
 import 'package:lessay_learn/core/models/favorite_model.dart';
+import 'package:intl/intl.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
@@ -469,27 +470,35 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   }
 
   LineChartData _buildLineChartData(List<dynamic> items, String title) {
-    // Sort items by createdAt
-    items.sort((a, b) {
-      DateTime aDate = (a is KnownWordModel) ? a.createdAt : (a is FavoriteModel ? a.createdAt : DateTime.now());
-      DateTime bDate = (b is KnownWordModel) ? b.createdAt : (b is FavoriteModel ? b.createdAt : DateTime.now());
-      return aDate.compareTo(bDate);
-    });
-
-    // Create spots for the chart
     final spots = _createSpots(items);
+    final minX = spots.first.x;
+    final maxX = spots.last.x;
+    final maxY = spots.map((spot) => spot.y).reduce((max, value) => value > max ? value : max);
 
     return LineChartData(
-      gridData: FlGridData(show: false),
+      gridData: FlGridData(show: true, drawVerticalLine: false),
       titlesData: FlTitlesData(
-        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 40)),
-        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: (value, meta) {
-          if (value.toInt() % 30 == 0) {
-            final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-            return Text('${date.month}/${date.day}');
-          }
-          return const Text('');
-        })),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 40,
+            getTitlesWidget: (value, meta) => Text(value.toInt().toString()),
+          ),
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 30,
+            getTitlesWidget: (value, meta) {
+              final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+              return Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(DateFormat('MM/dd').format(date), style: TextStyle(fontSize: 10)),
+              );
+            },
+            interval: (maxX - minX) / (spots.length > 5 ? 5 : spots.length - 1), // Adjust interval based on data points
+          ),
+        ),
         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
@@ -501,40 +510,51 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
           color: title == 'Known Words' ? CupertinoColors.activeBlue : CupertinoColors.activeOrange,
           barWidth: 3,
           isStrokeCapRound: true,
-          dotData: FlDotData(show: false),
-          belowBarData: BarAreaData(show: true, color: title == 'Known Words' ? CupertinoColors.activeBlue.withOpacity(0.2) : CupertinoColors.activeOrange.withOpacity(0.2)),
+          dotData: FlDotData(show: true), // Show dots for each data point
+          belowBarData: BarAreaData(
+            show: true,
+            color: (title == 'Known Words' ? CupertinoColors.activeBlue : CupertinoColors.activeOrange).withOpacity(0.2),
+          ),
         ),
       ],
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
-          
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((LineBarSpot touchedSpot) {
               final date = DateTime.fromMillisecondsSinceEpoch(touchedSpot.x.toInt());
               return LineTooltipItem(
-                '${date.month}/${date.day}: ${touchedSpot.y.toInt()} words',
-                const TextStyle(color: CupertinoColors.label),
+                '${DateFormat('MM/dd').format(date)}: ${touchedSpot.y.toInt()} ${title.toLowerCase()}',
+                TextStyle(color: CupertinoColors.label),
               );
             }).toList();
           },
         ),
       ),
+      minX: minX,
+      maxX: maxX,
+      minY: 0,
+      maxY: maxY,
     );
   }
-
-  List<FlSpot> _createSpots(List<dynamic> items) {
-    final Map<int, int> wordCounts = {};
-    int totalWords = 0;
+List<FlSpot> _createSpots(List<dynamic> items) {
+    final Map<String, int> wordCounts = {};
 
     for (var item in items) {
-      final timestamp = item.createdAt.millisecondsSinceEpoch;
-      totalWords++;
-      wordCounts[timestamp] = totalWords;
+      final date = DateFormat('yyyy-MM-dd').format(item.createdAt);
+      wordCounts[date] = (wordCounts[date] ?? 0) + 1;
     }
 
-    return wordCounts.entries
-        .map((entry) => FlSpot(entry.key.toDouble(), entry.value.toDouble()))
-        .toList();
+    final sortedEntries = wordCounts.entries.toList()
+      ..sort((a, b) => DateFormat('yyyy-MM-dd').parse(a.key).compareTo(DateFormat('yyyy-MM-dd').parse(b.key)));
+
+    int cumulativeCount = 0;
+    return sortedEntries.map((entry) {
+      cumulativeCount += entry.value;
+      return FlSpot(
+        DateFormat('yyyy-MM-dd').parse(entry.key).millisecondsSinceEpoch.toDouble(),
+        cumulativeCount.toDouble(),
+      );
+    }).toList();
   }
 }
 
