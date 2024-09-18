@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/features/voicer/services/recording_service.dart';
 import 'package:lessay_learn/services/i_language_service.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/language_service.dart';
@@ -36,4 +37,10 @@ final calculateLanguageLevelProvider = Provider.family<String, int>((ref, score)
 final userLanguageLevelsProvider = FutureProvider.family<Map<String, String>, String>((ref, userId) {
   final languageService = ref.watch(languageServiceProvider);
   return languageService.getUserLanguageLevels(userId);
+});
+
+// Add this provider
+final recordingServiceProvider = Provider<RecordingService>((ref) {
+  final localStorage = ref.watch(localStorageServiceProvider);
+  return RecordingService(localStorage);
 });

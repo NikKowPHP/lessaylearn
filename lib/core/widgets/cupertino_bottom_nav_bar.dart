@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/learn_screen.dart';
+import 'package:lessay_learn/features/voicer/presentation/recording_screen.dart';
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 import 'package:lessay_learn/features/statistics/presentation/statistics_screen.dart';
 
@@ -40,6 +41,10 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
             icon: Icon(CupertinoIcons.settings),
             label: 'Settings',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.mic),
+            label: 'Recording', // New tab label
+          ),
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
@@ -60,6 +65,8 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
                 return const StatisticsScreen();
               case 4:
                 return const SettingsScreen();
+              case 5: // New case for RecordingScreen
+                return const RecordingScreen();
               default:
                 return Consumer(
                   builder: (context, ref, child) {

@@ -16,6 +16,7 @@ import 'package:lessay_learn/features/learn/presentation/learn_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/study_session_screen.dart';
 import 'package:lessay_learn/features/profile/presentation/profile_screen.dart';
 import 'package:lessay_learn/features/profile/presentation/user_gallery_screen.dart';
+import 'package:lessay_learn/features/voicer/presentation/recording_screen.dart';
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 import 'package:lessay_learn/features/statistics/presentation/statistics_screen.dart';
 
@@ -86,6 +87,12 @@ GoRouter createAppRouter() {
             path: '/settings',
             pageBuilder: (context, state) => CupertinoPage(
               child: const SettingsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/recording', // New route for RecordingScreen
+            pageBuilder: (context, state) => CupertinoPage(
+              child: const RecordingScreen(),
             ),
           ),
         ],
