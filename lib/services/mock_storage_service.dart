@@ -10,6 +10,7 @@ import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';
+import 'package:lessay_learn/features/voicer/models/recording_model.dart';
 
 class MockStorageService {
   static final List<UserModel> _users = [
@@ -493,7 +494,35 @@ class MockStorageService {
     ),
   ];
 
+  static final List<RecordingModel> _recordings = [
+    RecordingModel(
+      userId: 'user1',
+      languageId: 'lang_en',
+      audioPath: 'assets/recordings/recording1.m4a',
+      createdAt: DateTime.now().subtract(Duration(days: 1)),
+      durationInSeconds: 120,
+      transcription: 'This is a sample transcription for recording 1.',
+    ),
+    RecordingModel(
+      userId: 'user1',
+      languageId: 'lang_es',
+      audioPath: 'assets/recordings/recording2.m4a',
+      createdAt: DateTime.now().subtract(Duration(days: 2)),
+      durationInSeconds: 150,
+      transcription: 'Esta es una transcripción de ejemplo para la grabación 2.',
+    ),
+    RecordingModel(
+      userId: 'user1',
+      languageId: 'lang_fr',
+      audioPath: 'assets/recordings/recording3.m4a',
+      createdAt: DateTime.now().subtract(Duration(days: 3)),
+      durationInSeconds: 90,
+      transcription: 'Ceci est une transcription d\'exemple pour l\'enregistrement 3.',
+    ),
+  ];
+
   // Methods to access mock data
+   static List<RecordingModel> getRecordings() => _recordings;
   static List<UserModel> getUsers() => _users;
   static List<ChatModel> getChats() => _chats;
   static List<DeckModel> getDecks() => _decks;

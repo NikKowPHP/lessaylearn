@@ -111,7 +111,9 @@ class LocalStorageService implements ILocalStorageService {
     await box.put(recording.id, recording.toJson());
   }
 
-  @override
+
+
+   @override
   Future<List<RecordingModel>> getRecordingsForUser(String userId) async {
     final box = await _openRecordingsBox();
     return box.values
@@ -119,6 +121,7 @@ class LocalStorageService implements ILocalStorageService {
         .map((json) => RecordingModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
   }
+
 
   @override
   Future<List<RecordingModel>> getRecordingsForUserAndLanguage(String userId, String languageId) async {
@@ -803,11 +806,18 @@ class LocalStorageService implements ILocalStorageService {
     final likesBox = await _openLikesBox();
     final commentsBox = await _openCommentsBox();
     final chartsBox = await _openChartsBox();
+    final recordingsBox = await _openRecordingsBox();
 
     print('chartsBox is empty: ${chartsBox.isEmpty}');
     print('chartsBox is empty: ${knownWordsBox.isEmpty}');
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
+    }
+     if (recordingsBox.isEmpty) {
+      final mockRecordings = MockStorageService.getRecordings();
+      for (var recording in mockRecordings) {
+        await saveRecording(recording); 
+      }
     }
 
     if (chatsBox.isEmpty) {
