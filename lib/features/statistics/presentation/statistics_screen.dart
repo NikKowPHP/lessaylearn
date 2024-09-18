@@ -10,6 +10,7 @@ import 'package:flutter/material.dart' show LinearProgressIndicator;
 import 'package:lessay_learn/core/providers/known_word_repository_provider.dart';
 import 'package:lessay_learn/core/providers/favorite_repository_provider.dart';
 import 'package:word_cloud/word_cloud.dart';
+import 'package:lessay_learn/core/models/favorite_model.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
@@ -104,7 +105,18 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
               child: _buildLexicalFieldDiagram(userId),
             ),
           ),
-         
+          // SliverToBoxAdapter(
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(16.0),
+          //     child: _buildWordCloud(userId),
+          //   ),
+          // ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _buildWordGrowthChart(userId),
+            ),
+          ),
         ],
       ],
     );
@@ -402,8 +414,8 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                     CupertinoColors.activeOrange,
                     CupertinoColors.activeGreen,
                   ],
-                  mintextsize: 5, // Ensure this is a positive value
-                  maxtextsize: 50, // Ensure this is a positive value
+                  mintextsize: 10, // Ensure this is a positive value
+                  maxtextsize: 100, // Ensure this is a positive value
                 );
               },
               loading: () => const CupertinoActivityIndicator(),
@@ -415,6 +427,114 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildWordGrowthChart(String userId) {
+    final knownWordsAsync = ref.watch(knownWordsByUserAndLanguageProvider((userId, selectedLanguageId!)));
+    final favoritesAsync = ref.watch(favoritesByUserAndLanguageProvider((userId, selectedLanguageId!)));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Word Growth Over Time',
+          style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+        ),
+        const SizedBox(height: 16),
+        // Chart for Known Words
+        SizedBox(
+          height: 300,
+          child: knownWordsAsync.when(
+            data: (List<KnownWordModel> knownWords) => LineChart(
+              _buildLineChartData(knownWords, 'Known Words'),
+            ),
+            loading: () => const CupertinoActivityIndicator(),
+            error: (_, __) => const Text('Error loading known words'),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Chart for Favorites
+        SizedBox(
+          height: 300,
+          child: favoritesAsync.when(
+            data: (List<FavoriteModel> favorites) => LineChart(
+              _buildLineChartData(favorites, 'Favorites'),
+            ),
+            loading: () => const CupertinoActivityIndicator(),
+            error: (_, __) => const Text('Error loading favorites'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  LineChartData _buildLineChartData(List<dynamic> items, String title) {
+    // Sort items by createdAt
+    items.sort((a, b) {
+      DateTime aDate = (a is KnownWordModel) ? a.createdAt : (a is FavoriteModel ? a.createdAt : DateTime.now());
+      DateTime bDate = (b is KnownWordModel) ? b.createdAt : (b is FavoriteModel ? b.createdAt : DateTime.now());
+      return aDate.compareTo(bDate);
+    });
+
+    // Create spots for the chart
+    final spots = _createSpots(items);
+
+    return LineChartData(
+      gridData: FlGridData(show: false),
+      titlesData: FlTitlesData(
+        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 40)),
+        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: (value, meta) {
+          if (value.toInt() % 30 == 0) {
+            final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+            return Text('${date.month}/${date.day}');
+          }
+          return const Text('');
+        })),
+        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      ),
+      borderData: FlBorderData(show: true),
+      lineBarsData: [
+        LineChartBarData(
+          spots: spots,
+          isCurved: true,
+          color: title == 'Known Words' ? CupertinoColors.activeBlue : CupertinoColors.activeOrange,
+          barWidth: 3,
+          isStrokeCapRound: true,
+          dotData: FlDotData(show: false),
+          belowBarData: BarAreaData(show: true, color: title == 'Known Words' ? CupertinoColors.activeBlue.withOpacity(0.2) : CupertinoColors.activeOrange.withOpacity(0.2)),
+        ),
+      ],
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map((LineBarSpot touchedSpot) {
+              final date = DateTime.fromMillisecondsSinceEpoch(touchedSpot.x.toInt());
+              return LineTooltipItem(
+                '${date.month}/${date.day}: ${touchedSpot.y.toInt()} words',
+                const TextStyle(color: CupertinoColors.label),
+              );
+            }).toList();
+          },
+        ),
+      ),
+    );
+  }
+
+  List<FlSpot> _createSpots(List<dynamic> items) {
+    final Map<int, int> wordCounts = {};
+    int totalWords = 0;
+
+    for (var item in items) {
+      final timestamp = item.createdAt.millisecondsSinceEpoch;
+      totalWords++;
+      wordCounts[timestamp] = totalWords;
+    }
+
+    return wordCounts.entries
+        .map((entry) => FlSpot(entry.key.toDouble(), entry.value.toDouble()))
+        .toList();
   }
 }
 
