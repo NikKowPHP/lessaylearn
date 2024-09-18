@@ -72,10 +72,9 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   }
   Future<void> _loadFavoritesAndKnownWords() async {
     final favoriteService = ref.read(favoriteServiceProvider);
-    final knownWordService = ref.read(knownWordServiceProvider);
+    final knownWords = ref.read(knownWordsProvider);
 
     final favorites = await favoriteService.getFavorites();
-    final knownWords = await knownWordService.getKnownWords();
 
     if (mounted) {
       setState(() {
@@ -108,6 +107,12 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<List<KnownWordModel>>(knownWordsProvider, (previous, next) {
+      setState(() {
+        _knownWords = next;
+      });
+    });
+
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 600;
     return GestureDetector(
