@@ -11,6 +11,7 @@ import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';
+import 'package:lessay_learn/features/voicer/models/recording_model.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/mock_storage_service.dart';
 import 'package:flutter/foundation.dart';
@@ -33,10 +34,17 @@ class LocalStorageService implements ILocalStorageService {
   static const String _likesBoxName = 'likes';
   static const String _commentsBoxName = 'comments';
 
+   static const String _recordingsBoxName = 'recordings';
+
 
   Future<Box> _openChartsBox() async {
     return await Hive.openBox(_chartsBoxName);
   }
+
+  Future<Box> _openRecordingsBox() async {
+    return await Hive.openBox(_recordingsBoxName);
+  }
+
 
   Future<Box> _openKnownWordsBox() async {
     return await Hive.openBox(_knownWordsBoxName);
@@ -95,6 +103,42 @@ class LocalStorageService implements ILocalStorageService {
     await Hive.openBox(_knownWordsBoxName);
     await Hive.openBox(_favoritesBoxName);
     await Hive.openBox(_languagesBoxName);
+  }
+
+  @override
+  Future<void> saveRecording(RecordingModel recording) async {
+    final box = await _openRecordingsBox();
+    await box.put(recording.id, recording.toJson());
+  }
+
+  @override
+  Future<List<RecordingModel>> getRecordingsForUser(String userId) async {
+    final box = await _openRecordingsBox();
+    return box.values
+        .where((json) => json['userId'] == userId)
+        .map((json) => RecordingModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
+  Future<List<RecordingModel>> getRecordingsForUserAndLanguage(String userId, String languageId) async {
+    final box = await _openRecordingsBox();
+    return box.values
+        .where((json) => json['userId'] == userId && json['languageId'] == languageId)
+        .map((json) => RecordingModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
+  Future<void> deleteRecording(String recordingId) async {
+    final box = await _openRecordingsBox();
+    await box.delete(recordingId);
+  }
+
+  @override
+  Future<void> updateRecording(RecordingModel recording) async {
+    final box = await _openRecordingsBox();
+    await box.put(recording.id, recording.toJson());
   }
 
 @override

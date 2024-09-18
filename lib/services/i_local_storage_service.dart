@@ -10,6 +10,7 @@ import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';
+import 'package:lessay_learn/features/voicer/models/recording_model.dart';
 
 abstract class ILocalStorageService {
   Future<bool> isUserLoggedIn();
@@ -87,4 +88,9 @@ Future<void> updateChart(ChartModel chart);
 
    Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId);
   Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId);
+  Future<void> saveRecording(RecordingModel recording);
+Future<List<RecordingModel>> getRecordingsForUser(String userId);
+Future<List<RecordingModel>> getRecordingsForUserAndLanguage(String userId, String languageId);
+Future<void> deleteRecording(String recordingId);
+Future<void> updateRecording(RecordingModel recording);
 }
