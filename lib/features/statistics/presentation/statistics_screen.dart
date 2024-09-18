@@ -9,6 +9,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart' show LinearProgressIndicator;
 import 'package:lessay_learn/core/providers/known_word_repository_provider.dart';
 import 'package:lessay_learn/core/providers/favorite_repository_provider.dart';
+import 'package:word_cloud/word_cloud.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
@@ -97,6 +98,13 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
               child: _buildWordStats(userId),
             ),
           ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _buildLexicalFieldDiagram(userId),
+            ),
+          ),
+         
         ],
       ],
     );
@@ -298,6 +306,112 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                 fontWeight: FontWeight.bold,
                 color: CupertinoColors.activeBlue,
               ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLexicalFieldDiagram(String userId) {
+    final knownWordsAsync = ref.watch(knownWordsByUserAndLanguageProvider((userId, selectedLanguageId!)));
+    final favoritesAsync = ref.watch(favoritesByUserAndLanguageProvider((userId, selectedLanguageId!)));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Lexical Field',
+          style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 300,
+          child: knownWordsAsync.when(
+            data: (knownWords) => favoritesAsync.when(
+              data: (favorites) => PieChart(
+                PieChartData(
+                  sections: [
+                    PieChartSectionData(
+                      color: CupertinoColors.activeBlue,
+                      value: knownWords.length.toDouble(),
+                      title: 'Known',
+                      radius: 100,
+                      titleStyle: const TextStyle(color: CupertinoColors.white, fontSize: 16),
+                    ),
+                    PieChartSectionData(
+                      color: CupertinoColors.activeOrange,
+                      value: favorites.length.toDouble(),
+                      title: 'Favorites',
+                      radius: 100,
+                      titleStyle: const TextStyle(color: CupertinoColors.white, fontSize: 16),
+                    ),
+                  ],
+                  sectionsSpace: 0,
+                  centerSpaceRadius: 40,
+                ),
+              ),
+              loading: () => const CupertinoActivityIndicator(),
+              error: (_, __) => const Text('Error loading favorites'),
+            ),
+            loading: () => const CupertinoActivityIndicator(),
+            error: (_, __) => const Text('Error loading known words'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWordCloud(String userId) {
+    final knownWordsAsync = ref.watch(knownWordsByUserAndLanguageProvider((userId, selectedLanguageId!)));
+    final favoritesAsync = ref.watch(favoritesByUserAndLanguageProvider((userId, selectedLanguageId!)));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Word Cloud',
+          style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 300,
+          child: knownWordsAsync.when(
+            data: (knownWords) => favoritesAsync.when(
+              data: (favorites) {
+                // Prepare data for the word cloud
+                List<Map<String, dynamic>> dataList = [];
+                for (var word in knownWords) {
+                  dataList.add({'word': word.word, 'value': 1}); // Assuming each known word has a value of 1
+                }
+                for (var favorite in favorites) {
+                  dataList.add({'word': favorite.sourceText, 'value': 1}); // Assuming each favorite has a value of 1
+                }
+
+                // Create WordCloudData
+                WordCloudData wordCloudData = WordCloudData(data: dataList);
+
+                // Debugging: Check the data being passed
+                print("Word Cloud Data: $dataList");
+
+                return WordCloudView(
+                  data: wordCloudData,
+                  mapwidth: 500,
+                  mapheight: 300,
+                  mapcolor: CupertinoColors.systemGrey5,
+                  colorlist: [
+                    CupertinoColors.activeBlue,
+                    CupertinoColors.activeOrange,
+                    CupertinoColors.activeGreen,
+                  ],
+                  mintextsize: 5, // Ensure this is a positive value
+                  maxtextsize: 50, // Ensure this is a positive value
+                );
+              },
+              loading: () => const CupertinoActivityIndicator(),
+              error: (_, __) => const Text('Error loading favorites'),
+            ),
+            loading: () => const CupertinoActivityIndicator(),
+            error: (_, __) => const Text('Error loading known words'),
+          ),
         ),
       ],
     );
