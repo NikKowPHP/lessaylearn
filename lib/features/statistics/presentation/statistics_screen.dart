@@ -19,22 +19,19 @@ class StatisticsScreen extends ConsumerStatefulWidget {
 
 class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   String? selectedLanguageId;
-  
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeDefaultLanguage();
-     
     });
   }
 
-
-
   void _initializeDefaultLanguage() async {
     final currentUser = await ref.read(currentUserProvider.future);
-    final languages = await ref.read(userLanguagesProvider(currentUser.id).future);
+    final languages =
+        await ref.read(userLanguagesProvider(currentUser.id).future);
     if (languages.isNotEmpty) {
       setState(() {
         selectedLanguageId = languages.first.id;
@@ -81,7 +78,8 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 'Skill Breakdown',
-                style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+                style:
+                    CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
               ),
             ),
           ),
@@ -131,7 +129,8 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   }
 
   Widget _buildOverallProgressChart(String userId) {
-    final chartAsync = ref.watch(languageChartProvider((userId: userId, languageId: selectedLanguageId!)));
+    final chartAsync = ref.watch(languageChartProvider(
+        (userId: userId, languageId: selectedLanguageId!)));
 
     return chartAsync.when(
       data: (chart) {
@@ -157,9 +156,11 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
               radarShape: RadarShape.polygon,
               radarBackgroundColor: CupertinoColors.systemBackground,
               borderData: FlBorderData(show: false),
-              radarBorderData: BorderSide(color: CupertinoColors.systemGrey, width: 1),
+              radarBorderData:
+                  BorderSide(color: CupertinoColors.systemGrey, width: 1),
               titlePositionPercentageOffset: 0.2,
-              titleTextStyle: const TextStyle(color: CupertinoColors.label, fontSize: 14),
+              titleTextStyle:
+                  const TextStyle(color: CupertinoColors.label, fontSize: 14),
               getTitle: (index, _) {
                 switch (index) {
                   case 0:
@@ -175,9 +176,12 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                 }
               },
               tickCount: 5,
-              ticksTextStyle: const TextStyle(color: CupertinoColors.systemGrey, fontSize: 10),
-              tickBorderData: BorderSide(color: CupertinoColors.systemGrey.withOpacity(0.3)),
-              gridBorderData: BorderSide(color: CupertinoColors.systemGrey.withOpacity(0.3), width: 1),
+              ticksTextStyle: const TextStyle(
+                  color: CupertinoColors.systemGrey, fontSize: 10),
+              tickBorderData: BorderSide(
+                  color: CupertinoColors.systemGrey.withOpacity(0.3)),
+              gridBorderData: BorderSide(
+                  color: CupertinoColors.systemGrey.withOpacity(0.3), width: 1),
             ),
           ),
         );
@@ -188,7 +192,8 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   }
 
   Widget _buildSkillChart(String userId, String skill) {
-    final chartAsync = ref.watch(languageChartProvider((userId: userId, languageId: selectedLanguageId!)));
+    final chartAsync = ref.watch(languageChartProvider(
+        (userId: userId, languageId: selectedLanguageId!)));
 
     return chartAsync.when(
       data: (chart) {
@@ -219,7 +224,10 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
             children: [
               Text(
                 skill,
-                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.bold),
+                style: CupertinoTheme.of(context)
+                    .textTheme
+                    .textStyle
+                    .copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               SizedBox(
@@ -236,7 +244,10 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
               const SizedBox(height: 4),
               Text(
                 '${(value * 100).toStringAsFixed(1)}%',
-                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(color: CupertinoColors.systemGrey),
+                style: CupertinoTheme.of(context)
+                    .textTheme
+                    .textStyle
+                    .copyWith(color: CupertinoColors.systemGrey),
               ),
             ],
           ),
@@ -248,44 +259,41 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   }
 
   Widget _buildWordStats(String userId) {
-  final knownWordsAsync = ref.watch(knownWordsByUserAndLanguageProvider((userId, selectedLanguageId!)));
-  final favoritesAsync = ref.watch(favoritesByUserAndLanguageProvider((userId, selectedLanguageId!)));
+    final knownWordsAsync = ref.watch(
+        knownWordsByUserAndLanguageProvider((userId, selectedLanguageId!)));
+    final favoritesAsync = ref.watch(
+        favoritesByUserAndLanguageProvider((userId, selectedLanguageId!)));
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        'Word Statistics',
-        style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
-      ),
-      const SizedBox(height: 16),
-      knownWordsAsync.when(
-        data: (knownWords) {
-          // debugPrint('Known words received: ${knownWords.map((kw) => kw.toJson()).toList()}'); // Debug print
-          return _buildWordStatItem('Known Words', knownWords); // Use the retrieved known words
-        },
-        loading: () => const Center(child: CupertinoActivityIndicator()),
-        error: (error, _) => Center(child: Text('Error: $error')),
-      ),
-      const SizedBox(height: 8),
-      favoritesAsync.when(
-        data: (favorites) {
-          return _buildWordStatItem('Favorite Words', favorites.cast<KnownWordModel>()); // Update this line
-        },
-        loading: () => const Center(child: CupertinoActivityIndicator()),
-        error: (error, _) => Center(child: Text('Error: $error')),
-      ),
-    ],
-  );
-}
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Word Statistics',
+          style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+        ),
+        const SizedBox(height: 16),
+        knownWordsAsync.when(
+          data: (knownWords) => _buildWordStatItem('Known Words', knownWords),
+          loading: () => const CupertinoActivityIndicator(),
+          error: (_, __) => const Text('Error loading known words'),
+        ),
+        const SizedBox(height: 8),
+        favoritesAsync.when(
+          data: (favorites) => _buildWordStatItem('Favorite Words', favorites),
+          loading: () => const CupertinoActivityIndicator(),
+          error: (_, __) => const Text('Error loading favorites'),
+        ),
+      ],
+    );
+  }
 
-  Widget _buildWordStatItem(String title, List<KnownWordModel> knownWords) {
+  Widget _buildWordStatItem(String title, List<dynamic> items) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: CupertinoTheme.of(context).textTheme.textStyle),
         Text(
-          knownWords.length.toString(),
+          items.length.toString(),
           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
                 fontWeight: FontWeight.bold,
                 color: CupertinoColors.activeBlue,

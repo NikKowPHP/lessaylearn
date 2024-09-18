@@ -562,44 +562,19 @@ Color _getHighlightColor(bool isKnown, bool isFavorite) {
     if (currentUser == null) return;
 
     if (!widget.knownWords.any((knownWord) => knownWord.word == word)) {
-      setState(() {
-        
-        widget.knownWords.add(KnownWordModel(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          userId: currentUser.id,
-          word: word,
-          language: 'lang_en', // Replace with actual language
-        ));
-      });
-
       final newKnownWord = KnownWordModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: currentUser.id,
         word: word,
         language: 'lang_en', // Replace with actual language
       );
-      await _knownWordService.addKnownWord(newKnownWord);
+      await ref.read(knownWordsProvider.notifier).addKnownWord(newKnownWord);
     }
   }
 
   Future<void> _toggleFavorite(String word, bool isFavorite) async {
     final currentUser = ref.read(currentUserProvider).value;
     if (currentUser == null) return;
-
-    setState(() {
-      if (isFavorite) {
-        widget.favorites.removeWhere((favorite) => favorite.sourceText == word);
-      } else {
-        widget.favorites.add(FavoriteModel(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          userId: currentUser.id,
-          sourceText: word,
-          translatedText: '', // You might want to add translation functionality
-          sourceLanguage: 'en', // Replace with actual source language
-          targetLanguage: 'es', // Replace with actual target language
-        ));
-      }
-    });
 
     if (isFavorite) {
       await _favoriteService.removeFavorite(word);
