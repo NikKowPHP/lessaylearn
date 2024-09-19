@@ -153,9 +153,9 @@ GoRoute(
       GoRoute(
         path: '/deck/:deckId',
         pageBuilder: (context, state) {
-          final deck = state.extra as DeckModel;
+       final deckId = state.pathParameters['deckId']!;
           return CupertinoPage(
-            child: DeckDetailScreen(deck: deck),
+            child: DeckDetailScreen(deckId: deckId),
           );
         },
       ),

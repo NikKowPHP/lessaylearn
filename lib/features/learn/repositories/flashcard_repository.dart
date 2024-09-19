@@ -104,4 +104,9 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     };
   }
 
+  Future<DeckModel> getDeckById(String deckId) async {
+    final decks = await getDecks();
+    final deck = decks.firstWhere((d) => d.id == deckId, orElse: () => throw Exception('Deck not found'));
+    return deck;
+  }
 }

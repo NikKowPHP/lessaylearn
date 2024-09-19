@@ -9,15 +9,27 @@ import 'package:lessay_learn/features/learn/presentation/widgets/flashcard_list_
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 
 class DeckDetailScreen extends ConsumerWidget {
-  final DeckModel deck;
+  final String deckId;
 
-  const DeckDetailScreen({Key? key, required this.deck}) : super(key: key);
+  const DeckDetailScreen({Key? key, required this.deckId}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final flashcardsAsyncValue = ref.watch(flashcardsForDeckProvider(deck.id));
-    final dueFlashcardsAsyncValue = ref.watch(dueFlashcardsProvider);
+    final deckAsyncValue = ref.watch(deckByIdProvider(deckId));
+    final flashcardsAsyncValue = ref.watch(flashcardsForDeckProvider(deckId));
 
+    return deckAsyncValue.when(
+      data: (deck) => _buildDeckDetail(context, ref, deck, flashcardsAsyncValue),
+      loading: () => const CupertinoPageScaffold(
+        child: Center(child: CupertinoActivityIndicator()),
+      ),
+      error: (error, _) => CupertinoPageScaffold(
+        child: Center(child: Text('Error: $error')),
+      ),
+    );
+  }
+
+  Widget _buildDeckDetail(BuildContext context, WidgetRef ref, DeckModel deck, AsyncValue<List<FlashcardModel>> flashcardsAsyncValue) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(deck.name),
@@ -25,8 +37,8 @@ class DeckDetailScreen extends ConsumerWidget {
       child: SafeArea(
         child: Column(
           children: [
-            _buildDeckInfo(),
-            _buildStudyButton(context, ref),
+            _buildDeckInfo(deck),
+            _buildStudyButton(context, ref, deck),
             _buildFlashcardList(flashcardsAsyncValue),
           ],
         ),
@@ -34,7 +46,7 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDeckInfo() {
+  Widget _buildDeckInfo(DeckModel deck) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -49,7 +61,7 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
-Widget _buildStudyButton(BuildContext context, WidgetRef ref) {
+Widget _buildStudyButton(BuildContext context, WidgetRef ref, DeckModel deck) {
   final flashcardStatusAsyncValue = ref.watch(flashcardStatusProvider(deck.id));
 
   return flashcardStatusAsyncValue.when(

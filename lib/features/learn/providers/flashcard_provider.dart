@@ -34,14 +34,16 @@ final decksProvider = FutureProvider<List<DeckModel>>((ref) async {
   return repository.getDecks();
 });
 
+// Add this provider
+final deckByIdProvider = FutureProvider.family<DeckModel, String>((ref, deckId) async {
+  final repository = ref.watch(flashcardRepositoryProvider);
+  return repository.getDeckById(deckId);
+});
+
+// Update this provider if needed
 final flashcardsForDeckProvider = FutureProvider.family<List<FlashcardModel>, String>((ref, deckId) async {
-  try {
-    final repository = ref.watch(flashcardRepositoryProvider);
-  return await repository.getFlashcardsForDeck(deckId);
-  } catch (e) {
-    print('Error fetching flashcards: $e');
-    return [];
-  }
+  final repository = ref.watch(flashcardRepositoryProvider);
+  return repository.getFlashcardsForDeck(deckId);
 });
 
 final flashcardProvider =

@@ -10,7 +10,7 @@ import 'package:lessay_learn/features/learn/presentation/deck_detail_screen.dart
 
 import 'package:lessay_learn/features/learn/presentation/widgets/deck_list_item.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
-
+import 'package:go_router/go_router.dart';
 class LearnScreen extends ConsumerWidget {
   const LearnScreen({Key? key}) : super(key: key);
 
@@ -48,27 +48,21 @@ class LearnScreen extends ConsumerWidget {
 
 
  Widget _buildDeckList(BuildContext context, WidgetRef ref, List<DeckModel> decks) {
-  debugPrint('decks $decks');
-    return ListView.builder(
-      itemCount: decks.length,
-      itemBuilder: (context, index) {
-        final deck = decks[index];
-        return DeckListItem(
-          deck: deck,
-          onTap: () => _navigateToDeckDetail(context, deck),
-        );
-      },
-    );
+  return ListView.builder(
+    itemCount: decks.length,
+    itemBuilder: (context, index) {
+      final deck = decks[index];
+      return DeckListItem(
+        deck: deck,
+        onTap: () {
+          context.push('/deck/${deck.id}');
+        },
+      );
+    },
+  );
   }
 
  
 
-  void _navigateToDeckDetail(BuildContext context, DeckModel deck) {
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (context) => DeckDetailScreen(deck: deck),
-      ),
-    );
-  }
+
 }
