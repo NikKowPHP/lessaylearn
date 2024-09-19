@@ -60,12 +60,20 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
               });
             },
             child: Center(
-              child: Text(
-                _showAnswer
-                    ? flashcards[_currentIndex].back
-                    : flashcards[_currentIndex].front,
-                style: const TextStyle(fontSize: 24),
-                textAlign: TextAlign.center,
+              child: Column(
+                children: [
+                  Text(
+                     flashcards[_currentIndex].front,
+                    style: const TextStyle(fontSize: 24),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (_showAnswer) _buildCustomSeparator(), // Use custom separator
+                  if (_showAnswer) Text(
+                    flashcards[_currentIndex].back, // Show translation
+                    style: const TextStyle(fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           ),
@@ -77,23 +85,35 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
               // Update the CupertinoButton onPressed callbacks:
               CupertinoButton(
                 child: const Text('Again'),
+                color: const Color(0xFFEF5350), // Anki red color
                 onPressed: () => _answerCard(0),
               ),
               CupertinoButton(
                 child: const Text('Hard'),
+                color: const Color(0xFFFFC107), // Anki yellow color
                 onPressed: () => _answerCard(1),
               ),
               CupertinoButton(
                 child: const Text('Good'),
+                color: const Color(0xFF66BB6A), // Anki green color
                 onPressed: () => _answerCard(2),
               ),
               CupertinoButton(
                 child: const Text('Easy'),
+                color: const Color(0xFF42A5F5), // Anki blue color
                 onPressed: () => _answerCard(3),
               ),
             ],
           ),
       ],
+    );
+  }
+
+  Widget _buildCustomSeparator() {
+    return Container(
+      height: 1.0,
+      color: CupertinoColors.systemGrey, // Custom color for the separator
+      margin: const EdgeInsets.symmetric(vertical: 10.0), // Margin for spacing
     );
   }
 
