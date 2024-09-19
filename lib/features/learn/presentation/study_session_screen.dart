@@ -50,7 +50,7 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
     }
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center, // Center the column vertically
       children: [
         Expanded(
           child: GestureDetector(
@@ -61,21 +61,20 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
             },
             child: Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
                 children: [
                   Text(
                     flashcards[_currentIndex].front,
                     style: const TextStyle(fontSize: 24),
                     textAlign: TextAlign.center,
                   ),
-                  if (_showAnswer)
-                    _buildCustomSeparator(), // Use custom separator
+                  if (_showAnswer) _buildCustomSeparator(), // Use custom separator
                   if (_showAnswer)
                     Text(
                       flashcards[_currentIndex].back, // Show translation
                       style: const TextStyle(fontSize: 20),
                       textAlign: TextAlign.center,
                     ),
-                  
                 ],
               ),
             ),
