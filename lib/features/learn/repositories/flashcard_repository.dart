@@ -27,16 +27,16 @@ FlashcardRepository(this._localStorageService, this._flashcardService);
     return await _flashcardService.getDecks();
   }
 
-  @override
-  @override
+@override
 Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
   final flashcards = await _localStorageService.getFlashcardsForDeck(deckId);
   return flashcards;
 }
-  @override
-  Future<List<FlashcardModel>> getAllFlashcards() async {
-    return await _localStorageService.getAllFlashcards();
-  }
+
+@override
+Future<List<FlashcardModel>> getAllFlashcards() async {
+  return await _localStorageService.getAllFlashcards();
+}
 
   @override
   Future<void> updateFlashcard(FlashcardModel flashcard) async {
@@ -89,7 +89,7 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
    Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatus() async {
     return await _flashcardService.getFlashcardsByStatus();
   }
-  Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatusForDeck(String deckId) async {
+   Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatusForDeck(String deckId) async {
     final flashcards = await getFlashcardsForDeck(deckId);
     final now = DateTime.now();
 

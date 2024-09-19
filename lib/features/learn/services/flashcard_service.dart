@@ -15,10 +15,11 @@ class FlashcardService implements IFlashcardService {
     return await localStorageService.getDecks();
   }
 
-  @override
-  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-    return await localStorageService.getFlashcardsForDeck(deckId);
-  }
+ @override
+Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
+  final flashcards = await localStorageService.getFlashcardsForDeck(deckId);
+  return flashcards.map((json) => FlashcardModel.fromJson(json as Map<String, dynamic>)).toList();
+}
 
   @override
   Future<void> addDeck(DeckModel deck) async {
@@ -46,9 +47,12 @@ class FlashcardService implements IFlashcardService {
   }
 
 
- Future<List<FlashcardModel>> getAllFlashcards() async {
-    return await localStorageService.getAllFlashcards();
-  }
+
+  
+Future<List<FlashcardModel>> getAllFlashcards() async {
+  final flashcards = await localStorageService.getAllFlashcards();
+  return flashcards.map((json) => FlashcardModel.fromJson(json as Map<String, dynamic>)).toList();
+}
 
   Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
     final updatedFlashcard = SRSAlgorithm.processReview(flashcard, quality);

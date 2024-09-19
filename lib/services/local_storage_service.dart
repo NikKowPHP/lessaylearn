@@ -568,50 +568,36 @@ class LocalStorageService implements ILocalStorageService {
         await box.put(deck.id, deck.toJson());
       }
     }
-    // Always return data from the box, whether it was just populated with mocks or already had data
+   
     return box.values
         .map((deck) => DeckModel.fromJson(Map<String, dynamic>.from(deck)))
         .toList();
   }
 
+ @override
+@override
+Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
+  final box = await _openFlashcardsBox(); 
+  debugPrint('Flashcards box: ${box.values}'); 
+
+ 
+  final allFlashcards = box.values
+    .expand((deckMap) => (deckMap as Map).values) 
+    .where((json) => json is Map && json['deckId'] == deckId) 
+    .map((json) => FlashcardModel.fromJson(Map<String, dynamic>.from(json))) 
+    .toList();
+
+  debugPrint('Flashcards for deck $deckId: $allFlashcards'); 
+  return allFlashcards;
+}
   @override
-  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-    final box = await _openFlashcardsBox();
-    Map<String, dynamic> flashcardData = box.get(deckId, defaultValue: {});
-
-    if (flashcardData.isEmpty) {
-      final allMockFlashcards = MockStorageService.getFlashcards();
-      final mockFlashcardsForDeck =
-          allMockFlashcards.where((f) => f.deckId == deckId).toList();
-
-      for (var flashcard in mockFlashcardsForDeck) {
-        flashcardData[flashcard.id] = flashcard.toJson();
-      }
-      await box.put(deckId, flashcardData);
-    }
-
-    // Always return data from the box
-    return flashcardData.values
-        .map((flashcard) =>
-            FlashcardModel.fromJson(Map<String, dynamic>.from(flashcard)))
-        .toList();
-  }
-
-  @override
-  Future<List<FlashcardModel>> getAllFlashcards() async {
-    final box = await _openFlashcardsBox();
-    List<FlashcardModel> allFlashcards = [];
-
-    for (var deckId in box.keys) {
-      Map<String, dynamic> flashcards = Map<String, dynamic>.from(
-          box.get(deckId, defaultValue: <String, dynamic>{}));
-      allFlashcards.addAll(flashcards.values.map((flashcard) =>
-          FlashcardModel.fromJson(
-              Map<String, dynamic>.from(flashcard as Map))));
-    }
-
-    return allFlashcards;
-  }
+Future<List<FlashcardModel>> getAllFlashcards() async {
+  final box = await _openFlashcardsBox(); 
+  debugPrint('Flashcards box: ${box.values}'); 
+  return box.values 
+    .map((json) => FlashcardModel.fromJson(Map<String, dynamic>.from(json))) 
+    .toList();
+}
 
   @override
   Future<void> updateFlashcard(FlashcardModel flashcard) async {

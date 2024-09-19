@@ -22,11 +22,11 @@ final flashcardNotifierProvider =
 });
 
 final flashcardRepositoryProvider = Provider<FlashcardRepository>((ref) {
-  // Get the ILocalStorageService instance from the provider
+
   final localStorageService = ref.watch(localStorageServiceProvider);
-// Get the FlashcardService instance from the provider
+
   final flashcardService = ref.watch(flashcardServiceProvider);
-  // Initialize and return your FlashcardRepository, passing both services
+
   return FlashcardRepository(localStorageService, flashcardService);
 });
 final decksProvider = FutureProvider<List<DeckModel>>((ref) async {
@@ -61,8 +61,17 @@ class FlashcardNotifier
 
   Future<void> _loadFlashcards() async {
     try {
-      final flashcards = await _repository.getAllFlashcards();
-      state = AsyncValue.data(flashcards);
+      // Load all flashcards
+      final allFlashcards = await _repository.getAllFlashcards();
+
+      // Load due flashcards
+      final dueFlashcards = await _repository.getDueFlashcards();
+
+      // Combine all flashcards and due flashcards
+      final combinedFlashcards = [...allFlashcards, ...dueFlashcards];
+
+      // Update the state with the combined list
+      state = AsyncValue.data(combinedFlashcards);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
     }

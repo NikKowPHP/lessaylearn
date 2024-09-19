@@ -15,10 +15,11 @@ class DeckListItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final flashcardsAsyncValue = ref.watch(flashcardsForDeckProvider(deck.id));
-
+    debugPrint('flashcards $flashcardsAsyncValue');
     return flashcardsAsyncValue.when(
       data: (flashcards) {
         final newCount = flashcards.where((f) => f.repetitions == 0).length;
+        debugPrint('new cards $newCount');
         final reviewCount = flashcards.where((f) => f.repetitions > 0 && f.interval > 1 && f.nextReview.isBefore(DateTime.now())).length;
         final learnCount = flashcards.where((f) => f.repetitions > 0 && f.interval <= 1).length;
 
