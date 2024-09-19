@@ -154,8 +154,7 @@ void _endSession(BuildContext dialogContext) async {
     ref.refresh(flashcardsForDeckProvider(deckId));
     ref.refresh(flashcardStatusProvider(deckId));
   }
-  Navigator.pop(dialogContext); // Close the dialog
-  Navigator.pop(context); // Pop the navigator to the previous page
+  Navigator.pop(context);
 }
 
 void _showSessionSummary() {
