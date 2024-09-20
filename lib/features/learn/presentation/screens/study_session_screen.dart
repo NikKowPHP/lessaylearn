@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/core/providers/tts_provider.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -67,6 +68,18 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
                     style: const TextStyle(fontSize: 24),
                     textAlign: TextAlign.center,
                   ),
+                  CupertinoButton(
+  child: const Icon(CupertinoIcons.volume_up),
+  onPressed: () async {
+    try {
+      final ttsService = ref.read(ttsServiceProvider);
+      await ttsService.speak(flashcards[_currentIndex].front, 'en'); // Replace 'en' with the target language code
+    } catch (e) {
+      debugPrint("Failed to use TTS: $e");
+      // Optionally show an error message to the user
+    }
+  },
+),
                   if (_showAnswer) _buildCustomSeparator(), // Use custom separator
                   if (_showAnswer)
                     Text(
