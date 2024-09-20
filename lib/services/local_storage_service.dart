@@ -271,6 +271,16 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
+  Future<FavoriteModel?> getFavoriteById(String favoriteId) async {
+    final box = await _openFavoritesBox();
+    final favoriteJson = box.get(favoriteId);
+    if (favoriteJson != null) {
+      return FavoriteModel.fromJson(Map<String, dynamic>.from(favoriteJson));
+    }
+    return null;
+  }
+
+  @override
   Future<void> saveLanguage(LanguageModel language) async {
     final box = await _openLanguagesBox();
     await box.put(language.id, language.toJson());

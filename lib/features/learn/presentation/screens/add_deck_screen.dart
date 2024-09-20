@@ -15,11 +15,10 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
-    String? selectedSourceLanguage;
+  String? selectedSourceLanguage;
   String? selectedTargetLanguage;
   String _languageLevel = 'Beginner';
-  LanguageModel? sourceLanguage;
-  LanguageModel? targetLanguage;
+  List<String> selectedFavorites = [];
 
   @override
   void initState() {
@@ -48,12 +47,22 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
           onPressed: _saveDeck,
         ),
       ),
-     child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: EdgeInsets.all(16),
             children: [
+              CupertinoTextFormFieldRow(
+                controller: _nameController,
+                placeholder: 'Deck Name',
+                validator: (value) => value?.isEmpty ?? true ? 'Please enter a name' : null,
+              ),
+              CupertinoTextFormFieldRow(
+                controller: _descriptionController,
+                placeholder: 'Description',
+              ),
+              SizedBox(height: 16),
               Text('Source Language'),
               FutureBuilder<List<String>>(
                 future: deckService.getAvailableSourceLanguages(),
@@ -80,7 +89,7 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
                       return CupertinoActivityIndicator();
                     }
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Text('No target languages available');
+                      return Text('No languages available');
                     }
                     return CupertinoButton(
                       child: Text(selectedTargetLanguage ?? 'Select language'),
@@ -89,16 +98,15 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
                   },
                 ),
               SizedBox(height: 16),
-              CupertinoSlidingSegmentedControl<String>(
+              Text('Language Level'),
+              CupertinoSegmentedControl<String>(
                 children: {
                   'Beginner': Text('Beginner'),
                   'Intermediate': Text('Intermediate'),
                   'Advanced': Text('Advanced'),
                 },
                 onValueChanged: (value) {
-                  if (value != null) {
-                    setState(() => _languageLevel = value);
-                  }
+                  setState(() => _languageLevel = value);
                 },
                 groupValue: _languageLevel,
               ),
@@ -109,12 +117,14 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
                     ? () => _navigateToFavoriteListScreen(context)
                     : null,
               ),
+              Text('Selected Favorites: ${selectedFavorites.length}'),
             ],
           ),
         ),
       ),
     );
   }
+
   void _showLanguagePicker(BuildContext context, List<String> languages, bool isSource) {
     showCupertinoModalPopup(
       context: context,
@@ -140,9 +150,8 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
     );
   }
 
-
-  void _navigateToFavoriteListScreen(BuildContext context) {
-    Navigator.push(
+  void _navigateToFavoriteListScreen(BuildContext context) async {
+    final result = await Navigator.push<List<String>>(
       context,
       CupertinoPageRoute(
         builder: (context) => FavoriteListScreen(
@@ -151,26 +160,33 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
         ),
       ),
     );
+    if (result != null) {
+      setState(() {
+        selectedFavorites = result;
+      });
+    }
   }
 
- 
-
- 
-
   void _saveDeck() {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() &&
+        selectedSourceLanguage != null &&
+        selectedTargetLanguage != null) {
       final newDeck = DeckModel(
         id: Uuid().v4(),
         name: _nameController.text,
         description: _descriptionController.text,
-        cardCount: 0,
+        cardCount: selectedFavorites.length,
         lastStudied: DateTime.now(),
         languageLevel: _languageLevel,
-        sourceLanguage: sourceLanguage!.id,
-        targetLanguage: targetLanguage!.id,
+        sourceLanguage: selectedSourceLanguage!,
+        targetLanguage: selectedTargetLanguage!,
       );
       
       ref.read(deckServiceProvider).addDeck(newDeck).then((_) {
+        // Add favorites as flashcards
+        for (String favoriteId in selectedFavorites) {
+          ref.read(deckServiceProvider).addFavoriteAsDeckFlashcard(newDeck.id, favoriteId);
+        }
         Navigator.pop(context);
       });
     }
