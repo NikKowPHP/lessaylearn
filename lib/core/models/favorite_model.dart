@@ -1,6 +1,4 @@
-
-
-class FavoriteModel  {
+class FavoriteModel {
   final String id;
   final String userId;
   final String sourceText;
@@ -8,6 +6,8 @@ class FavoriteModel  {
   final String sourceLanguage;
   final String targetLanguage;
   final DateTime createdAt;
+  final bool isFlashcard;
+  final DateTime? addedToFlashcardsDate;
 
   FavoriteModel({
     required this.id,
@@ -16,8 +16,10 @@ class FavoriteModel  {
     required this.translatedText,
     required this.sourceLanguage,
     required this.targetLanguage,
+    this.isFlashcard = false,
+    this.addedToFlashcardsDate,
     DateTime? createdAt,
-    }) : createdAt = createdAt ?? DateTime.now();
+  }) : createdAt = createdAt ?? DateTime.now();
 
   factory FavoriteModel.fromJson(Map<String, dynamic> json) {
     return FavoriteModel(
@@ -28,6 +30,10 @@ class FavoriteModel  {
       sourceLanguage: json['sourceLanguage'],
       targetLanguage: json['targetLanguage'],
       createdAt: DateTime.parse(json['createdAt']),
+      isFlashcard: json['isFlashcard'] ?? false,
+      addedToFlashcardsDate: json['addedToFlashcardsDate'] != null
+          ? DateTime.parse(json['addedToFlashcardsDate'])
+          : null,
     );
   }
 
@@ -40,6 +46,8 @@ class FavoriteModel  {
       'sourceLanguage': sourceLanguage,
       'targetLanguage': targetLanguage,
       'createdAt': createdAt.toIso8601String(),
+      'isFlashcard': isFlashcard,
+      'addedToFlashcardsDate': addedToFlashcardsDate?.toIso8601String(),
     };
   }
 
@@ -51,6 +59,8 @@ class FavoriteModel  {
     String? sourceLanguage,
     String? targetLanguage,
     DateTime? createdAt,
+    bool? isFlashcard,
+    DateTime? addedToFlashcardsDate,
   }) {
     return FavoriteModel(
       id: id ?? this.id,
@@ -60,10 +70,14 @@ class FavoriteModel  {
       sourceLanguage: sourceLanguage ?? this.sourceLanguage,
       targetLanguage: targetLanguage ?? this.targetLanguage,
       createdAt: createdAt ?? this.createdAt,
+      isFlashcard: isFlashcard ?? this.isFlashcard,
+      addedToFlashcardsDate:
+          addedToFlashcardsDate ?? this.addedToFlashcardsDate,
     );
   }
+
   @override
   String toString() {
-    return 'FavoriteModel(id: $id, userId: $userId, sourceText: $sourceText, translatedText: $translatedText, sourceLanguage: $sourceLanguage, targetLanguage: $targetLanguage, createdAt: $createdAt)';
+    return 'FavoriteModel(id: $id, userId: $userId, sourceText: $sourceText, translatedText: $translatedText, sourceLanguage: $sourceLanguage, targetLanguage: $targetLanguage, createdAt: $createdAt , isFlashcard: $isFlashcard, addedToFlashcardsDate: $addedToFlashcardsDate)';
   }
 }
