@@ -1,25 +1,24 @@
 import 'package:lessay_learn/core/models/known_word_model.dart';
-import 'package:lessay_learn/core/repositories/known_word_repository.dart';
+import 'package:lessay_learn/services/i_local_storage_service.dart';
 
 class KnownWordService {
-  final KnownWordRepository _repository;
+  final ILocalStorageService _localStorageService;
 
-  KnownWordService(this._repository);
+  KnownWordService(this._localStorageService);
 
   Future<void> addKnownWord(KnownWordModel knownWord) async {
-    await _repository.saveKnownWord(knownWord);
+    await _localStorageService.saveKnownWord(knownWord);
   }
 
   Future<List<KnownWordModel>> getKnownWords() async {
-    return await _repository.getKnownWords();
+    return await _localStorageService.getKnownWords();
   }
 
   Future<void> removeKnownWord(String knownWordId) async {
-    await _repository.deleteKnownWord(knownWordId);
+    await _localStorageService.deleteKnownWord(knownWordId);
   }
 
-  // Add the missing method
   Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId) async {
-    return await _repository.getKnownWordsByUserAndLanguage(userId, languageId);
+    return await _localStorageService.getKnownWordsByUserAndLanguage(userId, languageId);
   }
 }
