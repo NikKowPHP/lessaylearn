@@ -588,8 +588,7 @@ class LocalStorageService implements ILocalStorageService {
 @override
 Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
   final box = await _openFlashcardsBox(); 
-  // debugPrint('Flashcards box: ${box.values}'); 
-
+ 
  
   final allFlashcards = box.values
     .expand((deckMap) => (deckMap as Map).values) 

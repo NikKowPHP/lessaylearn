@@ -5,10 +5,8 @@ import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class StudySessionScreen extends ConsumerStatefulWidget {
- final List<FlashcardModel> flashcards;
-  const StudySessionScreen({Key? key, required this.flashcards}) : super(key: key);
-
-
+ final String deckId;
+  const StudySessionScreen({Key? key, required this.deckId}) : super(key: key);
 
   @override
   _StudySessionScreenState createState() => _StudySessionScreenState();
@@ -17,21 +15,21 @@ class StudySessionScreen extends ConsumerStatefulWidget {
 class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
   int _currentIndex = 0;
   bool _showAnswer = false;
-  late List<FlashcardModel> _dueFlashcards;
+  List<FlashcardModel> _dueFlashcards = [];
 
- @override
+  @override
   void initState() {
     super.initState();
-    _dueFlashcards = widget.flashcards;
+    _loadDueFlashcards();
   }
-  // Future<void> _loadDueFlashcards() async {
-  //   final flashcards = await ref
-  //       .read(flashcardProvider.notifier)
-  //       .getDueFlashcardsForDeck(widget.deck.id);
-  //   setState(() {
-  //     _dueFlashcards = flashcards;
-  //   });
-  // }
+ Future<void> _loadDueFlashcards() async {
+    final flashcards = await ref
+        .read(flashcardProvider.notifier)
+        .getDueFlashcardsForDeck(widget.deckId);
+    setState(() {
+      _dueFlashcards = flashcards;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +38,7 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
         middle: Text('Study Session'),
       ),
       child: SafeArea(
-        child: _buildStudySession(widget.flashcards),
+        child: _buildStudySession(_dueFlashcards),
       ),
     );
   }
@@ -146,17 +144,14 @@ void _answerCard(int answerQuality) {
 }
 
 
-void _endSession() async {
-  if (widget.flashcards.isNotEmpty) {
-    String deckId = widget.flashcards.first.deckId;
-    await ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(deckId);
+ void _endSession() async {
+    await ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(widget.deckId);
     // Refresh the flashcard state
-    ref.refresh(flashcardsForDeckProvider(deckId));
-    ref.refresh(flashcardStatusProvider(deckId));
+    ref.refresh(flashcardsForDeckProvider(widget.deckId));
+    ref.refresh(flashcardStatusProvider(widget.deckId));
+    // Use GoRouter to pop the route
+    GoRouter.of(context).pop();
   }
-  // Use GoRouter to pop the route
-  GoRouter.of(context).pop();
-}
 
 void _showSessionSummary() {
   showCupertinoDialog(

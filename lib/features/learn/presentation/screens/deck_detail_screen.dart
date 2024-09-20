@@ -7,6 +7,8 @@ import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/presentation/screens/study_session_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/widgets/flashcard_list_item.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
+import 'package:go_router/go_router.dart';
+
 
 class DeckDetailScreen extends ConsumerWidget {
   final String deckId;
@@ -61,39 +63,29 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
-Widget _buildStudyButton(BuildContext context, WidgetRef ref, DeckModel deck) {
-  final flashcardStatusAsyncValue = ref.watch(flashcardStatusProvider(deck.id));
+ Widget _buildStudyButton(BuildContext context, WidgetRef ref, DeckModel deck) {
+    final flashcardStatusAsyncValue = ref.watch(flashcardStatusProvider(deck.id));
 
-  return flashcardStatusAsyncValue.when(
-    data: (flashcardStatus) {
-      final newCount = flashcardStatus['new']?.length ?? 0;
-      final learnCount = flashcardStatus['learn']?.length ?? 0;
-      final reviewCount = flashcardStatus['review']?.length ?? 0;
-      final totalCount = newCount + learnCount + reviewCount;
+    return flashcardStatusAsyncValue.when(
+      data: (flashcardStatus) {
+        final newCount = flashcardStatus['new']?.length ?? 0;
+        final learnCount = flashcardStatus['learn']?.length ?? 0;
+        final reviewCount = flashcardStatus['review']?.length ?? 0;
+        final totalCount = newCount + learnCount + reviewCount;
 
-      return CupertinoButton.filled(
-        child: Text('Study Now ($totalCount cards)'),
-        onPressed: totalCount > 0 ? () => _startStudySession(context, flashcardStatus) : null,
-      );
-    },
-    loading: () => CupertinoActivityIndicator(),
-    error: (_, __) => Text('Error loading flashcards'),
-  );
-}
+        return CupertinoButton.filled(
+          child: Text('Study Now ($totalCount cards)'),
+          onPressed: totalCount > 0 ? () => _startStudySession(context, deck.id) : null,
+        );
+      },
+      loading: () => CupertinoActivityIndicator(),
+      error: (_, __) => Text('Error loading flashcards'),
+    );
+  }
 
-void _startStudySession(BuildContext context, Map<String, List<FlashcardModel>> flashcardStatus) {
-  final allFlashcards = [
-    ...?flashcardStatus['new'],
-    ...?flashcardStatus['learn'],
-    ...?flashcardStatus['review'],
-  ];
-  Navigator.push(
-    context,
-    CupertinoPageRoute(
-      builder: (context) => StudySessionScreen(flashcards: allFlashcards),
-    ),
-  );
-}
+  void _startStudySession(BuildContext context, String deckId) {
+    context.push('/study-session/$deckId');
+  }
 
   Widget _buildFlashcardList(
       AsyncValue<List<FlashcardModel>> flashcardsAsyncValue) {

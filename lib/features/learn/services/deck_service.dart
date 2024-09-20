@@ -27,10 +27,17 @@ class DeckService {
   Future<void> deleteDeck(String deckId) async {
     await _storageService.deleteDeck(deckId);
   }
-
-  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-    return await _storageService.getFlashcardsForDeck(deckId);
+    Future<List<FlashcardModel>> getDueFlashcardsForDeck(String deckId) async {
+    final allFlashcards = await getFlashcardsForDeck(deckId);
+    final now = DateTime.now();
+    return allFlashcards.where((flashcard) => flashcard.nextReview.isBefore(now)).toList();
   }
+
+Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
+  final flashcards = await _storageService.getFlashcardsForDeck(deckId);
+  
+  return flashcards.map((json) => FlashcardModel.fromJson(json as Map<String, dynamic>)).toList();
+}
 
   Future<void> addFlashcard(FlashcardModel flashcard) async {
     await _storageService.addFlashcard(flashcard);
@@ -109,9 +116,9 @@ class DeckService {
       }
     }
   }
+
+
 }
-
-
 
 final deckServiceProvider = Provider<DeckService>((ref) {
   final localStorageService = ref.watch(localStorageServiceProvider);

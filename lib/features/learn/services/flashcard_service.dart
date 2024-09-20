@@ -15,10 +15,9 @@ class FlashcardService implements IFlashcardService {
     return await localStorageService.getDecks();
   }
 
- @override
+@override
 Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-  final flashcards = await localStorageService.getFlashcardsForDeck(deckId);
-  return flashcards.map((json) => FlashcardModel.fromJson(json as Map<String, dynamic>)).toList();
+  return await localStorageService.getFlashcardsForDeck(deckId);
 }
 
   @override

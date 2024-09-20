@@ -160,11 +160,11 @@ GoRoute(
         },
       ),
       GoRoute(
-        path: '/study-session',
+        path: '/study-session/:deckId',
         pageBuilder: (context, state) {
-          final flashcards = state.extra as List<FlashcardModel>;
+          final deckId = state.pathParameters['deckId']!;
           return CupertinoPage(
-            child: StudySessionScreen(flashcards: flashcards),
+            child: StudySessionScreen(deckId: deckId),
           );
         },
       ),
