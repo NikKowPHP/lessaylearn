@@ -1,46 +1,31 @@
-├── ai_language_app.iml
-├── analysis_options.yaml
-├── assets
-│   ├── avatar-1.png
-│   ├── avatar-2.png
-│   ├── avatar-3.png
-│   ├── avatar-4.png
-│   ├── blank.png
-│   └── images
-├── lessaylearn.iml
 ├── lib
 │   ├── app.dart
 │   ├── core
-│   │   ├── app_config.dart
-│   │   ├── dependency_injection.dart
 │   │   ├── models
-│   │   │   ├── comment_model.dart
-│   │   │   ├── favorite_model.dart
+│   │   │   ├── user_model.dart
+│   │   │   ├── chat_model.dart
+│   │   │   ├── message_model.dart
 │   │   │   ├── known_word_model.dart
-│   │   │   ├── language_model.dart
-│   │   │   └── like_model.dart
-│   │   ├── providers
-│   │   │   ├── chat_provider.dart
-│   │   │   ├── favorite_repository_provider.dart
-│   │   │   ├── known_word_repository_provider.dart
-│   │   │   ├── language_service_provider.dart
-│   │   │   ├── local_storage_provider.dart
-│   │   │   ├── user_provider.dart
-│   │   │   └── world_provider.dart
+│   │   │   ├── favorite_model.dart
+│   │   │   └── language_model.dart
+│   │   └── interfaces
+│   │       └── storage_interface.dart
+│   ├── data
 │   │   ├── repositories
+│   │   │   ├── user_repository.dart
+│   │   │   ├── chat_repository.dart
+│   │   │   ├── message_repository.dart
+│   │   │   ├── known_word_repository.dart
 │   │   │   ├── favorite_repository.dart
-│   │   │   └── known_word_repository.dart
-│   │   ├── router
-│   │   │   └── router.dart
-│   │   ├── services
-│   │   │   ├── favorite_service.dart
-│   │   │   └── known_word_service.dart
-│   │   ├── SRSA
-│   │   │   └── engine
-│   │   │       └── srsa_algoritm.dart
-│   │   └── widgets
-│   │       └── cupertino_bottom_nav_bar.dart
-│   ├── features
+│   │   │   └── language_repository.dart
+│   │   └── data_sources
+│   │       └── storage
+│   │           ├── hive_storage.dart
+│   │           └── firebase_storage.dart
+│   ├── services
+│   │   ├── storage_service.dart
+│   │   └── database_service.dart
+│   └── features
 │   │   ├── chat
 │   │   │   ├── models
 │   │   │   │   ├── chat_model.dart
@@ -119,13 +104,13 @@
 │   ├── main.dart
 │   └── services
 │       ├── api_service.dart
+│       ├── database_service.dart
 │       ├── i_chat_service.dart
 │       ├── i_language_service.dart
 │       ├── i_local_storage_service.dart
 │       ├── i_user_service.dart
 │       ├── language_service.dart
 │       ├── local_storage_service.dart
-│       ├── local_storage_services
 │       ├── mock_storage_service.dart
 │       └── user_service.dart
 ├── project_tree.md
