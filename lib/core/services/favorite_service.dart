@@ -1,25 +1,24 @@
 import 'package:lessay_learn/core/models/favorite_model.dart';
-import 'package:lessay_learn/core/repositories/favorite_repository.dart';
+import 'package:lessay_learn/services/i_local_storage_service.dart';
 
 class FavoriteService {
-  final FavoriteRepository _repository;
+  final ILocalStorageService _localStorageService;
 
-  FavoriteService(this._repository);
+  FavoriteService(this._localStorageService);
 
   Future<void> addFavorite(FavoriteModel favorite) async {
-    await _repository.saveFavorite(favorite);
+    await _localStorageService.saveFavorite(favorite);
   }
 
   Future<List<FavoriteModel>> getFavorites() async {
-    return await _repository.getFavorites();
+    return await _localStorageService.getFavorites();
   }
 
   Future<void> removeFavorite(String favoriteId) async {
-    await _repository.deleteFavorite(favoriteId);
+    await _localStorageService.deleteFavorite(favoriteId);
   }
 
-  // Add the missing method
   Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId) async {
-    return await _repository.getFavoritesByUserAndLanguage(userId, languageId);
+    return await _localStorageService.getFavoritesByUserAndLanguage(userId, languageId);
   }
 }
