@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 
 import 'package:lessay_learn/features/learn/presentation/screens/add_deck_screen.dart';
-import 'package:lessay_learn/features/learn/presentation/deck_detail_screen.dart';
+import 'package:lessay_learn/features/learn/presentation/screens/deck_detail_screen.dart';
 
 import 'package:lessay_learn/features/learn/presentation/widgets/deck_list_item.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';

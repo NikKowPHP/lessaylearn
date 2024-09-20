@@ -26,6 +26,20 @@ class DeckService {
   Future<void> addDeck(DeckModel deck) async {
     await _storageService.addDeck(deck);
   }
+
+  Future<List<String>> getAvailableSourceLanguages() async {
+    final allFavorites = await _storageService.getFavorites();
+    return allFavorites.map((f) => f.sourceLanguage).toSet().toList();
+  }
+
+  Future<List<String>> getAvailableTargetLanguages(String sourceLanguage) async {
+    final allFavorites = await _storageService.getFavorites();
+    return allFavorites
+        .where((f) => f.sourceLanguage == sourceLanguage)
+        .map((f) => f.targetLanguage)
+        .toSet()
+        .toList();
+  }
 }
 
 final deckServiceProvider = Provider<DeckService>((ref) {

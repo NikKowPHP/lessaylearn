@@ -31,7 +31,7 @@ class FavoriteListScreen extends ConsumerWidget {
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No favorites found'));
+              return Center(child: Text('No favorites found for these languages'));
             } else {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
@@ -39,6 +39,7 @@ class FavoriteListScreen extends ConsumerWidget {
                   final favorite = snapshot.data![index];
                   return CupertinoListTile(
                     title: Text(favorite.sourceText),
+                    subtitle: Text(favorite.translatedText),
                     trailing: CupertinoButton(
                       padding: EdgeInsets.zero,
                       child: Icon(CupertinoIcons.add_circled),

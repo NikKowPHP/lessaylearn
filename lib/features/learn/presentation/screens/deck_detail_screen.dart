@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
-import 'package:lessay_learn/features/learn/presentation/study_session_screen.dart';
+import 'package:lessay_learn/features/learn/presentation/screens/study_session_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/widgets/flashcard_list_item.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 

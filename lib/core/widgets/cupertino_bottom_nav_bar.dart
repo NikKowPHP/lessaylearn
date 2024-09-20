@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
-import 'package:lessay_learn/features/learn/presentation/learn_screen.dart';
+import 'package:lessay_learn/features/learn/presentation/screens/learn_screen.dart';
 import 'package:lessay_learn/features/voicer/presentation/recording_screen.dart';
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 import 'package:lessay_learn/features/statistics/presentation/statistics_screen.dart';
