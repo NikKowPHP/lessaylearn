@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class StudySessionScreen extends ConsumerStatefulWidget {
  final List<FlashcardModel> flashcards;
@@ -145,16 +146,16 @@ void _answerCard(int answerQuality) {
 }
 
 
-
-void _endSession(BuildContext dialogContext) async {
+void _endSession() async {
   if (widget.flashcards.isNotEmpty) {
     String deckId = widget.flashcards.first.deckId;
     await ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(deckId);
-     // Refresh the flashcard state
+    // Refresh the flashcard state
     ref.refresh(flashcardsForDeckProvider(deckId));
     ref.refresh(flashcardStatusProvider(deckId));
   }
-  Navigator.pop(context);
+  // Use GoRouter to pop the route
+  GoRouter.of(context).pop();
 }
 
 void _showSessionSummary() {
@@ -167,9 +168,10 @@ void _showSessionSummary() {
         actions: [
           CupertinoDialogAction(
             child: Text('OK'),
-            onPressed: () {
-              _endSession(dialogContext);
-            },
+             onPressed: () {
+            Navigator.of(dialogContext).pop(); 
+            _endSession(); 
+          },
           ),
         ],
       ),

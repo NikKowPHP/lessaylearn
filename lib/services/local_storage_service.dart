@@ -578,7 +578,7 @@ class LocalStorageService implements ILocalStorageService {
 @override
 Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
   final box = await _openFlashcardsBox(); 
-  debugPrint('Flashcards box: ${box.values}'); 
+  // debugPrint('Flashcards box: ${box.values}'); 
 
  
   final allFlashcards = box.values
@@ -587,13 +587,13 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
     .map((json) => FlashcardModel.fromJson(Map<String, dynamic>.from(json))) 
     .toList();
 
-  debugPrint('Flashcards for deck $deckId: $allFlashcards'); 
+  // debugPrint('Flashcards for deck $deckId: $allFlashcards'); 
   return allFlashcards;
 }
   @override
 Future<List<FlashcardModel>> getAllFlashcards() async {
   final box = await _openFlashcardsBox(); 
-  debugPrint('Flashcards box: ${box.values}'); 
+  // debugPrint('Flashcards box: ${box.values}'); 
   return box.values 
     .map((json) => FlashcardModel.fromJson(Map<String, dynamic>.from(json))) 
     .toList();
@@ -663,11 +663,13 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     return box.isNotEmpty;
   }
 
-  Future<DeckModel?> getDeckById(String deckId) async {
+ Future<DeckModel?> getDeckById(String deckId) async {
     final box = await _openDecksBox();
     final deckJson = box.get(deckId);
-    return deckJson != null ? DeckModel.fromJson(deckJson) : null;
-  }
+    return deckJson != null
+        ? DeckModel.fromJson(Map<String, dynamic>.from(deckJson as Map)) // Cast to Map<String, dynamic>
+        : null;
+}
 
   Future<void> updateDeckLastStudied(
       String deckId, DateTime lastStudied) async {
@@ -794,8 +796,8 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     final chartsBox = await _openChartsBox();
     final recordingsBox = await _openRecordingsBox();
 
-    print('chartsBox is empty: ${chartsBox.isEmpty}');
-    print('chartsBox is empty: ${knownWordsBox.isEmpty}');
+    // print('chartsBox is empty: ${chartsBox.isEmpty}');
+    // print('chartsBox is empty: ${knownWordsBox.isEmpty}');
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
     }
@@ -887,7 +889,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
       }
     }
     if (chartsBox.isEmpty) {
-      print('chartsBox is empty. Populating with mock data.');
+      // print('chartsBox is empty. Populating with mock data.');
       final mockCharts = MockStorageService.getCharts();
       print('Retrieved ${mockCharts.length} mock charts.');
 
