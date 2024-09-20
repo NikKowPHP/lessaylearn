@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 
-import 'package:lessay_learn/features/learn/presentation/add_deck_screen.dart';
+import 'package:lessay_learn/features/learn/presentation/screens/add_deck_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/deck_detail_screen.dart';
 
 import 'package:lessay_learn/features/learn/presentation/widgets/deck_list_item.dart';
