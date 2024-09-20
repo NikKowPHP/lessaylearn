@@ -630,6 +630,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
   @override
   Future<void> addDeck(DeckModel deck) async {
     final box = await _openDecksBox();
+    debugPrint('Adding deck: ${deck.toJson()}');
     await box.put(deck.id, deck.toJson());
   }
 
@@ -830,9 +831,13 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
       }
     }
 
+
+ debugPrint('Current decks in box before adding mock decks: ${decksBox.values.toList()}');
+
     if (decksBox.isEmpty) {
       final mockDecks = MockStorageService.getDecks();
       for (var deck in mockDecks) {
+          debugPrint('Mock deck to be added: ${deck.toJson()}');
         await addDeck(deck);
       }
     }
@@ -977,5 +982,11 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     
     debugPrint('Retrieved ${allCharts.length} charts for user $userId');
     return allCharts;
+  }
+
+  @override
+  Future<void> updateFavorite(FavoriteModel favorite) async {
+    final box = await _openFavoritesBox();
+    await box.put(favorite.id, favorite.toJson());
   }
 }

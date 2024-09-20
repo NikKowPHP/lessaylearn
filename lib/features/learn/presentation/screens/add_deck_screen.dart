@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/presentation/screens/favorite_list_screen.dart';
 import 'package:lessay_learn/features/learn/services/deck_service.dart';
@@ -19,6 +19,12 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
   String? selectedTargetLanguage;
   String _languageLevel = 'Beginner';
   List<String> selectedFavorites = [];
+
+  bool get _isFormValid =>
+      _nameController.text.isNotEmpty &&
+      selectedSourceLanguage != null &&
+      selectedTargetLanguage != null &&
+      selectedFavorites.isNotEmpty;
 
   @override
   void initState() {
@@ -41,11 +47,6 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('Add New Deck'),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Text('Save'),
-          onPressed: _saveDeck,
-        ),
       ),
       child: SafeArea(
         child: Form(
@@ -57,6 +58,7 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
                 controller: _nameController,
                 placeholder: 'Deck Name',
                 validator: (value) => value?.isEmpty ?? true ? 'Please enter a name' : null,
+                onChanged: (_) => setState(() {}),
               ),
               CupertinoTextFormFieldRow(
                 controller: _descriptionController,
@@ -118,6 +120,11 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
                     : null,
               ),
               Text('Selected Favorites: ${selectedFavorites.length}'),
+              SizedBox(height: 24),
+              CupertinoButton.filled(
+                child: Text('Create Deck'),
+                onPressed: _isFormValid ? _saveDeck : null,
+              ),
             ],
           ),
         ),
@@ -167,10 +174,11 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
     }
   }
 
-  void _saveDeck() {
+  void _saveDeck() async {
     if (_formKey.currentState!.validate() &&
         selectedSourceLanguage != null &&
         selectedTargetLanguage != null) {
+      final deckService = ref.read(deckServiceProvider);
       final newDeck = DeckModel(
         id: Uuid().v4(),
         name: _nameController.text,
@@ -182,13 +190,17 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
         targetLanguage: selectedTargetLanguage!,
       );
       
-      ref.read(deckServiceProvider).addDeck(newDeck).then((_) {
-        // Add favorites as flashcards
-        for (String favoriteId in selectedFavorites) {
-          ref.read(deckServiceProvider).addFavoriteAsDeckFlashcard(newDeck.id, favoriteId);
-        }
-        Navigator.pop(context);
-      });
+      await deckService.addDeck(newDeck);
+
+      // Create flashcards from favorites
+      for (String favoriteId in selectedFavorites) {
+        await deckService.addFavoriteAsDeckFlashcard(newDeck.id, favoriteId);
+      }
+
+      // Update favorites to mark them as flashcards
+      await deckService.updateFavoritesAsFlashcards(selectedFavorites);
+
+      Navigator.pop(context);
     }
   }
 }

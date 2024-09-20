@@ -55,6 +55,7 @@ abstract class ILocalStorageService {
   Future<List<FavoriteModel>> getFavorites();
   Future<void> deleteFavorite(String favoriteId);
   Future<FavoriteModel?> getFavoriteById(String favoriteId); 
+  Future<void> updateFavorite(FavoriteModel favorite);
 
   // Language methods
   Future<void> saveLanguage(LanguageModel language);

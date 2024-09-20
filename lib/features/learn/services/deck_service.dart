@@ -96,7 +96,21 @@ class DeckService {
         .toSet()
         .toList();
   }
+
+  Future<void> updateFavoritesAsFlashcards(List<String> favoriteIds) async {
+    for (String favoriteId in favoriteIds) {
+      final favorite = await _storageService.getFavoriteById(favoriteId);
+      if (favorite != null) {
+        final updatedFavorite = favorite.copyWith(
+          isFlashcard: true,
+          addedToFlashcardsDate: DateTime.now(),
+        );
+        await _storageService.updateFavorite(updatedFavorite);
+      }
+    }
+  }
 }
+
 
 
 final deckServiceProvider = Provider<DeckService>((ref) {
