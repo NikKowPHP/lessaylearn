@@ -36,9 +36,13 @@ class _FavoriteListScreenState extends ConsumerState<FavoriteListScreen> {
           padding: EdgeInsets.zero,
           child: Text(selectAll ? 'Deselect All' : 'Select All'),
           onPressed: () {
-            setState(() {
-              selectAll = !selectAll;
-              // Implementation in FutureBuilder
+            favoritesFuture.then((favorites) {
+              setState(() {
+                selectAll = !selectAll;
+                selectedFavorites = selectAll 
+                    ? Set.from(favorites.map((f) => f.id))
+                    : {};
+              });
             });
           },
         ),
@@ -66,9 +70,7 @@ class _FavoriteListScreenState extends ConsumerState<FavoriteListScreen> {
               return Center(child: Text('No favorites found for these languages'));
             } else {
               final favorites = snapshot.data!;
-              if (selectAll) {
-                selectedFavorites = Set.from(favorites.map((f) => f.id));
-              }
+              
               return ListView.builder(
                 itemCount: favorites.length,
                 itemBuilder: (context, index) {
