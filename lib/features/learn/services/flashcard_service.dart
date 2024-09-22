@@ -80,21 +80,21 @@ Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
     await localStorageService.updateDeckLastStudied(deckId, DateTime.now());
   }
 
-  Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatus() async {
-    final allFlashcards = await getAllFlashcards();
-    final now = DateTime.now();
+ Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatus(String deckId) async {
 
+  final deckFlashcards = await getFlashcardsForDeck(deckId);
+  final now = DateTime.now();
     return {
-      'new': allFlashcards.where((card) => card.repetitions == 0).toList(),
-      'learn': allFlashcards
-          .where((card) => card.repetitions > 0 && card.interval <= 1)
+      'new': deckFlashcards.where((card) => SRSAlgorithm.isNewCard(card)).toList(),
+      'learn': deckFlashcards
+          .where((card) => SRSAlgorithm.isLearningCard(card))
           .toList(),
-      'review': allFlashcards
+        'review': deckFlashcards
           .where((card) =>
-              card.repetitions > 0 &&
-              card.interval > 1 &&
-              card.nextReview.isBefore(now))
-          .toList(),
-    };
-  }
+              !SRSAlgorithm.isNewCard(card) &&
+            !SRSAlgorithm.isLearningCard(card) &&
+            card.nextReview.isBefore(now))
+        .toList(),
+  };
+}
 }

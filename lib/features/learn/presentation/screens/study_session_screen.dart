@@ -25,7 +25,7 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
   }
  Future<void> _loadDueFlashcards() async {
     final flashcards = await ref
-        .read(flashcardProvider.notifier)
+        .read(flashcardNotifierProvider.notifier)
         .getDueFlashcardsForDeck(widget.deckId);
     setState(() {
       _dueFlashcards = flashcards;
@@ -144,7 +144,7 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
 
 void _answerCard(int answerQuality) {
   final flashcard = _dueFlashcards[_currentIndex];
-  ref.read(flashcardProvider.notifier).reviewFlashcard(flashcard, answerQuality);
+   ref.read(flashcardNotifierProvider.notifier).reviewFlashcard(flashcard, answerQuality);
 
   setState(() {
     _showAnswer = false;

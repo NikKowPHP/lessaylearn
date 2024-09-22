@@ -86,8 +86,8 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
       // based on your application's logic (e.g., percentage complete).
     }
   }
-   Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatus() async {
-    return await _flashcardService.getFlashcardsByStatus();
+   Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatus(String deckId) async {
+    return await _flashcardService.getFlashcardsByStatus(deckId);
   }
    Future<Map<String, List<FlashcardModel>>> getFlashcardsByStatusForDeck(String deckId) async {
     final flashcards = await getFlashcardsForDeck(deckId);

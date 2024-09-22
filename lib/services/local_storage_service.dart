@@ -364,10 +364,7 @@ class LocalStorageService implements ILocalStorageService {
   Future<List<ChatModel>> getChats() async {
     final box = await _openChatsBox();
     await initializeDatabase();
-    await getUsers();
-    await getLanguages();
-    await getDecks();
-    await getAllFlashcards();
+   
 
     // box.clear();
     //  await box.clear();
@@ -808,7 +805,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
 
     // print('chartsBox is empty: ${chartsBox.isEmpty}');
     // print('chartsBox is empty: ${knownWordsBox.isEmpty}');
-    // await usersBox.clear();
+    await usersBox.clear();
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
     }
@@ -846,6 +843,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
       }
     }
 
+// await flashcardsBox.clear();
     if (flashcardsBox.isEmpty) {
       final mockFlashcards = MockStorageService.getFlashcards();
       for (var flashcard in mockFlashcards) {

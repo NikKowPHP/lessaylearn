@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/core/SRSA/engine/srsa_algoritm.dart';
 import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
 import 'package:lessay_learn/core/providers/local_storage_provider.dart';
@@ -122,8 +123,30 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
     return flashcards.any((flashcard) => flashcard.id == flashcardId);
   }
 
+    Map<String, List<FlashcardModel>> getFlashcardStatus(List<FlashcardModel> flashcards) {
+    final now = DateTime.now();
+    final flashcardStatus = {
+      'new': <FlashcardModel>[],
+      'learn': <FlashcardModel>[],
+      'review': <FlashcardModel>[],
+    };
 
+    for (var flashcard in flashcards) {
+      if (SRSAlgorithm.isNewCard(flashcard)) {
+        flashcardStatus['new']?.add(flashcard);
+      } else if (SRSAlgorithm.isLearningCard(flashcard)) {
+        flashcardStatus['learn']?.add(flashcard);
+      } else if (flashcard.nextReview.isBefore(now)) {
+        flashcardStatus['review']?.add(flashcard);
+      }
+    }
+
+    return flashcardStatus;
+  }
 }
+
+
+
 
 final deckServiceProvider = Provider<DeckService>((ref) {
   final localStorageService = ref.watch(localStorageServiceProvider);

@@ -2,13 +2,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lessay_learn/core/SRSA/engine/srsa_algoritm.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/presentation/screens/study_session_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/widgets/flashcard_list_item.dart';
+import 'package:lessay_learn/features/learn/providers/deck_provider.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 import 'package:go_router/go_router.dart';
-
 
 class DeckDetailScreen extends ConsumerWidget {
   final String deckId;
@@ -31,6 +32,27 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
+
+  Widget _buildStudyButton(BuildContext context, WidgetRef ref, DeckModel deck) {
+    final flashcardStatusAsyncValue = ref.watch(flashcardStatusProvider(deck.id));
+
+    return flashcardStatusAsyncValue.when(
+      data: (flashcardStatus) {
+        final newCount = flashcardStatus['new']?.length ?? 0;
+        final learnCount = flashcardStatus['learn']?.length ?? 0;
+        final reviewCount = flashcardStatus['review']?.length ?? 0;
+        final totalCount = newCount + learnCount + reviewCount;
+
+        return CupertinoButton.filled(
+          child: Text('Study Now ($totalCount cards)'),
+          onPressed: totalCount > 0 ? () => _startStudySession(context, deck.id) : null,
+        );
+      },
+      loading: () => CupertinoActivityIndicator(),
+      error: (_, __) => Text('Error loading flashcards'),
+    );
+  }
+
   Widget _buildDeckDetail(BuildContext context, WidgetRef ref, DeckModel deck, AsyncValue<List<FlashcardModel>> flashcardsAsyncValue) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
@@ -41,7 +63,7 @@ class DeckDetailScreen extends ConsumerWidget {
           children: [
             _buildDeckInfo(deck),
             _buildStudyButton(context, ref, deck),
-            _buildFlashcardList(flashcardsAsyncValue),
+            _buildFlashcardList(flashcardsAsyncValue, ref),
           ],
         ),
       ),
@@ -63,44 +85,60 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
- Widget _buildStudyButton(BuildContext context, WidgetRef ref, DeckModel deck) {
-    final flashcardStatusAsyncValue = ref.watch(flashcardStatusProvider(deck.id));
-
-    return flashcardStatusAsyncValue.when(
-      data: (flashcardStatus) {
-        final newCount = flashcardStatus['new']?.length ?? 0;
-        final learnCount = flashcardStatus['learn']?.length ?? 0;
-        final reviewCount = flashcardStatus['review']?.length ?? 0;
-        final totalCount = newCount + learnCount + reviewCount;
-
-        return CupertinoButton.filled(
-          child: Text('Study Now ($totalCount cards)'),
-          onPressed: totalCount > 0 ? () => _startStudySession(context, deck.id) : null,
-        );
-      },
-      loading: () => CupertinoActivityIndicator(),
-      error: (_, __) => Text('Error loading flashcards'),
-    );
-  }
 
   void _startStudySession(BuildContext context, String deckId) {
     context.push('/study-session/$deckId');
   }
 
   Widget _buildFlashcardList(
-      AsyncValue<List<FlashcardModel>> flashcardsAsyncValue) {
+      AsyncValue<List<FlashcardModel>> flashcardsAsyncValue, WidgetRef ref) {
     return Expanded(
       child: flashcardsAsyncValue.when(
-        data: (flashcards) => ListView.builder(
-          itemCount: flashcards.length,
-          itemBuilder: (context, index) =>
-              FlashcardListItem(flashcard: flashcards[index]),
-        ),
+        data: (flashcards) {
+          if (flashcards == null) {
+            return Center(child: Text('No flashcards available'));
+          }
+          final flashcardStatus = ref.read(deckServiceProvider).getFlashcardStatus(flashcards);
+          return Column(
+            children: [
+              _buildFlashcardListSection('New Cards', flashcardStatus['new'] ?? [], ref),
+              _buildFlashcardListSection('To Learn', flashcardStatus['learn'] ?? [], ref),
+              _buildFlashcardListSection('To Review', flashcardStatus['review'] ?? [], ref),
+            ],
+          );
+        },
         loading: () => Center(child: CupertinoActivityIndicator()),
         error: (error, _) => Center(child: Text('Error: $error')),
       ),
     );
   }
+
+ 
+
+  Widget _buildFlashcardListSection(String title, List<FlashcardModel> flashcards, WidgetRef ref) {
+  if (flashcards.isEmpty) {
+    return SizedBox.shrink();
+  }
+
+  return Column(
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          title,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+      ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: flashcards.length,
+        itemBuilder: (context, index) =>
+            FlashcardListItem(flashcard: flashcards[index]),
+      ),
+    ],
+  );
+}
 
   String _formatDate(DateTime date) {
     return DateFormat('MMM d, y').format(date);
