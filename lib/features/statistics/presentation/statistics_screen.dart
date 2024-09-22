@@ -471,6 +471,16 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
 
   LineChartData _buildLineChartData(List<dynamic> items, String title) {
     final spots = _createSpots(items);
+  
+    if (spots.isEmpty) {
+      // Return empty chart data if there are no spots
+      return LineChartData(
+        gridData: FlGridData(show: false),
+        titlesData: FlTitlesData(show: false),
+        lineBarsData: [],
+      );
+    }
+
     final minX = spots.first.x;
     final maxX = spots.last.x;
     final maxY = spots.map((spot) => spot.y).reduce((max, value) => value > max ? value : max);
@@ -496,7 +506,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                 child: Text(DateFormat('MM/dd').format(date), style: TextStyle(fontSize: 10)),
               );
             },
-            interval: (maxX - minX) / (spots.length > 5 ? 5 : spots.length - 1), // Adjust interval based on data points
+            interval: spots.length > 1 ? (maxX - minX) / (spots.length > 5 ? 5 : spots.length - 1) : 1,
           ),
         ),
         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -510,7 +520,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
           color: title == 'Known Words' ? CupertinoColors.activeBlue : CupertinoColors.activeOrange,
           barWidth: 3,
           isStrokeCapRound: true,
-          dotData: FlDotData(show: true), // Show dots for each data point
+          dotData: FlDotData(show: true),
           belowBarData: BarAreaData(
             show: true,
             color: (title == 'Known Words' ? CupertinoColors.activeBlue : CupertinoColors.activeOrange).withOpacity(0.2),
@@ -533,7 +543,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
       minX: minX,
       maxX: maxX,
       minY: 0,
-      maxY: maxY,
+      maxY: maxY > 0 ? maxY : 1, // Ensure maxY is always positive
     );
   }
 List<FlSpot> _createSpots(List<dynamic> items) {
