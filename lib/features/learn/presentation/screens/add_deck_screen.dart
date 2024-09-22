@@ -57,7 +57,8 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
               CupertinoTextFormFieldRow(
                 controller: _nameController,
                 placeholder: 'Deck Name',
-                validator: (value) => value?.isEmpty ?? true ? 'Please enter a name' : null,
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Please enter a name' : null,
                 onChanged: (_) => setState(() {}),
               ),
               CupertinoTextFormFieldRow(
@@ -77,7 +78,8 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
                   }
                   return CupertinoButton(
                     child: Text(selectedSourceLanguage ?? 'Select language'),
-                    onPressed: () => _showLanguagePicker(context, snapshot.data!, true),
+                    onPressed: () =>
+                        _showLanguagePicker(context, snapshot.data!, true),
                   );
                 },
               ),
@@ -85,7 +87,8 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
               Text('Target Language'),
               if (selectedSourceLanguage != null)
                 FutureBuilder<List<String>>(
-                  future: deckService.getAvailableTargetLanguages(selectedSourceLanguage!),
+                  future: deckService
+                      .getAvailableTargetLanguages(selectedSourceLanguage!),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return CupertinoActivityIndicator();
@@ -95,7 +98,8 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
                     }
                     return CupertinoButton(
                       child: Text(selectedTargetLanguage ?? 'Select language'),
-                      onPressed: () => _showLanguagePicker(context, snapshot.data!, false),
+                      onPressed: () =>
+                          _showLanguagePicker(context, snapshot.data!, false),
                     );
                   },
                 ),
@@ -115,7 +119,8 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
               SizedBox(height: 24),
               CupertinoButton.filled(
                 child: Text('Select Favorites'),
-                onPressed: selectedSourceLanguage != null && selectedTargetLanguage != null
+                onPressed: selectedSourceLanguage != null &&
+                        selectedTargetLanguage != null
                     ? () => _navigateToFavoriteListScreen(context)
                     : null,
               ),
@@ -132,7 +137,8 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
     );
   }
 
-  void _showLanguagePicker(BuildContext context, List<String> languages, bool isSource) {
+  void _showLanguagePicker(
+      BuildContext context, List<String> languages, bool isSource) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
@@ -144,7 +150,8 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
               setState(() {
                 if (isSource) {
                   selectedSourceLanguage = languages[index];
-                  selectedTargetLanguage = null; // Reset target language when source changes
+                  selectedTargetLanguage =
+                      null; // Reset target language when source changes
                 } else {
                   selectedTargetLanguage = languages[index];
                 }
@@ -189,12 +196,14 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
         sourceLanguage: selectedSourceLanguage!,
         targetLanguage: selectedTargetLanguage!,
       );
-      
+
       await deckService.addDeck(newDeck);
 
       // Create flashcards from favorites
       for (String favoriteId in selectedFavorites) {
-        await deckService.addFavoriteAsDeckFlashcard(newDeck.id, favoriteId);
+        if (!await deckService.isFlashcardInDeck(favoriteId, newDeck.id)) {
+          await deckService.addFavoriteAsDeckFlashcard(newDeck.id, favoriteId);
+        }
       }
 
       // Update favorites to mark them as flashcards

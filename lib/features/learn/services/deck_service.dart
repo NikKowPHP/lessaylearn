@@ -86,10 +86,10 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
     final allFavorites = await _storageService.getFavorites();
     return allFavorites.where((favorite) =>
       favorite.sourceLanguage == sourceLanguageId &&
-      favorite.targetLanguage == targetLanguageId
+      favorite.targetLanguage == targetLanguageId &&
+      !favorite.isFlashcard
     ).toList();
   }
-
  Future<List<String>> getAvailableSourceLanguages() async {
     final allFavorites = await _storageService.getFavorites();
     return allFavorites.map((f) => f.sourceLanguage).toSet().toList();
@@ -104,7 +104,7 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
         .toList();
   }
 
-  Future<void> updateFavoritesAsFlashcards(List<String> favoriteIds) async {
+   Future<void> updateFavoritesAsFlashcards(List<String> favoriteIds) async {
     for (String favoriteId in favoriteIds) {
       final favorite = await _storageService.getFavoriteById(favoriteId);
       if (favorite != null) {
@@ -115,6 +115,11 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
         await _storageService.updateFavorite(updatedFavorite);
       }
     }
+
+  }
+  Future<bool> isFlashcardInDeck(String flashcardId, String deckId) async {
+    final flashcards = await _storageService.getFlashcardsForDeck(deckId);
+    return flashcards.any((flashcard) => flashcard.id == flashcardId);
   }
 
 

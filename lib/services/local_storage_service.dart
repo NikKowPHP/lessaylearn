@@ -808,9 +808,14 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
 
     // print('chartsBox is empty: ${chartsBox.isEmpty}');
     // print('chartsBox is empty: ${knownWordsBox.isEmpty}');
+    // await usersBox.clear();
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
     }
+      // Debug print for all users in the box
+      debugPrint('Users in box: ${usersBox.values.map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson))).toList()}');
+    
+
      if (recordingsBox.isEmpty) {
       final mockRecordings = MockStorageService.getRecordings();
       for (var recording in mockRecordings) {
@@ -986,6 +991,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
   @override
   Future<void> updateFavorite(FavoriteModel favorite) async {
     final box = await _openFavoritesBox();
+    debugPrint('Updating favorite!!!!: ${favorite.toJson()}');
     await box.put(favorite.id, favorite.toJson());
   }
 }

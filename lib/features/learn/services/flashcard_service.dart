@@ -4,7 +4,7 @@ import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/services/i_flashcard_service.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
-
+import 'package:flutter/cupertino.dart';
 class FlashcardService implements IFlashcardService {
   final ILocalStorageService localStorageService;
 
@@ -53,10 +53,12 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
   return flashcards.map((json) => FlashcardModel.fromJson(json as Map<String, dynamic>)).toList();
 }
 
-  Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
-    final updatedFlashcard = SRSAlgorithm.processReview(flashcard, quality);
-    await updateFlashcard(updatedFlashcard);
-  }
+Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
+  final updatedFlashcard = SRSAlgorithm.processReview(flashcard, quality);
+  debugPrint('Updated flashcard: ${updatedFlashcard.toJson()}');
+  await updateFlashcard(updatedFlashcard);
+  await updateDeckProgress(updatedFlashcard.deckId);
+}
 
   Future<List<FlashcardModel>> getDueFlashcards() async {
     final allFlashcards = await getAllFlashcards();
