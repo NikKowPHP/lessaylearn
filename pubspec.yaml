@@ -26,10 +26,11 @@ dependencies:
   mocktail: ^1.0.4
   equatable: ^2.0.5
   uuid: ^4.5.0
-  just_the_tooltip: ^0.0.12
+  # just_the_tooltip: ^0.0.12
   fl_chart: ^0.69.0
   word_cloud: ^1.0.3
-  flutter_tts: ^4.0.2
+  flutter_tts: ^3.8.5
+  just_the_tooltip: ^0.0.12
   
 
   # Optional Packages (Uncomment as needed)
