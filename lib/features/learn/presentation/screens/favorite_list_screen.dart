@@ -30,32 +30,45 @@ class _FavoriteListScreenState extends ConsumerState<FavoriteListScreen> {
     );
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
+       navigationBar: CupertinoNavigationBar(
         middle: Text('Select Favorites'),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
-          child: Text(selectAll ? 'Deselect All' : 'Select All'),
+          child: Text('Go Back'),
           onPressed: () {
-            favoritesFuture.then((favorites) {
-              setState(() {
-                selectAll = !selectAll;
-                selectedFavorites = selectAll 
-                    ? Set.from(favorites.map((f) => f.id))
-                    : {};
-              });
-            });
+            Navigator.pop(context);
           },
         ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Text('Submit'),
-          onPressed: selectedFavorites.isNotEmpty
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: Text(selectAll ? 'Deselect All' : 'Select All'),
+              onPressed: () {
+                favoritesFuture.then((favorites) {
+                  setState(() {
+                    selectAll = !selectAll;
+                    selectedFavorites = selectAll 
+                        ? Set.from(favorites.map((f) => f.id))
+                        : {};
+                  });
+                });
+              },
+            ),
+            SizedBox(width: 8),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: Text('Submit'),
+              onPressed: selectedFavorites.isNotEmpty
               ? () {
                   // Handle submission
                   print('Selected favorites: $selectedFavorites');
                   Navigator.pop(context, selectedFavorites.toList());
                 }
               : null,
+             ),
+          ],
         ),
       ),
       child: SafeArea(
