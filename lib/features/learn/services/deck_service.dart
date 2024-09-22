@@ -36,7 +36,7 @@ class DeckService {
 Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
   final flashcards = await _storageService.getFlashcardsForDeck(deckId);
   
-  return flashcards.map((json) => FlashcardModel.fromJson(json as Map<String, dynamic>)).toList();
+  return flashcards;
 }
 
   Future<void> addFlashcard(FlashcardModel flashcard) async {
