@@ -18,10 +18,17 @@ class DeckListItem extends ConsumerWidget {
     debugPrint('flashcards $flashcardsAsyncValue');
     return flashcardsAsyncValue.when(
       data: (flashcards) {
-        final newCount = flashcards.where((f) => f.repetitions == 0).length;
+        final today = DateTime.now();
+        final todayStart = DateTime(today.year, today.month, today.day);
+        final todayEnd = todayStart.add(Duration(days: 1));
+
+        final todayFlashcards = flashcards.where((f) =>
+            f.nextReview.isAfter(todayStart) && f.nextReview.isBefore(todayEnd)).toList();
+
+        final newCount = todayFlashcards.where((f) => f.repetitions == 0).length;
         debugPrint('new cards $newCount');
-        final reviewCount = flashcards.where((f) => f.repetitions > 0 && f.interval > 1 && f.nextReview.isBefore(DateTime.now())).length;
-        final learnCount = flashcards.where((f) => f.repetitions > 0 && f.interval <= 1).length;
+        final reviewCount = todayFlashcards.where((f) => f.repetitions > 0 && f.interval > 1 && f.nextReview.isBefore(DateTime.now())).length;
+        final learnCount = todayFlashcards.where((f) => f.repetitions > 0 && f.interval <= 1).length;
 
         return CupertinoListTile(
           title: Text(deck.name),
