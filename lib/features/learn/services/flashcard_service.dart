@@ -53,11 +53,13 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
   return flashcards.map((json) => FlashcardModel.fromJson(json as Map<String, dynamic>)).toList();
 }
 
-Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
+Future<FlashcardModel> reviewFlashcard(FlashcardModel flashcard, int quality) async {
   final updatedFlashcard = SRSAlgorithm.processReview(flashcard, quality);
   debugPrint('Updated flashcard: ${updatedFlashcard.toJson()}');
   await updateFlashcard(updatedFlashcard);
   await updateDeckProgress(updatedFlashcard.deckId);
+  return updatedFlashcard;
+    
 }
 
   Future<List<FlashcardModel>> getDueFlashcards() async {

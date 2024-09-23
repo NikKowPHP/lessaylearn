@@ -61,9 +61,16 @@ class FlashcardNotifier extends StateNotifier<AsyncValue<List<FlashcardModel>>> 
     await _loadFlashcards();
   }
 
-  Future<void> reviewFlashcard(FlashcardModel flashcard, int quality) async {
-    await _service.reviewFlashcard(flashcard, quality);
-    await _loadFlashcards();
+Future<FlashcardModel> reviewFlashcard(FlashcardModel flashcard, int quality) async {
+    final updatedFlashcard = await _service.reviewFlashcard(flashcard, quality);
+    state = state.whenData((flashcards) {
+      final index = flashcards.indexOf(flashcard);
+      if (index != -1) {
+        flashcards[index] = updatedFlashcard;
+      }
+      return flashcards;
+    });
+    return updatedFlashcard;
   }
 
   Future<List<FlashcardModel>> getDueFlashcards() async {

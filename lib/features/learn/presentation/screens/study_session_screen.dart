@@ -141,21 +141,29 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
       margin: const EdgeInsets.symmetric(vertical: 10.0), // Margin for spacing
     );
   }
-
-void _answerCard(int answerQuality) {
+void _answerCard(int answerQuality) async {
   final flashcard = _dueFlashcards[_currentIndex];
-   ref.read(flashcardNotifierProvider.notifier).reviewFlashcard(flashcard, answerQuality);
+final updatedFlashcard = await ref.read(flashcardNotifierProvider.notifier).reviewFlashcard(flashcard, answerQuality);
+
 
   setState(() {
     _showAnswer = false;
-    if (_currentIndex < _dueFlashcards.length - 1) {
-      _currentIndex++;
+    if (answerQuality == 0) {
+      // For 'Again' responses, move the card to the end of the queue
+      _dueFlashcards.removeAt(_currentIndex);
+      _dueFlashcards.add(updatedFlashcard);
     } else {
+      // For other responses, remove the card from the queue
+      _dueFlashcards.removeAt(_currentIndex);
+    }
+
+    if (_dueFlashcards.isEmpty) {
       _showSessionSummary();
+    } else if (_currentIndex >= _dueFlashcards.length) {
+      _currentIndex = 0;
     }
   });
 }
-
 
  void _endSession() async {
     await ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(widget.deckId);
