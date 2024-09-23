@@ -36,11 +36,15 @@ class DeckDetailScreen extends ConsumerWidget {
   Widget _buildStudyButton(BuildContext context, WidgetRef ref, DeckModel deck) {
     final flashcardStatusAsyncValue = ref.watch(flashcardStatusProvider(deck.id));
 
-    return flashcardStatusAsyncValue.when(
+ return flashcardStatusAsyncValue.when(
       data: (flashcardStatus) {
-        final newCount = flashcardStatus['new']?.length ?? 0;
-        final learnCount = flashcardStatus['learn']?.length ?? 0;
-        final reviewCount = flashcardStatus['review']?.length ?? 0;
+        final today = DateTime.now();
+        final todayStart = DateTime(today.year, today.month, today.day);
+        final todayEnd = todayStart.add(Duration(days: 1));
+
+        final newCount = flashcardStatus['new']?.where((f) => f.nextReview.isAfter(todayStart) && f.nextReview.isBefore(todayEnd)).length ?? 0;
+        final learnCount = flashcardStatus['learn']?.where((f) => f.nextReview.isAfter(todayStart) && f.nextReview.isBefore(todayEnd)).length ?? 0;
+        final reviewCount = flashcardStatus['review']?.where((f) => f.nextReview.isAfter(todayStart) && f.nextReview.isBefore(todayEnd)).length ?? 0;
         final totalCount = newCount + learnCount + reviewCount;
 
         return CupertinoButton.filled(
