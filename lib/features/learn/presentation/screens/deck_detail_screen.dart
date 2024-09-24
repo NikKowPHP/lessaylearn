@@ -149,7 +149,8 @@ Future<void> _addFavoritesToDeck(WidgetRef ref, String deckId, List<String> favo
       }
   // Update favorites to mark them as flashcards
       await deckService.updateFavoritesAsFlashcards(favoriteIds);
- 
+   // Reload decks to update the state
+    ref.invalidate(flashcardsForDeckProvider(deckId));
 }
 
 

@@ -39,4 +39,5 @@ class DeckNotifier extends StateNotifier<List<DeckModel>> {
     await _deckService.deleteDeck(deckId);
     await loadDecks();
   }
+  
 }
