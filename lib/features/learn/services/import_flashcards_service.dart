@@ -15,11 +15,12 @@ class ImportFlashcardsService {
   final FavoriteService _favoriteService;
   final IUserService _userService;
 
- ImportFlashcardsService(this._deckService, this._favoriteService, this._userService);
+  ImportFlashcardsService(
+      this._deckService, this._favoriteService, this._userService);
 
   Future<void> importFlashcards(String deckId) async {
     try {
-        final user = await _userService.getCurrentUser();
+      final user = await _userService.getCurrentUser();
       // Fetch the current deck
       DeckModel? deck = await _deckService.getDeckById(deckId);
       if (deck == null) {
@@ -59,49 +60,71 @@ class ImportFlashcardsService {
           return;
         }
 
-        // Find the correct column indices for source and target languages
-        int sourceIndex = -1;
-        int targetIndex = -1;
-        for (int i = 0; i < csvList[0].length; i++) {
-          String columnHeader = csvList[0][i].toString().toLowerCase();
-          if (columnHeader == deck.sourceLanguage.toLowerCase()) {
-            sourceIndex = i;
-          } else if (columnHeader == deck.targetLanguage.toLowerCase()) {
-            targetIndex = i;
+        // Remove empty rows
+        csvList = csvList
+            .where(
+                (row) => row.any((cell) => cell.toString().trim().isNotEmpty))
+            .toList();
+
+        debugPrint('Filtered CSV Content: $csvList');
+
+   // Check if there are enough rows to process
+        if (csvList.isEmpty) {
+          debugPrint('Error: CSV format is incorrect or not enough data');
+          return;
+        }
+       // Find source and target languages in the first non-empty row
+        String? sourceLanguage;
+        String? targetLanguage;
+
+        for (var cell in csvList[0]) {
+          String cellValue = cell.toString().toLowerCase();
+          if (cellValue == deck.sourceLanguage.toLowerCase().replaceFirst('lang_', '')) {
+            sourceLanguage = cellValue;
+            break; // Stop searching once we find the source language
           }
         }
 
-        if (sourceIndex == -1 || targetIndex == -1) {
-          debugPrint('Error: Could not find matching language columns');
+        if (sourceLanguage != null) {
+          // Find the index of the source language
+          int sourceIndex = csvList[0].indexOf(sourceLanguage);
+          // The target language is the next element in the row
+          if (sourceIndex + 1 < csvList[0].length) {
+            targetLanguage = csvList[0][sourceIndex + 1].toString().toLowerCase();
+          }
+        }
+
+        // Verify if the languages match the deck's languages
+        if (sourceLanguage == null || targetLanguage == null ||
+            sourceLanguage != deck.sourceLanguage.toLowerCase().replaceFirst('lang_', '') ||
+            targetLanguage != deck.targetLanguage.toLowerCase().replaceFirst('lang_', '')) {
+          debugPrint('Error: CSV languages do not match deck languages');
           return;
         }
 
-        debugPrint('Source Language Column: ${csvList[0][sourceIndex]}');
-        debugPrint('Target Language Column: ${csvList[0][targetIndex]}');
+        debugPrint('Source Language: $sourceLanguage');
+        debugPrint('Target Language: $targetLanguage');
 
-        // Remove the header row
-        csvList.removeAt(0);
+        // // Create favorites from the remaining rows
+        // List<FavoriteModel> favorites = csvList.map((row) {
+        //   return FavoriteModel(
+        //     id: Uuid().v4(),
+        //     userId: user.id,
+        //     sourceText: row[sourceIndex].toString(),
+        //     translatedText: row[targetIndex].toString(),
+        //     sourceLanguage: deck.sourceLanguage,
+        //     targetLanguage: deck.targetLanguage,
+        //     isFlashcard: true,
+        //     addedToFlashcardsDate: DateTime.now(),
+        //   );
+        // }).toList();
 
-        // Create favorites from the remaining rows
-        List<FavoriteModel> favorites = csvList.map((row) {
-          return FavoriteModel(
-            id: Uuid().v4(),
-            userId: user.id,
-            sourceText: row[sourceIndex].toString(),
-            translatedText: row[targetIndex].toString(),
-            sourceLanguage: deck.sourceLanguage,
-            targetLanguage: deck.targetLanguage,
-            isFlashcard: true,
-            addedToFlashcardsDate: DateTime.now(),
-          );
-        }).toList();
+        // // Add favorites
+        // for (var favorite in favorites) {
+        //   await _favoriteService.addFavorite(favorite);
+        // }
 
-        // Add favorites
-        for (var favorite in favorites) {
-          await _favoriteService.addFavorite(favorite);
-        }
-
-        debugPrint('Successfully imported ${favorites.length} favorites');
+        // debugPrint('Successfully imported ${favorites.length} favorites');
       } else {
         debugPrint('No file selected');
       }
