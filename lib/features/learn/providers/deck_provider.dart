@@ -20,6 +20,14 @@ final decksProvider = StateNotifierProvider<DeckNotifier, List<DeckModel>>((ref)
   return DeckNotifier(deckService);
 });
 
+final dueFlashcardCountProvider = FutureProvider.family<int, String>((ref, deckId) async {
+  final deckService = ref.watch(deckServiceProvider);
+  return deckService.getDueFlashcardCount(deckId);
+});
+
+
+
+
 class DeckNotifier extends StateNotifier<List<DeckModel>> {
   final DeckService _deckService;
 

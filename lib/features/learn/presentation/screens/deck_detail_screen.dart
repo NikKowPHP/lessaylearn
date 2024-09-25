@@ -35,42 +35,14 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStudyButton(
-      BuildContext context, WidgetRef ref, DeckModel deck) {
-    final flashcardStatusAsyncValue =
-        ref.watch(flashcardStatusProvider(deck.id));
+ Widget _buildStudyButton(BuildContext context, WidgetRef ref, DeckModel deck) {
+    final dueCountAsyncValue = ref.watch(dueFlashcardCountProvider(deck.id));
 
-    return flashcardStatusAsyncValue.when(
-      data: (flashcardStatus) {
-        final today = DateTime.now();
-        final todayStart = DateTime(today.year, today.month, today.day);
-        final todayEnd = todayStart.add(Duration(days: 1));
-
-        final newCount = flashcardStatus['new']
-                ?.where((f) =>
-                    f.nextReview.isAfter(todayStart) &&
-                    f.nextReview.isBefore(todayEnd))
-                .length ??
-            0;
-        final learnCount = flashcardStatus['learn']
-                ?.where((f) =>
-                    f.nextReview.isAfter(todayStart) &&
-                    f.nextReview.isBefore(todayEnd))
-                .length ??
-            0;
-        final reviewCount = flashcardStatus['review']
-                ?.where((f) =>
-                    f.nextReview.isAfter(todayStart) &&
-                    f.nextReview.isBefore(todayEnd))
-                .length ??
-            0;
-        final totalCount = newCount + learnCount + reviewCount;
-
+    return dueCountAsyncValue.when(
+      data: (dueCount) {
         return CupertinoButton.filled(
-          child: Text('Study Now ($totalCount cards)'),
-          onPressed: totalCount > 0
-              ? () => _startStudySession(context, deck.id)
-              : null,
+          child: Text('Study Now ($dueCount cards)'),
+          onPressed: dueCount > 0 ? () => _startStudySession(context, deck.id) : null,
         );
       },
       loading: () => CupertinoActivityIndicator(),

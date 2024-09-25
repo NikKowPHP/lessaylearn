@@ -89,6 +89,11 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
       'review': reviewCount,
     };
   }
+  
+   Future<int> getDueFlashcardCount(String deckId) async {
+    final counts = await getDueFlashcardCounts(deckId);
+    return counts['new']! + counts['learn']! + counts['review']!;
+  }
 
   Future<void> addFavoriteAsDeckFlashcard(String deckId, String favoriteId) async {
     final favorite = await _storageService.getFavoriteById(favoriteId);
