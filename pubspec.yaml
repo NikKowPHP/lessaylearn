@@ -31,6 +31,8 @@ dependencies:
   word_cloud: ^1.0.3
   flutter_tts: ^3.8.5
   just_the_tooltip: ^0.0.12
+  file_picker: ^8.1.2
+  csv: ^6.0.0
   
 
   # Optional Packages (Uncomment as needed)
