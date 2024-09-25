@@ -105,26 +105,29 @@ class ImportFlashcardsService {
         debugPrint('Source Language: $sourceLanguage');
         debugPrint('Target Language: $targetLanguage');
 
-        // // Create favorites from the remaining rows
-        // List<FavoriteModel> favorites = csvList.map((row) {
-        //   return FavoriteModel(
-        //     id: Uuid().v4(),
-        //     userId: user.id,
-        //     sourceText: row[sourceIndex].toString(),
-        //     translatedText: row[targetIndex].toString(),
-        //     sourceLanguage: deck.sourceLanguage,
-        //     targetLanguage: deck.targetLanguage,
-        //     isFlashcard: true,
-        //     addedToFlashcardsDate: DateTime.now(),
-        //   );
-        // }).toList();
+        // Create favorites from the remaining rows
+       // Create favorites from the remaining rows
+        List<FavoriteModel> favorites = [];
+        for (int i = 1; i < csvList.length; i++) { // Start from the second row
+          if (csvList[i].length >= 2) {
+            favorites.add(FavoriteModel(
+              id: Uuid().v4(),
+              userId: user.id,
+              sourceText: csvList[i][0].toString(),
+              translatedText: csvList[i][1].toString(),
+              sourceLanguage: deck.sourceLanguage,
+              targetLanguage: deck.targetLanguage,
+              isFlashcard: true,
+              addedToFlashcardsDate: DateTime.now(),
+            ));
+          }
+        }
 
-        // // Add favorites
-        // for (var favorite in favorites) {
-        //   await _favoriteService.addFavorite(favorite);
-        // }
-
-        // debugPrint('Successfully imported ${favorites.length} favorites');
+        // Add favorites
+        for (var favorite in favorites) {
+          await _favoriteService.addFavorite(favorite);
+        }
+        debugPrint('Successfully imported ${favorites.length} favorites');
       } else {
         debugPrint('No file selected');
       }
