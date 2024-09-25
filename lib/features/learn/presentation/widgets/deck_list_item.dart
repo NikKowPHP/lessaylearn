@@ -1,10 +1,9 @@
 // lib/features/learn/presentation/widgets/deck_list_item.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/providers/deck_provider.dart';
-import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
+
 
 class DeckListItem extends ConsumerWidget {
   final DeckModel deck;
@@ -60,20 +59,5 @@ class DeckListItem extends ConsumerWidget {
       ),
     );
   }
- String _formatDate(DateTime date) {
-    return DateFormat('MMM d, y').format(date);
-  }
-  Widget _buildTag(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(color: color, fontSize: 12),
-      ),
-    );
-  }
+ 
 }
