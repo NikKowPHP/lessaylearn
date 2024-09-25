@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
+import 'package:lessay_learn/features/learn/providers/deck_provider.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 
 class DeckListItem extends ConsumerWidget {
@@ -14,21 +15,13 @@ class DeckListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final flashcardsAsyncValue = ref.watch(flashcardsForDeckProvider(deck.id));
-    debugPrint('flashcards $flashcardsAsyncValue');
-    return flashcardsAsyncValue.when(
-      data: (flashcards) {
-        final today = DateTime.now();
-        final todayStart = DateTime(today.year, today.month, today.day);
-        final todayEnd = todayStart.add(Duration(days: 1));
+    final dueCountsAsyncValue = ref.watch(dueFlashcardCountsProvider(deck.id));
 
-        final todayFlashcards = flashcards.where((f) =>
-            f.nextReview.isAfter(todayStart) && f.nextReview.isBefore(todayEnd)).toList();
-
-        final newCount = todayFlashcards.where((f) => f.repetitions == 0).length;
-        debugPrint('new cards $newCount');
-        final reviewCount = todayFlashcards.where((f) => f.repetitions > 0 && f.interval > 1 && f.nextReview.isBefore(DateTime.now())).length;
-        final learnCount = todayFlashcards.where((f) => f.repetitions > 0 && f.interval <= 1).length;
+    return dueCountsAsyncValue.when(
+      data: (dueCounts) {
+        final newCount = dueCounts['new'] ?? 0;
+        final learnCount = dueCounts['learn'] ?? 0;
+        final reviewCount = dueCounts['review'] ?? 0;
 
         return CupertinoListTile(
           title: Text(deck.name),

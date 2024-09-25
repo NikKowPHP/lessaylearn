@@ -8,6 +8,13 @@ final deckServiceProvider = Provider<DeckService>((ref) {
   return DeckService(localStorageService);
 });
 
+
+final dueFlashcardCountsProvider = FutureProvider.family<Map<String, int>, String>((ref, deckId) async {
+  final deckService = ref.watch(deckServiceProvider);
+  return deckService.getDueFlashcardCounts(deckId);
+});
+
+
 final decksProvider = StateNotifierProvider<DeckNotifier, List<DeckModel>>((ref) {
   final deckService = ref.watch(deckServiceProvider);
   return DeckNotifier(deckService);
@@ -18,6 +25,10 @@ class DeckNotifier extends StateNotifier<List<DeckModel>> {
 
   DeckNotifier(this._deckService) : super([]) {
     loadDecks();
+  }
+
+  Future<Map<String, int>> getDueFlashcardCounts(String deckId) {
+    return _deckService.getDueFlashcardCounts(deckId);
   }
 
   Future<void> loadDecks() async {

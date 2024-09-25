@@ -63,6 +63,33 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
     }
   }
 
+  Future<Map<String, int>> getDueFlashcardCounts(String deckId) async {
+    final allFlashcards = await getFlashcardsForDeck(deckId);
+    final now = DateTime.now();
+    
+    int newCount = 0;
+    int learnCount = 0;
+    int reviewCount = 0;
+
+    for (var flashcard in allFlashcards) {
+      if (flashcard.nextReview.isBefore(now)) {
+        if (flashcard.repetitions == 0) {
+          newCount++;
+        } else if (flashcard.interval <= 1) {
+          learnCount++;
+        } else {
+          reviewCount++;
+        }
+      }
+    }
+
+    return {
+      'new': newCount,
+      'learn': learnCount,
+      'review': reviewCount,
+    };
+  }
+
   Future<void> addFavoriteAsDeckFlashcard(String deckId, String favoriteId) async {
     final favorite = await _storageService.getFavoriteById(favoriteId);
     if (favorite != null) {
