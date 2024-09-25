@@ -9,35 +9,38 @@ import 'package:lessay_learn/services/i_local_storage_service.dart';
 
 class UserService implements IUserService {
   final ILocalStorageService _localStorageService;
-
+  UserModel? _cachedCurrentUser;
   UserService(this._localStorageService);
 
   @override
   Future<UserModel> getCurrentUser() async {
-    // TODO: Implement this based on your authentication system
-    // For now, we'll just return a mock user
-     UserModel? user = await _localStorageService.getCurrentUser();
+    if (_cachedCurrentUser != null) {
+      return _cachedCurrentUser!;
+    }
+
+    UserModel? user = await _localStorageService.getCurrentUser();
     
-    // If no user is found, return a default user
     if (user == null) {
       user = UserModel(
-        id: 'currentUser',
+        id: 'user1',
         name: 'John Doe',
         avatarUrl: 'assets/avatar-1.png',
         languageLevel: 'Intermediate',
-          sourceLanguageIds: ['lang_en'], // Replace with actual language IDs
-        targetLanguageIds: ['lang_es'], // Replace with actual language IDs
-        spokenLanguageIds: ['lang_en', 'lang_es'], // Replace with actual language IDs
+        sourceLanguageIds: ['lang_en'],
+        targetLanguageIds: ['lang_es'],
+        spokenLanguageIds: ['lang_en', 'lang_es'],
         location: 'New York',
         age: 28,
         bio: 'Language enthusiast',
         interests: ['Reading', 'Traveling'],
         occupation: 'Software Developer',
         education: 'Bachelor in Computer Science',
-         languageIds: ['lang_en', 'lang_es'],
+        languageIds: ['lang_en', 'lang_es'],
       );
       await _localStorageService.saveUser(user);
     }
+
+    _cachedCurrentUser = user;
     return user;
   }
   @override

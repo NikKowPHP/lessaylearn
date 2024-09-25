@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/core/providers/favorite_provider.dart';
 import 'package:lessay_learn/core/providers/local_storage_provider.dart';
+import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/services/deck_service.dart';
+import 'package:lessay_learn/features/learn/services/import_flashcards_service.dart';
 
 final deckServiceProvider = Provider<DeckService>((ref) {
   final localStorageService = ref.watch(localStorageServiceProvider);
@@ -25,7 +28,12 @@ final dueFlashcardCountProvider = FutureProvider.family<int, String>((ref, deckI
   return deckService.getDueFlashcardCount(deckId);
 });
 
-
+final importFlashcardsServiceProvider = Provider<ImportFlashcardsService>((ref) {
+  final deckService = ref.watch(deckServiceProvider);
+  final favoriteService = ref.watch(favoriteServiceProvider);
+  final userService = ref.watch(userServiceProvider);
+  return ImportFlashcardsService(deckService, favoriteService, userService);
+});
 
 
 class DeckNotifier extends StateNotifier<List<DeckModel>> {

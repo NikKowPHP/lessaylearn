@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lessay_learn/core/SRSA/engine/srsa_algoritm.dart';
 import 'package:lessay_learn/core/providers/favorite_provider.dart';
+import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/presentation/screens/favorite_list_screen.dart';
@@ -35,14 +36,16 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
- Widget _buildStudyButton(BuildContext context, WidgetRef ref, DeckModel deck) {
+  Widget _buildStudyButton(
+      BuildContext context, WidgetRef ref, DeckModel deck) {
     final dueCountAsyncValue = ref.watch(dueFlashcardCountProvider(deck.id));
 
     return dueCountAsyncValue.when(
       data: (dueCount) {
         return CupertinoButton.filled(
           child: Text('Study Now ($dueCount cards)'),
-          onPressed: dueCount > 0 ? () => _startStudySession(context, deck.id) : null,
+          onPressed:
+              dueCount > 0 ? () => _startStudySession(context, deck.id) : null,
         );
       },
       loading: () => CupertinoActivityIndicator(),
@@ -84,7 +87,13 @@ class DeckDetailScreen extends ConsumerWidget {
                       child: Text('Add Flashcards'),
                     ),
                     CupertinoActionSheetAction(
-                      onPressed: () {},
+                      onPressed: () async {             
+                        final importService = ref.read(importFlashcardsServiceProvider);
+                        await importService.importFlashcards(deck.id);
+                        // Refresh the flashcards list
+                        ref.invalidate(flashcardsForDeckProvider(deck.id));
+                        Navigator.of(context).pop();
+                      },
                       child: Text('Import Flashcards'),
                     ),
                   ],

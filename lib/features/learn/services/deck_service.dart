@@ -150,6 +150,13 @@ Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
     }
 
   }
+
+
+   Future<DeckModel?> getDeckById(String deckId) async {
+    return await _storageService.getDeckById(deckId);
+  }
+
+  
   Future<bool> isFlashcardInDeck(String flashcardId, String deckId) async {
     final flashcards = await _storageService.getFlashcardsForDeck(deckId);
     return flashcards.any((flashcard) => flashcard.id == flashcardId);
