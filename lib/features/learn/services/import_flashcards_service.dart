@@ -15,119 +15,48 @@ class ImportFlashcardsService {
   final FavoriteService _favoriteService;
   final IUserService _userService;
 
-  ImportFlashcardsService(
-      this._deckService, this._favoriteService, this._userService);
+  ImportFlashcardsService(this._deckService, this._favoriteService, this._userService);
 
   Future<void> importFlashcards(String deckId) async {
     try {
       final user = await _userService.getCurrentUser();
-      // Fetch the current deck
       DeckModel? deck = await _deckService.getDeckById(deckId);
       if (deck == null) {
         debugPrint('Error: Deck not found');
         return;
       }
 
-      // Open file picker
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['csv'],
       );
 
       if (result != null) {
-        String csvString;
-        if (kIsWeb) {
-          final fileBytes = result.files.first.bytes;
-          if (fileBytes == null) {
-            debugPrint('Error: File bytes are null');
-            return;
-          }
-          csvString = String.fromCharCodes(fileBytes);
-        } else {
-          final filePath = result.files.first.path;
-          if (filePath == null) {
-            debugPrint('Error: File path is null');
-            return;
-          }
-          final file = File(filePath);
-          csvString = await file.readAsString();
-        }
-
-        // Parse CSV
+        String csvString = await _readCsvContent(result);
         List<List<dynamic>> csvList = CsvToListConverter().convert(csvString);
-        if (csvList.isEmpty) {
-          debugPrint('Error: CSV file is empty');
-          return;
+        
+        // Remove completely empty rows
+        csvList = csvList.where((row) => row.any((cell) => cell.toString().trim().isNotEmpty)).toList();
+
+      
+
+        List<FavoriteModel> allFavorites = [];
+        int currentIndex = 0;
+
+        while (currentIndex < csvList.length) {
+          var chunk = _getNextLanguageChunk(csvList, currentIndex, deck);
+          if (chunk == null) break;
+
+          allFavorites.addAll(chunk.favorites);
+          currentIndex = chunk.nextIndex;
         }
 
-        // Remove empty rows
-        csvList = csvList
-            .where(
-                (row) => row.any((cell) => cell.toString().trim().isNotEmpty))
-            .toList();
-
-        debugPrint('Filtered CSV Content: $csvList');
-
-   // Check if there are enough rows to process
-        if (csvList.isEmpty) {
-          debugPrint('Error: CSV format is incorrect or not enough data');
-          return;
-        }
-       // Find source and target languages in the first non-empty row
-        String? sourceLanguage;
-        String? targetLanguage;
-
-        for (var cell in csvList[0]) {
-          String cellValue = cell.toString().toLowerCase();
-          if (cellValue == deck.sourceLanguage.toLowerCase().replaceFirst('lang_', '')) {
-            sourceLanguage = cellValue;
-            break; // Stop searching once we find the source language
-          }
-        }
-
-        if (sourceLanguage != null) {
-          // Find the index of the source language
-          int sourceIndex = csvList[0].indexOf(sourceLanguage);
-          // The target language is the next element in the row
-          if (sourceIndex + 1 < csvList[0].length) {
-            targetLanguage = csvList[0][sourceIndex + 1].toString().toLowerCase();
-          }
-        }
-
-        // Verify if the languages match the deck's languages
-        if (sourceLanguage == null || targetLanguage == null ||
-            sourceLanguage != deck.sourceLanguage.toLowerCase().replaceFirst('lang_', '') ||
-            targetLanguage != deck.targetLanguage.toLowerCase().replaceFirst('lang_', '')) {
-          debugPrint('Error: CSV languages do not match deck languages');
-          return;
-        }
-
-        debugPrint('Source Language: $sourceLanguage');
-        debugPrint('Target Language: $targetLanguage');
-
-        // Create favorites from the remaining rows
-       // Create favorites from the remaining rows
-        List<FavoriteModel> favorites = [];
-        for (int i = 1; i < csvList.length; i++) { // Start from the second row
-          if (csvList[i].length >= 2) {
-            favorites.add(FavoriteModel(
-              id: Uuid().v4(),
-              userId: user.id,
-              sourceText: csvList[i][0].toString(),
-              translatedText: csvList[i][1].toString(),
-              sourceLanguage: deck.sourceLanguage,
-              targetLanguage: deck.targetLanguage,
-              isFlashcard: true,
-              addedToFlashcardsDate: DateTime.now(),
-            ));
-          }
-        }
-
-        // Add favorites
-        for (var favorite in favorites) {
+        // Add all favorites
+        for (var favorite in allFavorites) {
           await _favoriteService.addFavorite(favorite);
         }
-        debugPrint('Successfully imported ${favorites.length} favorites');
+
+        debugPrint('Successfully imported ${allFavorites.length} favorites');
       } else {
         debugPrint('No file selected');
       }
@@ -135,4 +64,82 @@ class ImportFlashcardsService {
       debugPrint('Error importing flashcards: $e');
     }
   }
+
+  Future<String> _readCsvContent(FilePickerResult result) async {
+    if (kIsWeb) {
+      final fileBytes = result.files.first.bytes;
+      if (fileBytes == null) throw Exception('File bytes are null');
+      return String.fromCharCodes(fileBytes);
+    } else {
+      final filePath = result.files.first.path;
+      if (filePath == null) throw Exception('File path is null');
+      final file = File(filePath);
+      return await file.readAsString();
+    }
+  }
+
+  LanguageChunk? _getNextLanguageChunk(List<List<dynamic>> csvList, int startIndex, DeckModel deck) {
+    if (startIndex >= csvList.length) return null;
+
+    // Find the language pair row
+    int languagePairIndex = startIndex;
+    while (languagePairIndex < csvList.length) {
+      var row = csvList[languagePairIndex];
+      if (row.length >= 2 && 
+          row[0].toString().length == 2 && 
+          row[1].toString().length == 2) {
+        break;
+      }
+      languagePairIndex++;
+    }
+
+    if (languagePairIndex >= csvList.length) return null;
+
+    String sourceLanguage = csvList[languagePairIndex][0].toString().toLowerCase();
+    String targetLanguage = csvList[languagePairIndex][1].toString().toLowerCase();
+
+    debugPrint(sourceLanguage);
+    debugPrint(targetLanguage);
+    debugPrint('deck lagnuages: ${deck.sourceLanguage} - ${deck.targetLanguage}');
+    // Check if languages match the deck
+    if (sourceLanguage != deck.sourceLanguage.toLowerCase().replaceFirst('lang_', '') ||
+        targetLanguage != deck.targetLanguage.toLowerCase().replaceFirst('lang_', '')) {
+      debugPrint('Skipping non-matching language pair: $sourceLanguage - $targetLanguage');
+      return LanguageChunk([], languagePairIndex + 1);
+    }
+
+    debugPrint('Processing language pair: $sourceLanguage - $targetLanguage');
+
+    List<FavoriteModel> favorites = [];
+    int currentIndex = languagePairIndex + 1;
+
+    // Process flashcards until we hit an empty row or the end of the file
+    while (currentIndex < csvList.length) {
+      var row = csvList[currentIndex];
+      if (row.isEmpty || (row.length == 1 && row[0].toString().trim().isEmpty)) {
+        // Empty row, end of this chunk
+        break;
+      }
+      if (row.length >= 2) {
+        favorites.add(FavoriteModel(
+          id: Uuid().v4(),
+          userId: 'current_user_id', // Replace with actual user ID
+          sourceText: row[0].toString(),
+          translatedText: row[1].toString(),
+          sourceLanguage: deck.sourceLanguage,
+          targetLanguage: deck.targetLanguage,
+        ));
+      }
+      currentIndex++;
+    }
+
+    return LanguageChunk(favorites, currentIndex + 1); // Skip the empty row
+  }
+}
+
+class LanguageChunk {
+  final List<FavoriteModel> favorites;
+  final int nextIndex;
+
+  LanguageChunk(this.favorites, this.nextIndex);
 }
