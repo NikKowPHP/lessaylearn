@@ -16,7 +16,7 @@ class LearnScreen extends ConsumerWidget {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Learn'),
+        middle: Text('Lessay Learn'),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           child: Icon(CupertinoIcons.add), 

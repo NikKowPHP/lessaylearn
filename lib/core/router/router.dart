@@ -50,53 +50,59 @@ class CameraScreen extends StatelessWidget {
 
 GoRouter createAppRouter() {
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/learn',
     routes: [
-      ShellRoute(
-        builder: (context, state, child) {
-          return CupertinoBottomNavBar(
-            key: state.pageKey,
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/',
-            pageBuilder: (context, state) => CupertinoPage(
-              child: const HomeScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/community',
-            pageBuilder: (context, state) => const CupertinoPage(
-              child: CommunityScreen(),
-            ),
-          ),
-          GoRoute(
+      // ShellRoute(
+      //   // builder: (context, state, child) {
+      //   //   return CupertinoBottomNavBar(
+      //   //     key: state.pageKey,
+      //   //   );
+      //   // },
+      //   routes: [
+      //     // GoRoute(
+      //     //   path: '/',
+      //     //   pageBuilder: (context, state) => CupertinoPage(
+      //     //     child: const HomeScreen(),
+      //     //   ),
+      //     // ),
+      //     GoRoute(
+      //       path: '/community',
+      //       pageBuilder: (context, state) => const CupertinoPage(
+      //         child: CommunityScreen(),
+      //       ),
+      //     ),
+      //     GoRoute(
+      //       path: '/learn',
+      //       pageBuilder: (context, state) => CupertinoPage(
+      //         child: const LearnScreen(),
+      //       ),
+      //     ),
+      //     GoRoute(
+      //       path: '/statistics',
+      //       pageBuilder: (context, state) => CupertinoPage(
+      //         child: const StatisticsScreen(),
+      //       ),
+      //     ),
+      //     GoRoute(
+      //       path: '/settings',
+      //       pageBuilder: (context, state) => CupertinoPage(
+      //         child: const SettingsScreen(),
+      //       ),
+      //     ),
+      //     GoRoute(
+      //       path: '/recording', // New route for RecordingScreen
+      //       pageBuilder: (context, state) => CupertinoPage(
+      //         child: const RecordingScreen(),
+      //       ),
+      //     ),
+      //   ],
+      // ),
+               GoRoute(
             path: '/learn',
             pageBuilder: (context, state) => CupertinoPage(
               child: const LearnScreen(),
             ),
           ),
-          GoRoute(
-            path: '/statistics',
-            pageBuilder: (context, state) => CupertinoPage(
-              child: const StatisticsScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/settings',
-            pageBuilder: (context, state) => CupertinoPage(
-              child: const SettingsScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/recording', // New route for RecordingScreen
-            pageBuilder: (context, state) => CupertinoPage(
-              child: const RecordingScreen(),
-            ),
-          ),
-        ],
-      ),
      GoRoute(
   name: 'chatDetails',
   path: '/chat/:chatId',
