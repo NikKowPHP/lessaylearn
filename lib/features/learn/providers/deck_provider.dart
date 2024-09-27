@@ -3,6 +3,8 @@ import 'package:lessay_learn/core/providers/favorite_provider.dart';
 import 'package:lessay_learn/core/providers/local_storage_provider.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
+import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
+import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 import 'package:lessay_learn/features/learn/services/deck_service.dart';
 import 'package:lessay_learn/features/learn/services/import_flashcards_service.dart';
 
@@ -11,30 +13,43 @@ final deckServiceProvider = Provider<DeckService>((ref) {
   return DeckService(localStorageService);
 });
 
-
-final dueFlashcardCountsProvider = FutureProvider.family<Map<String, int>, String>((ref, deckId) async {
+final dueFlashcardCountsProvider =
+    FutureProvider.family<Map<String, int>, String>((ref, deckId) async {
   final deckService = ref.watch(deckServiceProvider);
   return deckService.getDueFlashcardCounts(deckId);
 });
+final deckByIdProvider =
+    FutureProvider.family<DeckModel?, String>((ref, deckId) async {
+  final deckService = ref.watch(deckServiceProvider);
+  return deckService.getDeckById(deckId);
+});
 
+final deckWithFlashcardsStatusProvider = FutureProvider.family<
+    Map<String, List<FlashcardModel>>,
+    List<FlashcardModel>>((ref, flashcards) async {
+  final deckService = ref.watch(deckServiceProvider);
+  return deckService.getFlashcardStatus(flashcards);
+});
 
-final decksProvider = StateNotifierProvider<DeckNotifier, List<DeckModel>>((ref) {
+final decksProvider =
+    StateNotifierProvider<DeckNotifier, List<DeckModel>>((ref) {
   final deckService = ref.watch(deckServiceProvider);
   return DeckNotifier(deckService);
 });
 
-final dueFlashcardCountProvider = FutureProvider.family<int, String>((ref, deckId) async {
+final dueFlashcardCountProvider =
+    FutureProvider.family<int, String>((ref, deckId) async {
   final deckService = ref.watch(deckServiceProvider);
   return deckService.getDueFlashcardCount(deckId);
 });
 
-final importFlashcardsServiceProvider = Provider<ImportFlashcardsService>((ref) {
+final importFlashcardsServiceProvider =
+    Provider<ImportFlashcardsService>((ref) {
   final deckService = ref.watch(deckServiceProvider);
   final favoriteService = ref.watch(favoriteServiceProvider);
   final userService = ref.watch(userServiceProvider);
   return ImportFlashcardsService(deckService, favoriteService, userService);
 });
-
 
 class DeckNotifier extends StateNotifier<List<DeckModel>> {
   final DeckService _deckService;
@@ -52,6 +67,14 @@ class DeckNotifier extends StateNotifier<List<DeckModel>> {
     state = decks;
   }
 
+  Future<void> refreshDeckProviders(WidgetRef ref, String deckId) async {
+    ref.invalidate(flashcardsForDeckProvider(deckId));
+    ref.invalidate(flashcardStatusProvider(deckId));
+    ref.invalidate(dueFlashcardCountsProvider(deckId));
+    ref.invalidate(dueFlashcardCountProvider(deckId));
+    // Add any other providers that need refreshing here
+  }
+
   Future<void> addDeck(DeckModel deck) async {
     await _deckService.addDeck(deck);
     await loadDecks();
@@ -66,5 +89,4 @@ class DeckNotifier extends StateNotifier<List<DeckModel>> {
     await _deckService.deleteDeck(deckId);
     await loadDecks();
   }
-  
 }

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/providers/tts_provider.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
+import 'package:lessay_learn/features/learn/providers/deck_provider.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -168,9 +169,12 @@ final updatedFlashcard = await ref.read(flashcardNotifierProvider.notifier).revi
  void _endSession() async {
     await ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(widget.deckId);
     // Refresh the flashcard state
-    ref.refresh(flashcardsForDeckProvider(widget.deckId));
-    ref.refresh(flashcardStatusProvider(widget.deckId));
-    // Use GoRouter to pop the route
+    ref.invalidate(flashcardsForDeckProvider(widget.deckId));
+    ref.invalidate(flashcardStatusProvider(widget.deckId));
+    ref.invalidate(dueFlashcardCountsProvider(widget.deckId));
+    ref.invalidate(dueFlashcardCountProvider(widget.deckId)); 
+  
+ 
     GoRouter.of(context).pop();
   }
 
