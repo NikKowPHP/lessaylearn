@@ -120,7 +120,7 @@ class DeckDetailScreen extends ConsumerWidget {
       child: SafeArea(
         child: Column(
           children: [
-            _buildDeckInfo(deck),
+            _buildDeckInfo(context, ref, deck),
             _buildStudyButton(context, ref, deck),
             _buildFlashcardList(flashcardsAsyncValue, ref),
           ],
@@ -129,19 +129,26 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDeckInfo(DeckModel deck) {
+Widget _buildDeckInfo(BuildContext context, WidgetRef ref, DeckModel deck) {
+      final availableFavoritesCountAsyncValue = ref.watch(availableFavoritesCountProvider(deck.id));
+
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(deck.description, style: TextStyle(fontSize: 16)),
-          SizedBox(height: 8),
-          Text('Last studied: ${_formatDate(deck.lastStudied)}'),
-          Text('Cards: ${deck.cardCount}'),
-        ],
-      ),
-    );
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(deck.description, style: TextStyle(fontSize: 16)),
+        SizedBox(height: 8),
+        Text('Last studied: ${_formatDate(deck.lastStudied)}'),
+        Text('Cards: ${deck.cardCount}'),
+        availableFavoritesCountAsyncValue.when(
+          data: (count) => Text('Available Favorites: $count'),
+          error: (error, stackTrace) => Text('Error loading favorites count: $error'),
+          loading: () => const Text('loading'),
+        ),
+      ],
+    ),
+  );
   }
 
   Widget _buildAddFlashcardsButton(

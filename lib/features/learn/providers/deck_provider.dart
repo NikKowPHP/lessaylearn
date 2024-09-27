@@ -13,6 +13,31 @@ final deckServiceProvider = Provider<DeckService>((ref) {
   return DeckService(localStorageService);
 });
 
+
+final availableFavoritesCountProvider = FutureProvider.family<int, String>((ref, deckId) async {
+  final favoriteService = ref.watch(favoriteServiceProvider);
+  final deckService = ref.watch(deckServiceProvider);
+
+  
+  final deck = await deckService.getDeckById(deckId);
+  if (deck == null) return 0; // Handle case where deck is not found
+  
+  final allFavoritesByLanguage = await favoriteService.getAvailableFavoritesByLanguage(deck.sourceLanguage, deck.targetLanguage);
+
+  int availableCount = 0;
+  for (final favorite in allFavoritesByLanguage) {
+    final isFlashcard = await deckService.isFavoriteAFlashcard(favorite.id);
+    if (!isFlashcard) {
+      final isInDeck = await deckService.isFlashcardInDeck(favorite.id, deckId);
+      if (!isInDeck) {
+        availableCount++;
+      }
+    }
+  }
+
+  return availableCount;
+});
+
 final dueFlashcardCountsProvider =
     FutureProvider.family<Map<String, int>, String>((ref, deckId) async {
   final deckService = ref.watch(deckServiceProvider);
@@ -72,6 +97,8 @@ class DeckNotifier extends StateNotifier<List<DeckModel>> {
     ref.invalidate(flashcardStatusProvider(deckId));
     ref.invalidate(dueFlashcardCountsProvider(deckId));
     ref.invalidate(dueFlashcardCountProvider(deckId));
+     ref.invalidate(availableFavoritesCountProvider(deckId));
+    
     // Add any other providers that need refreshing here
   }
 

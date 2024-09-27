@@ -21,4 +21,13 @@ class FavoriteService {
   Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId) async {
     return await _localStorageService.getFavoritesByUserAndLanguage(userId, languageId);
   }
+    Future<List<FavoriteModel>> getAvailableFavoritesByLanguage(String sourceLanguage, String targetLanguage) async {
+        // Assuming your FavoriteModel has sourceLanguage and targetLanguage properties
+        final allFavorites = await _localStorageService.getFavorites();
+        return allFavorites.where((favorite) =>
+            favorite.sourceLanguage == sourceLanguage &&
+            favorite.targetLanguage == targetLanguage).toList();
+        
+    }
+
 }
