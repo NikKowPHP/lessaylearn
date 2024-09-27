@@ -210,8 +210,10 @@ class DeckDetailScreen extends ConsumerWidget {
     context.push('/study-session/$deckId');
   }
 
-  Widget _buildFlashcardList(
+ Widget _buildFlashcardList(
       AsyncValue<List<FlashcardModel>> flashcardsAsyncValue, WidgetRef ref) {
+    final ScrollController scrollController = ScrollController(); // Create a ScrollController
+
     return Expanded(
       child: flashcardsAsyncValue.when(
         data: (flashcards) {
@@ -222,15 +224,21 @@ class DeckDetailScreen extends ConsumerWidget {
               deckWithFlashcardsStatusProvider(flashcards)); // Use the provider
           return flashcardStatusAsyncValue.when(
             data: (flashcardStatus) {
-              return Column(
-                children: [
-                  _buildFlashcardListSection(
-                      'New Cards', flashcardStatus['new'] ?? [], ref),
-                  _buildFlashcardListSection(
-                      'To Learn', flashcardStatus['learn'] ?? [], ref),
-                  _buildFlashcardListSection(
-                      'To Review', flashcardStatus['review'] ?? [], ref),
-                ],
+              return CupertinoScrollbar( // Add CupertinoScrollbar for better UX
+                controller: scrollController, // Attach the ScrollController
+                child: SingleChildScrollView( // Make the list scrollable
+                  controller: scrollController, // Attach the ScrollController
+                  child: Column(
+                    children: [
+                      _buildFlashcardListSection(
+                          'New Cards', flashcardStatus['new'] ?? [], ref),
+                      _buildFlashcardListSection(
+                          'To Learn', flashcardStatus['learn'] ?? [], ref),
+                      _buildFlashcardListSection(
+                          'To Review', flashcardStatus['review'] ?? [], ref),
+                    ],
+                  ),
+                ),
               );
             },
             loading: () => Center(child: CupertinoActivityIndicator()),
@@ -243,6 +251,7 @@ class DeckDetailScreen extends ConsumerWidget {
     );
   }
 
+  
   Widget _buildFlashcardListSection(
       String title, List<FlashcardModel> flashcards, WidgetRef ref) {
     if (flashcards.isEmpty) {
