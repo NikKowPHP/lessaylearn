@@ -25,8 +25,12 @@ class DeckDetailScreen extends ConsumerWidget {
     final flashcardsAsyncValue = ref.watch(flashcardsForDeckProvider(deckId));
 
     return deckAsyncValue.when(
-      data: (deck) =>
-          _buildDeckDetail(context, ref, deck, flashcardsAsyncValue),
+      data: (deck) {
+        return deck != null
+            ? _buildDeckDetail(context, ref, deck, flashcardsAsyncValue)
+            : CupertinoPageScaffold(
+                child: Center(child: Text('Deck not found')));
+      },
       loading: () => const CupertinoPageScaffold(
         child: Center(child: CupertinoActivityIndicator()),
       ),
@@ -42,6 +46,7 @@ class DeckDetailScreen extends ConsumerWidget {
 
     return dueCountAsyncValue.when(
       data: (dueCount) {
+        debugPrint('$dueCount');
         return CupertinoButton.filled(
           child: Text('Study Now ($dueCount cards)'),
           onPressed:
@@ -87,11 +92,13 @@ class DeckDetailScreen extends ConsumerWidget {
                       child: Text('Add Flashcards'),
                     ),
                     CupertinoActionSheetAction(
-                      onPressed: () async {             
-                        final importService = ref.read(importFlashcardsServiceProvider);
+                      onPressed: () async {
+                        final importService =
+                            ref.read(importFlashcardsServiceProvider);
                         await importService.importFlashcards(deck.id);
-                        // Refresh the flashcards list
-                        ref.invalidate(flashcardsForDeckProvider(deck.id));
+
+                        final deckService = ref.read(deckServiceProvider);
+                        await deckService.notifyProviders(ref, deck.id);
                         Navigator.of(context).pop();
                       },
                       child: Text('Import Flashcards'),
@@ -193,7 +200,10 @@ class DeckDetailScreen extends ConsumerWidget {
     // Update favorites to mark them as flashcards
     await deckService.updateFavoritesAsFlashcards(favoriteIds);
     // Reload decks to update the state
-    ref.invalidate(flashcardsForDeckProvider(deckId));
+        final deckNotifier = ref.read(decksProvider.notifier);
+    await deckNotifier.refreshDeckProviders(ref,deckId); 
+  
+ 
   }
 
   void _startStudySession(BuildContext context, String deckId) {
@@ -208,17 +218,23 @@ class DeckDetailScreen extends ConsumerWidget {
           if (flashcards == null) {
             return Center(child: Text('No flashcards available'));
           }
-          final flashcardStatus =
-              ref.read(deckServiceProvider).getFlashcardStatus(flashcards);
-          return Column(
-            children: [
-              _buildFlashcardListSection(
-                  'New Cards', flashcardStatus['new'] ?? [], ref),
-              _buildFlashcardListSection(
-                  'To Learn', flashcardStatus['learn'] ?? [], ref),
-              _buildFlashcardListSection(
-                  'To Review', flashcardStatus['review'] ?? [], ref),
-            ],
+          final flashcardStatusAsyncValue = ref.watch(
+              deckWithFlashcardsStatusProvider(flashcards)); // Use the provider
+          return flashcardStatusAsyncValue.when(
+            data: (flashcardStatus) {
+              return Column(
+                children: [
+                  _buildFlashcardListSection(
+                      'New Cards', flashcardStatus['new'] ?? [], ref),
+                  _buildFlashcardListSection(
+                      'To Learn', flashcardStatus['learn'] ?? [], ref),
+                  _buildFlashcardListSection(
+                      'To Review', flashcardStatus['review'] ?? [], ref),
+                ],
+              );
+            },
+            loading: () => Center(child: CupertinoActivityIndicator()),
+            error: (error, _) => Center(child: Text('Error: $error')),
           );
         },
         loading: () => Center(child: CupertinoActivityIndicator()),

@@ -19,16 +19,11 @@ final flashcardStatusProvider = FutureProvider.family<Map<String, List<Flashcard
   return service.getFlashcardsByStatus(deckId); // Ensure this method exists and is correctly implemented
 });
 
-final decksProvider = FutureProvider<List<DeckModel>>((ref) async {
-  final service = ref.watch(flashcardServiceProvider);
-  return service.getDecks();
-});
+// final decksProvider = FutureProvider<List<DeckModel>>((ref) async {
+//   final service = ref.watch(flashcardServiceProvider);
+//   return service.getDecks();
+// });
 
-final deckByIdProvider = FutureProvider.family<DeckModel, String>((ref, deckId) async {
-  final service = ref.watch(flashcardServiceProvider);
-  final decks = await service.getDecks();
-  return decks.firstWhere((deck) => deck.id == deckId);
-});
 
 final flashcardsForDeckProvider = FutureProvider.family<List<FlashcardModel>, String>((ref, deckId) async {
   final service = ref.watch(flashcardServiceProvider);
