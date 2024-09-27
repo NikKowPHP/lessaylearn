@@ -60,6 +60,10 @@ class DeckService {
   Future<void> updateFlashcard(FlashcardModel flashcard) async {
     await _storageService.updateFlashcard(flashcard);
   }
+  Future<bool> isFavoriteAFlashcard(String favoriteId) async {
+    final favorite = await _storageService.getFavoriteById(favoriteId);
+    return favorite?.isFlashcard ?? false;
+  }
 
   Future<void> deleteFlashcard(String flashcardId, String deckId) async {
     await _storageService.deleteFlashcard(flashcardId);
