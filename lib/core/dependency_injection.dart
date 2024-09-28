@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lessay_learn/core/app_config.dart';
 import 'package:lessay_learn/core/repositories/favorite_repository.dart';
 import 'package:lessay_learn/core/repositories/known_word_repository.dart';
@@ -21,6 +22,8 @@ Future<void> configureDependencies() async {
   if (!getIt.isRegistered<ILocalStorageService>()) {
     getIt.registerLazySingleton<ILocalStorageService>(() => LocalStorageService());
   }
+  // Initialize Hive
+  await Hive.initFlutter();
 
   if (!getIt.isRegistered<IChatService>()) {
     getIt.registerLazySingleton<IChatService>(() => ChatService(getIt()));

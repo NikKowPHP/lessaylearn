@@ -557,6 +557,7 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<List<DeckModel>> getDecks() async {
+    // await clearAllData();
     await initializeDatabase();
     final box = await _openDecksBox();
    
@@ -769,7 +770,6 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
 
   Future<void> initializeDatabase() async {
   
-
     final usersBox = await _openUsersBox();
     final chatsBox = await _openChatsBox();
     final messagesBox = await _openMessagesBox();
@@ -784,14 +784,9 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     final chartsBox = await _openChartsBox();
     final recordingsBox = await _openRecordingsBox();
 
-    // print('chartsBox is empty: ${chartsBox.isEmpty}');
-    // print('chartsBox is empty: ${knownWordsBox.isEmpty}');
-    // await usersBox.clear();
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
     }
-      // Debug print for all users in the box
-      debugPrint('Users in box: ${usersBox.values.map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson))).toList()}');
     
 
      if (recordingsBox.isEmpty) {
@@ -838,18 +833,6 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
         await saveKnownWord(knownWord);
       }
     }
-
-    // // Debug print for known words
-    // final allKnownWords = knownWordsBox.values
-    //     .map((json) => KnownWordModel.fromJson(Map<String, dynamic>.from(json)))
-    //     .toList();
-
-  
-    // for (var knownWord in allKnownWords) {
-    //   print(knownWord.toJson());
-    // }
-
-    await favoritesBox.clear();
 
 
     if (favoritesBox.isEmpty) {
@@ -898,17 +881,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
         await saveChart(chart);
       }
     } 
-    // else {
-    //   print('chartsBox already populated with data.');
-    //   final allCharts = chartsBox.values
-    //       .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
-    //       .toList();
-
   
-    //   for (var chart in allCharts) {
-    //     print(chart.toJson());
-    //   }
-    // }
 
     try {
       await closeBoxes();

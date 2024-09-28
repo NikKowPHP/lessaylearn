@@ -146,7 +146,7 @@ class DeckService {
   }
 
   Future<List<String>> getAvailableSourceLanguages() async {
-    final allFavorites = await _storageService.getFavorites();
+    // final allFavorites = await _storageService.getFavorites();
      final mockSourceLanguages = [
       'lang_en',
       'lang_es',
