@@ -18,20 +18,30 @@ Future<void> configureDependencies() async {
   if (!getIt.isRegistered<ApiService>()) {
     getIt.registerLazySingleton<ApiService>(() => ApiService());
   }
-  final localStorageService = LocalStorageService();
-  await localStorageService.initializeBoxes();
-  getIt
-      .registerLazySingleton<ILocalStorageService>(() => LocalStorageService());
+  if (!getIt.isRegistered<ILocalStorageService>()) {
+    getIt.registerLazySingleton<ILocalStorageService>(() => LocalStorageService());
+  }
 
-  getIt.registerLazySingleton<IChatService>(() => ChatService(getIt()));
+  if (!getIt.isRegistered<IChatService>()) {
+    getIt.registerLazySingleton<IChatService>(() => ChatService(getIt()));
+  }
 
-  getIt.registerLazySingleton<IAppConfig>(() => AppConfig());
-   // Register repositories
-  getIt.registerLazySingleton<FavoriteRepository>(() => FavoriteRepository(getIt()));
-  getIt.registerLazySingleton<KnownWordRepository>(() => KnownWordRepository(getIt()));
+  if (!getIt.isRegistered<IAppConfig>()) {
+    getIt.registerLazySingleton<IAppConfig>(() => AppConfig());
+  }
+  // Register repositories
+  if (!getIt.isRegistered<FavoriteRepository>()) {
+    getIt.registerLazySingleton<FavoriteRepository>(() => FavoriteRepository(getIt()));
+  }
+  if (!getIt.isRegistered<KnownWordRepository>()) {
+    getIt.registerLazySingleton<KnownWordRepository>(() => KnownWordRepository(getIt()));
+  }
 
   // Register services
-  getIt.registerLazySingleton<FavoriteService>(() => FavoriteService(getIt()));
-  getIt.registerLazySingleton<KnownWordService>(() => KnownWordService(getIt()));
-
+  if (!getIt.isRegistered<FavoriteService>()) {
+    getIt.registerLazySingleton<FavoriteService>(() => FavoriteService(getIt()));
+  }
+  if (!getIt.isRegistered<KnownWordService>()) {
+    getIt.registerLazySingleton<KnownWordService>(() => KnownWordService(getIt()));
+  }
 }

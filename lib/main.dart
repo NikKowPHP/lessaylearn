@@ -7,11 +7,8 @@ import 'package:lessay_learn/core/dependency_injection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
- if (kIsWeb) {
-    await Hive.initFlutter('hive_db');
-  } else {
-    await Hive.initFlutter();
-  }
+
+  // Initialize dependencies
   await configureDependencies();
   runApp(ProviderScope(child: MyApp()));
 }
