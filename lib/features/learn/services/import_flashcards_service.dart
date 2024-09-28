@@ -64,6 +64,40 @@ class ImportFlashcardsService {
       debugPrint('Error importing flashcards: $e');
     }
   }
+  Future<List<FavoriteModel>> importFlashcardsWithoutDeckId(String sourceLanguage, String targetLanguage) async {
+    try {
+      final user = await _userService.getCurrentUser();
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (result != null) {
+        String csvString = await _readCsvContent(result);
+        List<List<dynamic>> csvList = CsvToListConverter().convert(csvString);
+
+        // Remove completely empty rows
+        csvList = csvList.where((row) => row.any((cell) => cell.toString().trim().isNotEmpty)).toList();
+
+        List<FavoriteModel> allFavorites = [];
+        int currentIndex = 0;
+
+        while (currentIndex < csvList.length) {
+          var chunk = _getNextLanguageChunkWithoutDeckId(csvList, currentIndex, sourceLanguage, targetLanguage);
+          if (chunk == null) break;
+
+          allFavorites.addAll(chunk.favorites);
+          currentIndex = chunk.nextIndex;
+        }
+
+        return allFavorites;
+      } else {
+        throw Exception('No file selected');
+      }
+    } catch (e) {
+      rethrow; // Re-throw the exception to be handled by the caller
+    }
+  }
 
   Future<String> _readCsvContent(FilePickerResult result) async {
     if (kIsWeb) {
@@ -77,6 +111,67 @@ class ImportFlashcardsService {
       return await file.readAsString();
     }
   }
+
+
+
+   LanguageChunk? _getNextLanguageChunkWithoutDeckId(List<List<dynamic>> csvList, int startIndex, String sourceLanguage, String targetLanguage) {
+    if (startIndex >= csvList.length) return null;
+
+    // Find the language pair row
+    int languagePairIndex = startIndex;
+    while (languagePairIndex < csvList.length) {
+      var row = csvList[languagePairIndex];
+      if (row.length >= 2 && 
+          row[0].toString().length == 2 && 
+          row[1].toString().length == 2) {
+        break;
+      }
+      languagePairIndex++;
+    }
+
+    if (languagePairIndex >= csvList.length) return null;
+
+    String sourceLanguage = csvList[languagePairIndex][0].toString().toLowerCase();
+    String targetLanguage = csvList[languagePairIndex][1].toString().toLowerCase();
+
+    debugPrint(sourceLanguage);
+    debugPrint(targetLanguage);
+    // Check if languages match the deck
+  
+    if (sourceLanguage.toLowerCase().replaceFirst('lang_', '') != csvList[languagePairIndex][0].toString().toLowerCase() ||
+        targetLanguage.toLowerCase().replaceFirst('lang_', '') != csvList[languagePairIndex][1].toString().toLowerCase()) {
+      debugPrint('Skipping non-matching language pair: $sourceLanguage - $targetLanguage');
+      return LanguageChunk([], languagePairIndex + 1);
+    }
+
+    debugPrint('Processing language pair: $sourceLanguage - $targetLanguage');
+
+    List<FavoriteModel> favorites = [];
+    int currentIndex = languagePairIndex + 1;
+
+    // Process flashcards until we hit an empty row or the end of the file
+    while (currentIndex < csvList.length) {
+      var row = csvList[currentIndex];
+      if (row.isEmpty || (row.length == 1 && row[0].toString().trim().isEmpty)) {
+        // Empty row, end of this chunk
+        break;
+      }
+      if (row.length >= 2) {
+        favorites.add(FavoriteModel(
+          id: Uuid().v4(),
+          userId: 'user1', // Replace with actual user ID
+          sourceText: row[0].toString(),
+          translatedText: row[1].toString(),
+           sourceLanguage: sourceLanguage,
+          targetLanguage: targetLanguage,
+        ));
+      }
+      
+      currentIndex++;
+    }
+
+    return LanguageChunk(favorites, currentIndex + 1); // Skip the empty row
+  } 
 
   LanguageChunk? _getNextLanguageChunk(List<List<dynamic>> csvList, int startIndex, DeckModel deck) {
     if (startIndex >= csvList.length) return null;
@@ -135,6 +230,12 @@ class ImportFlashcardsService {
 
     return LanguageChunk(favorites, currentIndex + 1); // Skip the empty row
   }
+
+
+  
+
+
+
 }
 
 class LanguageChunk {

@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/presentation/screens/favorite_list_screen.dart';
-import 'package:lessay_learn/features/learn/services/deck_service.dart';
+import 'package:lessay_learn/features/learn/providers/deck_provider.dart';
+import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
+// import 'package:lessay_learn/features/learn/services/deck_service.dart';
 import 'package:uuid/uuid.dart';
 
 class AddDeckScreen extends ConsumerStatefulWidget {
@@ -116,6 +118,14 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
                 },
                 groupValue: _languageLevel,
               ),
+               SizedBox(height: 24),
+              CupertinoButton.filled(
+                child: const Text('Import Flashcards'),
+                onPressed: selectedSourceLanguage != null &&
+                        selectedTargetLanguage != null
+                    ? () => _importFlashcards(context)
+                    : null,
+              ),
               SizedBox(height: 24),
               CupertinoButton.filled(
                 child: Text('Select Favorites'),
@@ -136,6 +146,51 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
       ),
     );
   }
+
+   Future<void> _importFlashcards(BuildContext context) async {
+    final importService = ref.read(importFlashcardsServiceProvider);
+    if (selectedSourceLanguage != null && selectedTargetLanguage != null) {
+      try {
+         final importedFavorites = await importService.importFlashcardsWithoutDeckId(selectedSourceLanguage!, selectedTargetLanguage!);
+        // Add imported favorites to the deck after it's created
+
+        showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Flashcards Imported'),
+            content: const Text('Flashcards have been successfully imported.'),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('OK'),
+               onPressed: () {
+                  // invalidate favorites
+                  ref.invalidate(flashcardServiceProvider);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      } catch (e) {
+        // Handle errors appropriately, e.g., show an error message
+        showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Error Importing Flashcards'),
+            content: Text('An error occurred: $e'),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('OK'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+   }
+
+  
 
   void _showLanguagePicker(
       BuildContext context, List<String> languages, bool isSource) {
