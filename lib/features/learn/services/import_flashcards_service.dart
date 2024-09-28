@@ -90,6 +90,10 @@ class ImportFlashcardsService {
           currentIndex = chunk.nextIndex;
         }
 
+      // Add all favorites
+        for (var favorite in allFavorites) {
+          await _favoriteService.addFavorite(favorite);
+        }
         return allFavorites;
       } else {
         throw Exception('No file selected');
@@ -131,20 +135,25 @@ class ImportFlashcardsService {
 
     if (languagePairIndex >= csvList.length) return null;
 
-    String sourceLanguage = csvList[languagePairIndex][0].toString().toLowerCase();
-    String targetLanguage = csvList[languagePairIndex][1].toString().toLowerCase();
 
-    debugPrint(sourceLanguage);
-    debugPrint(targetLanguage);
     // Check if languages match the deck
+    String favoriteSourceLanguage = csvList[languagePairIndex][0].toString().toLowerCase();
+    String favoriteTargetLanguage= csvList[languagePairIndex][1].toString().toLowerCase();
+    String deckSourceLanguage = sourceLanguage.toLowerCase().replaceFirst('lang_', '');
+    String deckTargetLanguage = targetLanguage.toLowerCase().replaceFirst('lang_', '');
+
+    debugPrint('favoriteSourceLanguage: $favoriteSourceLanguage');
+    debugPrint('deckSourceLanguage: $deckSourceLanguage');
+    debugPrint('favoriteTargetLanguage: $favoriteTargetLanguage');
+    debugPrint('deckTargetLanguage: $deckTargetLanguage');
   
-    if (sourceLanguage.toLowerCase().replaceFirst('lang_', '') != csvList[languagePairIndex][0].toString().toLowerCase() ||
-        targetLanguage.toLowerCase().replaceFirst('lang_', '') != csvList[languagePairIndex][1].toString().toLowerCase()) {
-      debugPrint('Skipping non-matching language pair: $sourceLanguage - $targetLanguage');
+    if (favoriteSourceLanguage != deckSourceLanguage ||
+        favoriteTargetLanguage != deckTargetLanguage) {
+      debugPrint('Skipping non-matching language pair: $favoriteSourceLanguage - $favoriteTargetLanguage');
       return LanguageChunk([], languagePairIndex + 1);
     }
 
-    debugPrint('Processing language pair: $sourceLanguage - $targetLanguage');
+    debugPrint('Processing language pair: $favoriteSourceLanguage - $favoriteTargetLanguage');
 
     List<FavoriteModel> favorites = [];
     int currentIndex = languagePairIndex + 1;
@@ -169,6 +178,8 @@ class ImportFlashcardsService {
       
       currentIndex++;
     }
+
+      debugPrint('favorites: $favorites');  
 
     return LanguageChunk(favorites, currentIndex + 1); // Skip the empty row
   } 
@@ -218,7 +229,7 @@ class ImportFlashcardsService {
       if (row.length >= 2) {
         favorites.add(FavoriteModel(
           id: Uuid().v4(),
-          userId: 'current_user_id', // Replace with actual user ID
+          userId: 'user1', // Replace with actual user ID
           sourceText: row[0].toString(),
           translatedText: row[1].toString(),
           sourceLanguage: deck.sourceLanguage,
@@ -227,6 +238,7 @@ class ImportFlashcardsService {
       }
       currentIndex++;
     }
+  
 
     return LanguageChunk(favorites, currentIndex + 1); // Skip the empty row
   }
