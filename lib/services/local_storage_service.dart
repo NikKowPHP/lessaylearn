@@ -92,18 +92,7 @@ class LocalStorageService implements ILocalStorageService {
 
 
 
-  Future<void> initializeBoxes() async {
-    await Hive.openBox(_decksBoxName);
-    await Hive.openBox(_flashcardsBoxName);
-    await Hive.openBox(_chatsBoxName);
-    await Hive.openBox(_usersBoxName);
-    await Hive.openBox(_messagesBoxName);
-    await Hive.openBox(_isLoggedInKey);
-    await Hive.openBox(_currentUserKey);
-    await Hive.openBox(_knownWordsBoxName);
-    await Hive.openBox(_favoritesBoxName);
-    await Hive.openBox(_languagesBoxName);
-  }
+
 
   @override
   Future<void> saveRecording(RecordingModel recording) async {
@@ -708,8 +697,6 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     await Hive.deleteBoxFromDisk(_likesBoxName);
     await Hive.deleteBoxFromDisk(_commentsBoxName);
 
-    // Re-initialize the boxes
-    await initializeBoxes();
   }
 
   @override
@@ -787,7 +774,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
   }
 
   Future<void> initializeDatabase() async {
-    await initializeBoxes();
+  
 
     final usersBox = await _openUsersBox();
     final chatsBox = await _openChatsBox();
@@ -926,6 +913,12 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     //     print(chart.toJson());
     //   }
     // }
+
+    try {
+      await closeBoxes();
+    } catch (e) {
+      print('Error closing boxes: $e');
+    }
   
   }
 
@@ -985,11 +978,15 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     debugPrint('Retrieved ${allCharts.length} charts for user $userId');
     return allCharts;
   }
+  
 
   @override
   Future<void> updateFavorite(FavoriteModel favorite) async {
     final box = await _openFavoritesBox();
     debugPrint('Updating favorite!!!!: ${favorite.toJson()}');
     await box.put(favorite.id, favorite.toJson());
+  }
+   Future<void> closeBoxes() async {
+    await Hive.close();
   }
 }
