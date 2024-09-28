@@ -129,10 +129,14 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
               SizedBox(height: 24),
               CupertinoButton.filled(
                 child: Text('Select Favorites'),
-                onPressed: selectedSourceLanguage != null &&
-                        selectedTargetLanguage != null
-                    ? () => _navigateToFavoriteListScreen(context)
-                    : null,
+                onPressed: () {
+                  debugPrint('selectedSourceLanguage: $selectedSourceLanguage');
+                  debugPrint('selectedTargetLanguage: $selectedTargetLanguage');
+                  if (selectedSourceLanguage != null &&
+                      selectedTargetLanguage != null) {
+                    _navigateToFavoriteListScreen(context);
+                  }
+                },
               ),
               Text('Selected Favorites: ${selectedFavorites.length}'),
               SizedBox(height: 24),
@@ -152,6 +156,7 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
     if (selectedSourceLanguage != null && selectedTargetLanguage != null) {
       try {
          final importedFavorites = await importService.importFlashcardsWithoutDeckId(selectedSourceLanguage!, selectedTargetLanguage!);
+         debugPrint('importedFavorites: $importedFavorites');
         // Add imported favorites to the deck after it's created
 
         showCupertinoDialog(
@@ -165,6 +170,7 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
                onPressed: () {
                   // invalidate favorites
                   ref.invalidate(flashcardServiceProvider);
+                  
                   Navigator.of(context).pop();
                 },
               ),
