@@ -6,7 +6,7 @@ import 'package:lessay_learn/app.dart';
 import 'package:lessay_learn/core/dependency_injection.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  await WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize dependencies
   await configureDependencies();
