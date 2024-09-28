@@ -7,7 +7,7 @@ import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class StudySessionScreen extends ConsumerStatefulWidget {
- final String deckId;
+  final String deckId;
   const StudySessionScreen({Key? key, required this.deckId}) : super(key: key);
 
   @override
@@ -24,7 +24,8 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
     super.initState();
     _loadDueFlashcards();
   }
- Future<void> _loadDueFlashcards() async {
+
+  Future<void> _loadDueFlashcards() async {
     final flashcards = await ref
         .read(flashcardNotifierProvider.notifier)
         .getDueFlashcardsForDeck(widget.deckId);
@@ -51,7 +52,8 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
     }
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center, // Center the column vertically
+      mainAxisAlignment:
+          MainAxisAlignment.center, // Center the column vertically
       children: [
         Expanded(
           child: GestureDetector(
@@ -62,7 +64,8 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
             },
             child: Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
+                mainAxisAlignment:
+                    MainAxisAlignment.center, // Center the content vertically
                 children: [
                   Text(
                     flashcards[_currentIndex].front,
@@ -70,18 +73,20 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
                     textAlign: TextAlign.center,
                   ),
                   CupertinoButton(
-  child: const Icon(CupertinoIcons.volume_up),
-  onPressed: () async {
-    try {
-      final ttsService = ref.read(ttsServiceProvider);
-      await ttsService.speak(flashcards[_currentIndex].front, 'en'); // Replace 'en' with the target language code
-    } catch (e) {
-      debugPrint("Failed to use TTS: $e");
-      // Optionally show an error message to the user
-    }
-  },
-),
-                  if (_showAnswer) _buildCustomSeparator(), // Use custom separator
+                    child: const Icon(CupertinoIcons.volume_up),
+                    onPressed: () async {
+                      try {
+                        final ttsService = ref.read(ttsServiceProvider);
+                        await ttsService.speak(flashcards[_currentIndex].front,
+                            'en'); // Replace 'en' with the target language code
+                      } catch (e) {
+                        debugPrint("Failed to use TTS: $e");
+                        // Optionally show an error message to the user
+                      }
+                    },
+                  ),
+                  if (_showAnswer)
+                    _buildCustomSeparator(), // Use custom separator
                   if (_showAnswer)
                     Text(
                       flashcards[_currentIndex].back, // Show translation
@@ -93,48 +98,62 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
             ),
           ),
         ),
-        
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              if (_showAnswer) // Show the answer variants only if _showAnswer is true
-                ...[
-                  CupertinoButton(
-                    child: const Text('Again'),
-                    color: const Color(0xFFEF5350), // Anki red color
-                    onPressed: () => _answerCard(0),
-                  ),
-                  CupertinoButton(
-                    child: const Text('Hard'),
-                    color: const Color(0xFFFFC107), // Anki yellow color
-                    onPressed: () => _answerCard(1),
-                  ),
-                  CupertinoButton(
-                    child: const Text('Good'),
-                    color: const Color(0xFF66BB6A), // Anki green color
-                    onPressed: () => _answerCard(2),
-                  ),
-                  CupertinoButton(
-                    child: const Text('Easy'),
-                    color: const Color(0xFF42A5F5), // Anki blue color
-                    onPressed: () => _answerCard(3),
-                  ),
-                ],
-              if (!_showAnswer) // Show the button only if _showAnswer is false
-                CupertinoButton(
-                  child: const Text('Show Answer'),
-                  onPressed: () {
-                    setState(() {
-                      _showAnswer = true;
-                    });
-                  },
-                ),
-            ],
-          ),
+          _buildAnswerButtons(),
+     
       ],
     );
   }
+Widget _buildAnswerButtons() {
+  if (!_showAnswer) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: CupertinoButton.filled(
+          child: const Text('Show Answer'),
+          onPressed: () {
+            setState(() {
+              _showAnswer = true;
+            });
+          },
+        ),
+      ),
+    );
+  }
 
+ return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildAnswerButton('Again', const Color(0xFFEF5350), () => _answerCard(0)),
+        _buildAnswerButton('Hard', const Color(0xFFFFC107), () => _answerCard(1)),
+        _buildAnswerButton('Good', const Color(0xFF66BB6A), () => _answerCard(2)),
+        _buildAnswerButton('Easy', const Color(0xFF42A5F5), () => _answerCard(3)),
+      ],
+    ),
+  );
+}
+
+Widget _buildAnswerButton(String label, Color color, VoidCallback onPressed) {
+  return Expanded(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: CupertinoButton(
+        padding: EdgeInsets.all(8),
+        color: color,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 14, color: CupertinoColors.white),
+          ),
+        ),
+        onPressed: onPressed,
+      ),
+    ),
+  );
+}
   Widget _buildCustomSeparator() {
     return Container(
       height: 1.0,
@@ -142,60 +161,63 @@ class _StudySessionScreenState extends ConsumerState<StudySessionScreen> {
       margin: const EdgeInsets.symmetric(vertical: 10.0), // Margin for spacing
     );
   }
-void _answerCard(int answerQuality) async {
-  final flashcard = _dueFlashcards[_currentIndex];
-final updatedFlashcard = await ref.read(flashcardNotifierProvider.notifier).reviewFlashcard(flashcard, answerQuality);
 
+  void _answerCard(int answerQuality) async {
+    final flashcard = _dueFlashcards[_currentIndex];
+    final updatedFlashcard = await ref
+        .read(flashcardNotifierProvider.notifier)
+        .reviewFlashcard(flashcard, answerQuality);
 
-  setState(() {
-    _showAnswer = false;
-    if (answerQuality == 0) {
-      // For 'Again' responses, move the card to the end of the queue
-      _dueFlashcards.removeAt(_currentIndex);
-      _dueFlashcards.add(updatedFlashcard);
-    } else {
-      // For other responses, remove the card from the queue
-      _dueFlashcards.removeAt(_currentIndex);
-    }
+    setState(() {
+      _showAnswer = false;
+      if (answerQuality == 0) {
+        // For 'Again' responses, move the card to the end of the queue
+        _dueFlashcards.removeAt(_currentIndex);
+        _dueFlashcards.add(updatedFlashcard);
+      } else {
+        // For other responses, remove the card from the queue
+        _dueFlashcards.removeAt(_currentIndex);
+      }
 
-    if (_dueFlashcards.isEmpty) {
-      _showSessionSummary();
-    } else if (_currentIndex >= _dueFlashcards.length) {
-      _currentIndex = 0;
-    }
-  });
-}
+      if (_dueFlashcards.isEmpty) {
+        _showSessionSummary();
+      } else if (_currentIndex >= _dueFlashcards.length) {
+        _currentIndex = 0;
+      }
+    });
+  }
 
- void _endSession() async {
-    await ref.read(flashcardNotifierProvider.notifier).updateDeckProgress(widget.deckId);
+  void _endSession() async {
+    await ref
+        .read(flashcardNotifierProvider.notifier)
+        .updateDeckProgress(widget.deckId);
     // Refresh the flashcard state
     ref.invalidate(flashcardsForDeckProvider(widget.deckId));
     ref.invalidate(flashcardStatusProvider(widget.deckId));
     ref.invalidate(dueFlashcardCountsProvider(widget.deckId));
-    ref.invalidate(dueFlashcardCountProvider(widget.deckId)); 
-  
- 
+    ref.invalidate(dueFlashcardCountProvider(widget.deckId));
+
     GoRouter.of(context).pop();
   }
 
-void _showSessionSummary() {
-  showCupertinoDialog(
-    context: context,
-    builder: (BuildContext context) => Builder(
-      builder: (BuildContext dialogContext) => CupertinoAlertDialog(
-        title: Text('Session Complete'),
-        content: Text('You have reviewed all due cards in this deck.'),
-        actions: [
-          CupertinoDialogAction(
-            child: Text('OK'),
-             onPressed: () {
-            Navigator.of(dialogContext).pop(); 
-            _endSession(); 
-          },
-          ),
-        ],
+  void _showSessionSummary() {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) => Builder(
+        builder: (BuildContext dialogContext) => CupertinoAlertDialog(
+          title: Text('Session Complete'),
+          content: Text('You have reviewed all due cards in this deck.'),
+          actions: [
+            CupertinoDialogAction(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _endSession();
+              },
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
