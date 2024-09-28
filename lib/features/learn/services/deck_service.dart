@@ -9,6 +9,8 @@ import 'package:lessay_learn/features/learn/providers/deck_provider.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter/foundation.dart';
+
 
 class DeckService {
   final ILocalStorageService _storageService;
@@ -134,6 +136,7 @@ class DeckService {
     String targetLanguageId,
   ) async {
     final allFavorites = await _storageService.getFavorites();
+    debugPrint('allFavorites: $allFavorites');
     return allFavorites
         .where((favorite) =>
             favorite.sourceLanguage == sourceLanguageId &&

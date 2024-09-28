@@ -557,21 +557,14 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<List<DeckModel>> getDecks() async {
-    final box = await _openDecksBox();
     await initializeDatabase();
-    if (box.isEmpty) {
-      final mockDecks = MockStorageService.getDecks();
-      for (var deck in mockDecks) {
-        await box.put(deck.id, deck.toJson());
-      }
-    }
+    final box = await _openDecksBox();
    
     return box.values
         .map((deck) => DeckModel.fromJson(Map<String, dynamic>.from(deck)))
         .toList();
   }
 
- @override
 @override
 Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
   final box = await _openFlashcardsBox(); 
@@ -821,7 +814,6 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     }
 
 
- debugPrint('Current decks in box before adding mock decks: ${decksBox.values.toList()}');
 
     if (decksBox.isEmpty) {
       final mockDecks = MockStorageService.getDecks();

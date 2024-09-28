@@ -24,6 +24,9 @@ class _FavoriteListScreenState extends ConsumerState<FavoriteListScreen> {
   @override
   Widget build(BuildContext context) {
     final deckService = ref.watch(deckServiceProvider);
+    debugPrint('sourceLanguageId: ${widget.sourceLanguageId}');
+    debugPrint('targetLanguageId: ${widget.targetLanguageId}');
+
     final favoritesFuture = deckService.getFavoritesByLanguages(
       widget.sourceLanguageId,
       widget.targetLanguageId,
