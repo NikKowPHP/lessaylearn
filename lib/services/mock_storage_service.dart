@@ -349,16 +349,16 @@ class MockStorageService {
       userId: 'user1',
       sourceText: 'Hello',
       translatedText: 'Hola',
-      sourceLanguage: 'lang_en', // Updated to 'lang_en'
-      targetLanguage: 'lang_es',
+      sourceLanguage: 'lang_pt', // Updated to 'lang_en'
+      targetLanguage: 'lang_fr',
     ),
     FavoriteModel(
       id: 'fav2',
-      userId: 'user2',
+      userId: 'user1',
       sourceText: 'Goodbye',
       translatedText: 'Adiós',
-         sourceLanguage: 'lang_es', // Updated to 'lang_en'
-      targetLanguage: 'lang_en',
+         sourceLanguage: 'lang_en', // Updated to 'lang_en'
+      targetLanguage: 'lang_de',
     ),
     FavoriteModel(
       id: 'fav3',
@@ -367,6 +367,46 @@ class MockStorageService {
       translatedText: 'Merci',
       sourceLanguage: 'lang_es', // Updated to 'lang_en'
       targetLanguage: 'lang_en',
+    ),
+       FavoriteModel(
+      id: 'fav6',
+      userId: 'user1',
+      sourceText: 'Yes',
+      translatedText: 'Sí',
+      sourceLanguage: 'lang_de',
+      targetLanguage: 'lang_es',
+    ),
+    FavoriteModel(
+      id: 'fav7',
+      userId: 'user1',
+      sourceText: 'No',
+      translatedText: 'Nein',
+      sourceLanguage: 'lang_it',
+      targetLanguage: 'lang_de',
+    ),
+    FavoriteModel(
+      id: 'fav8',
+      userId: 'user1',
+      sourceText: 'Please',
+      translatedText: 'S’il vous plaît',
+      sourceLanguage: 'lang_fr',
+      targetLanguage: 'lang_de',
+    ),
+    FavoriteModel(
+      id: 'fav9',
+      userId: 'user1',
+      sourceText: 'Excuse me',
+      translatedText: 'Desculpe',
+      sourceLanguage: 'lang_en',
+      targetLanguage: 'lang_pt',
+    ),
+    FavoriteModel(
+      id: 'fav10',
+      userId: 'user1',
+      sourceText: 'You’re welcome',
+      translatedText: 'De nada',
+      sourceLanguage: 'lang_ru',
+      targetLanguage: 'lang_pl',
     ),
   ];
 

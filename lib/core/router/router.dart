@@ -20,123 +20,101 @@ import 'package:lessay_learn/features/voicer/presentation/recording_screen.dart'
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 import 'package:lessay_learn/features/statistics/presentation/statistics_screen.dart';
 
-
-
-
-// Placeholder screens for Calls and Camera
-class CallsScreen extends StatelessWidget {
-  const CallsScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(middle: Text('Calls')),
-      child: Center(child: Text('Calls Screen')),
-    );
-  }
-}
-
-class CameraScreen extends StatelessWidget {
-  const CameraScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(middle: Text('Camera')),
-      child: Center(child: Text('Camera Screen')),
-    );
-  }
-}
-
 GoRouter createAppRouter() {
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/learn',
     routes: [
-      ShellRoute(
-        builder: (context, state, child) {
-          return CupertinoBottomNavBar(
-            key: state.pageKey,
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/',
-            pageBuilder: (context, state) => CupertinoPage(
-              child: const HomeScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/community',
-            pageBuilder: (context, state) => const CupertinoPage(
-              child: CommunityScreen(),
-            ),
-          ),
-          GoRoute(
+      // ShellRoute(
+      //   builder: (context, state, child) {
+      //     return CupertinoBottomNavBar(
+      //       key: state.pageKey,
+      //     );
+      //   },
+      //   routes: [
+      //     GoRoute(
+      //       path: '/',
+      //       pageBuilder: (context, state) => CupertinoPage(
+      //         child: const HomeScreen(),
+      //       ),
+      //     ),
+      //     GoRoute(
+      //       path: '/community',
+      //       pageBuilder: (context, state) => const CupertinoPage(
+      //         child: CommunityScreen(),
+      //       ),
+      //     ),
+      //     GoRoute(
+      //       path: '/learn',
+      //       pageBuilder: (context, state) => CupertinoPage(
+      //         child: const LearnScreen(),
+      //       ),
+      //     ),
+      //     GoRoute(
+      //       path: '/statistics',
+      //       pageBuilder: (context, state) => CupertinoPage(
+      //         child: const StatisticsScreen(),
+      //       ),
+      //     ),
+      //     GoRoute(
+      //       path: '/settings',
+      //       pageBuilder: (context, state) => CupertinoPage(
+      //         child: const SettingsScreen(),
+      //       ),
+      //     ),
+      //     GoRoute(
+      //       path: '/recording', // New route for RecordingScreen
+      //       pageBuilder: (context, state) => CupertinoPage(
+      //         child: const RecordingScreen(),
+      //       ),
+      //     ),
+      //   ],
+      // ),
+      GoRoute(
             path: '/learn',
             pageBuilder: (context, state) => CupertinoPage(
               child: const LearnScreen(),
             ),
           ),
-          GoRoute(
-            path: '/statistics',
-            pageBuilder: (context, state) => CupertinoPage(
-              child: const StatisticsScreen(),
+      GoRoute(
+        name: 'chatDetails',
+        path: '/chat/:chatId',
+        pageBuilder: (context, state) {
+          final chatId = state.pathParameters['chatId']!;
+          return CupertinoPage(
+            child: Consumer(
+              builder: (context, ref, _) => FutureBuilder<ChatModel?>(
+                future: ref.read(chatServiceProvider).getChatById(chatId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CupertinoPageScaffold(
+                      child: Center(child: CupertinoActivityIndicator()),
+                    );
+                  } else if (snapshot.hasError) {
+                    return CupertinoPageScaffold(
+                      child: Center(child: Text('Error: ${snapshot.error}')),
+                    );
+                  } else if (snapshot.data == null) {
+                    return const CupertinoPageScaffold(
+                      child: Center(child: Text('Chat not found')),
+                    );
+                  } else {
+                    return IndividualChatScreen(chat: snapshot.data!);
+                  }
+                },
+              ),
             ),
-          ),
-          GoRoute(
-            path: '/settings',
-            pageBuilder: (context, state) => CupertinoPage(
-              child: const SettingsScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/recording', // New route for RecordingScreen
-            pageBuilder: (context, state) => CupertinoPage(
-              child: const RecordingScreen(),
-            ),
-          ),
-        ],
-      ),
-     GoRoute(
-  name: 'chatDetails',
-  path: '/chat/:chatId',
-  pageBuilder: (context, state) {
-    final chatId = state.pathParameters['chatId']!;
-    return CupertinoPage(
-         child: Consumer(
-    builder: (context, ref, _) => FutureBuilder<ChatModel?>(
-        future: ref.read(chatServiceProvider).getChatById(chatId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CupertinoPageScaffold(
-              child: Center(child: CupertinoActivityIndicator()),
-            );
-          } else if (snapshot.hasError) {
-            return CupertinoPageScaffold(
-              child: Center(child: Text('Error: ${snapshot.error}')),
-            );
-          } else if (snapshot.data == null) {
-            return const CupertinoPageScaffold(
-              child: Center(child: Text('Chat not found')),
-            );
-          } else {
-            return IndividualChatScreen(chat: snapshot.data!);
-          }
+          );
         },
       ),
+      GoRoute(
+        path: '/profile/:userId',
+        pageBuilder: (context, state) {
+          final userId = state.pathParameters['userId']!;
+          return CupertinoPage(
+            child: ProfileScreen(userId: userId),
+          );
+        },
       ),
-    );
-  },
-),
-GoRoute(
-  path: '/profile/:userId',
-  pageBuilder: (context, state) {
-    final userId = state.pathParameters['userId']!;
-    return CupertinoPage(
-      child: ProfileScreen(userId: userId),
-    );
-  },
-),
       GoRoute(
         path: '/create-chat',
         pageBuilder: (context, state) => CupertinoPage(
@@ -149,11 +127,10 @@ GoRoute(
         ),
       ),
 
-
       GoRoute(
         path: '/deck/:deckId',
         pageBuilder: (context, state) {
-       final deckId = state.pathParameters['deckId']!;
+          final deckId = state.pathParameters['deckId']!;
           return CupertinoPage(
             child: DeckDetailScreen(deckId: deckId),
           );
@@ -169,7 +146,7 @@ GoRoute(
         },
       ),
 
-       // Add this new route for the user gallery
+      // Add this new route for the user gallery
       GoRoute(
         path: '/user-gallery/:userId',
         pageBuilder: (context, state) {
@@ -182,4 +159,3 @@ GoRoute(
     ],
   );
 }
-

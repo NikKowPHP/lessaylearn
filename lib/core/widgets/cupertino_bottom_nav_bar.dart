@@ -21,30 +21,30 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.chat_bubble_2),
-            label: 'Chats',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.globe),
-            label: 'World',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(CupertinoIcons.chat_bubble_2),
+          //   label: 'Chats',
+          // ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(CupertinoIcons.globe),
+          //   label: 'World',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.book),
             label: 'Learn',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.graph_square),
-            label: 'Statistics',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.settings),
-            label: 'Settings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.mic),
-            label: 'Recording', // New tab label
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(CupertinoIcons.graph_square),
+          //   label: 'Statistics',
+          // ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(CupertinoIcons.settings),
+          //   label: 'Settings',
+          // ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(CupertinoIcons.mic),
+          //   label: 'Recording', // New tab label
+          // ),
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
@@ -70,7 +70,8 @@ class _CupertinoBottomNavBarState extends State<CupertinoBottomNavBar> {
               default:
                 return Consumer(
                   builder: (context, ref, child) {
-                    return HomeScreen();
+                    // return HomeScreen();
+                    return LearnScreen();
                   },
                 );
             }

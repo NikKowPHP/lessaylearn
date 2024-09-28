@@ -569,6 +569,7 @@ class LocalStorageService implements ILocalStorageService {
   @override
   Future<List<DeckModel>> getDecks() async {
     final box = await _openDecksBox();
+    await initializeDatabase();
     if (box.isEmpty) {
       final mockDecks = MockStorageService.getDecks();
       for (var deck in mockDecks) {
@@ -805,7 +806,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
 
     // print('chartsBox is empty: ${chartsBox.isEmpty}');
     // print('chartsBox is empty: ${knownWordsBox.isEmpty}');
-    await usersBox.clear();
+    // await usersBox.clear();
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
     }
@@ -869,11 +870,14 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     //   print(knownWord.toJson());
     // }
 
-    // await favoritesBox.clear();
+    await favoritesBox.clear();
+
 
     if (favoritesBox.isEmpty) {
       final mockFavorites = MockStorageService.getFavorites();
+     
       for (var favorite in mockFavorites) {
+         debugPrint('Mock favorites: ${favorite.toJson()}');
         await saveFavorite(favorite);
       }
     }
