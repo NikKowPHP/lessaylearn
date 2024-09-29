@@ -1,4 +1,4 @@
-package com.example.ai_language_app
+package com.lessay.learn
 
 import io.flutter.embedding.android.FlutterActivity
 
