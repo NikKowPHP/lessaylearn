@@ -147,17 +147,18 @@ class DeckService {
 
   Future<List<String>> getAvailableSourceLanguages() async {
     // final allFavorites = await _storageService.getFavorites();
-     final mockSourceLanguages = [
-      'lang_en',
-      'lang_es',
-      'lang_fr',
-      'lang_de',
-      'lang_pt',
-      'lang_it',
-      'lang_ru',
-      'lang_ja',
-      'lang_zh',
-      'lang_ar',
+
+   final mockSourceLanguages = [
+      'en',
+      'es',
+      'fr',
+      'de',
+      'pt',
+      'it',
+      'ru',
+      'ja',
+      'zh',
+      'ar',
     ];
     // return allFavorites.map((f) => f.sourceLanguage).toSet().toList();
     return mockSourceLanguages; 
@@ -166,16 +167,16 @@ class DeckService {
   Future<List<String>> getAvailableTargetLanguages(
       String sourceLanguage) async {
    final mockSourceLanguages = [
-      'lang_en',
-      'lang_es',
-      'lang_fr',
-      'lang_de',
-      'lang_pt',
-      'lang_it',
-      'lang_ru',
-      'lang_ja',
-      'lang_zh',
-      'lang_ar',
+      'en',
+      'es',
+      'fr',
+      'de',
+      'pt',
+      'it',
+      'ru',
+      'ja',
+      'zh',
+      'ar',
     ];
     // return allFavorites.map((f) => f.sourceLanguage).toSet().toList();
     return mockSourceLanguages; 

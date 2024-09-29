@@ -137,8 +137,10 @@ class ImportFlashcardsService {
 
 
     // Check if languages match the deck
-    String favoriteSourceLanguage = csvList[languagePairIndex][0].toString().toLowerCase();
-    String favoriteTargetLanguage= csvList[languagePairIndex][1].toString().toLowerCase();
+    // String favoriteSourceLanguage = csvList[languagePairIndex][0].toString().toLowerCase();
+    // String favoriteTargetLanguage= csvList[languagePairIndex][1].toString().toLowerCase();
+    String favoriteSourceLanguage = sourceLanguage;
+    String favoriteTargetLanguage = targetLanguage;
     String deckSourceLanguage = sourceLanguage.toLowerCase().replaceFirst('lang_', '');
     String deckTargetLanguage = targetLanguage.toLowerCase().replaceFirst('lang_', '');
 
