@@ -351,20 +351,13 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<List<ChatModel>> getChats() async {
-    final box = await _openChatsBox();
+    
     await initializeDatabase();
-   
+    final box = await _openChatsBox();
 
     // box.clear();
     //  await box.clear();
     List chatList = box.get(_chatsBoxName, defaultValue: []);
-
-    if (chatList.isEmpty) {
-      final mockChats = MockStorageService.getChats();
-      await saveChats(mockChats);
-      chatList = mockChats.map((chat) => chat.toJson()).toList();
-      await box.put(_chatsBoxName, chatList);
-    }
 
     return chatList
         .map((chat) => ChatModel.fromJson(Map<String, dynamic>.from(chat)))
@@ -374,14 +367,6 @@ class LocalStorageService implements ILocalStorageService {
   @override
   Future<List<LanguageModel>> getLanguages() async {
     final box = await _openLanguagesBox();
-
-    if (box.isEmpty) {
-      // If the box is empty, populate it with mock data
-      final mockLanguages = MockStorageService.getLanguages();
-      for (var language in mockLanguages) {
-        await box.put(language.id, language.toJson());
-      }
-    }
 
     return box.values
         .map((json) => LanguageModel.fromJson(Map<String, dynamic>.from(json)))
