@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/auth/services/auth_service.dart';
 
-import 'package:lessay_learn/core/data/data_sources/storage/firebase_storage.dart';
+import 'package:lessay_learn/core/data/data_sources/storage/firebase_service.dart';
 import 'package:lessay_learn/core/providers/local_storage_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';

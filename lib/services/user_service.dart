@@ -24,6 +24,7 @@ class UserService implements IUserService {
       user = UserModel(
         id: 'user1',
         name: 'John Doe',
+        email: 'test@gmail.com',
         avatarUrl: 'assets/avatar-1.png',
         languageLevel: 'Intermediate',
         sourceLanguageIds: ['lang_en'],

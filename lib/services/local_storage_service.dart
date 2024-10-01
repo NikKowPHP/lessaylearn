@@ -597,11 +597,35 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
         : null;
   }
 
+ @override
+  Future<void> updateUser(UserModel user) async {
+    final box = await _openUsersBox();
+    await box.put(user.id, user.toJson());
+  }
+
+  @override
+  Future<void> deleteUser(String userId) async {
+    final box = await _openUsersBox();
+    await box.delete(userId);
+  }
+
   @override
   Future<void> addDeck(DeckModel deck) async {
     final box = await _openDecksBox();
     debugPrint('Adding deck: ${deck.toJson()}');
     await box.put(deck.id, deck.toJson());
+  }
+  @override
+  Future<List<UserModel>> getAllUsers() async {
+    final box = await _openUsersBox();
+    return box.values
+        .map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson)))
+        .toList();
+  }
+   @override
+  Future<void> clearCurrentUser() async {
+    final box = await _openUsersBox();
+    await box.delete(_currentUserKey);
   }
 
   @override

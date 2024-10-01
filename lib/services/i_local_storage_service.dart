@@ -44,6 +44,10 @@ abstract class ILocalStorageService {
   Future<void> clearAllData();
   Future<void> saveUser(UserModel user);
   Future<UserModel?> getCurrentUser();
+  Future<void> updateUser(UserModel user);
+  Future<void> deleteUser(String userId);
+  Future<List<UserModel>> getAllUsers();
+  Future<void> clearCurrentUser();
 
   // Known Words methods
   Future<void> saveKnownWord(KnownWordModel knownWord);

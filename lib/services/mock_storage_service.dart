@@ -18,6 +18,7 @@ class MockStorageService {
       id: 'user1',
       name: 'Alice',
       avatarUrl: 'assets/avatar-1.png',
+        email: 'alice@example.com',
       languageLevel: 'Intermediate',
       sourceLanguageIds: ['lang_en'],
       targetLanguageIds: ['lang_es'],
@@ -33,6 +34,7 @@ class MockStorageService {
     ),
     UserModel(
       id: 'user2',
+       email: 'bob@example.com',
       name: 'Bob',
       avatarUrl: 'assets/avatar-2.png',
       languageLevel: 'Beginner',
@@ -51,6 +53,7 @@ class MockStorageService {
     UserModel(
       id: 'user3',
       name: 'Charlie',
+      email: 'bob@example.com', 
       avatarUrl: 'assets/avatar-3.png',
       languageLevel: 'Advanced',
       sourceLanguageIds: ['lang_en', 'lang_fr'],
@@ -68,6 +71,7 @@ class MockStorageService {
     UserModel(
       id: 'user4',
       name: 'Diana',
+       email: 'alice@example.com',
       avatarUrl: 'assets/avatar-4.png',
       languageLevel: 'Advanced',
       sourceLanguageIds: ['lang_en', 'lang_de'],

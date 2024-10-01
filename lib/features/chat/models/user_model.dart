@@ -1,10 +1,11 @@
 class UserModel {
   final String id;
   final String name;
+  final String email;
   final String avatarUrl;
   final String languageLevel;
- final List<String> sourceLanguageIds; // Changed from sourceLanguages
-  final List<String> targetLanguageIds; // Changed from targetLanguages
+  final List<String> sourceLanguageIds;
+  final List<String> targetLanguageIds;
   final List<String> spokenLanguageIds;
   final String location;
   final int age;
@@ -18,13 +19,14 @@ class UserModel {
   UserModel({
     required this.id,
     required this.name,
-    required this.avatarUrl,
-    required this.languageLevel,
-     required this.sourceLanguageIds,
-    required this.targetLanguageIds,
-    required this.spokenLanguageIds,
-    required this.location,
-    required this.age,
+    required this.email,
+    this.avatarUrl = '',
+    this.languageLevel = '',
+    this.sourceLanguageIds = const [],
+    this.targetLanguageIds = const [],
+    this.spokenLanguageIds = const [],
+    this.location = '',
+    this.age = 0,
     this.bio,
     this.interests = const [],
     this.occupation,
@@ -33,31 +35,11 @@ class UserModel {
     this.profilePictureIds = const [],
   });
 
-  @override
-  String toString() {
-    return '''UserModel(
-      id: $id,
-      name: $name,
-      avatarUrl: $avatarUrl,
-      languageLevel: $languageLevel,
-       sourceLanguageIds: $sourceLanguageIds,
-      targetLanguageIds: $targetLanguageIds,
-      spokenLanguageIds: $spokenLanguageIds,
-      location: $location,
-      age: $age,
-      bio: $bio,
-      interests: $interests,
-      occupation: $occupation,
-      education: $education,
-      languageIds: $languageIds,
-      profilePictureIds: $profilePictureIds
-    )''';
-  }
-
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
+      id: json['id'],
+      name: json['name'],
+      email: json['email'],
       avatarUrl: json['avatarUrl'] ?? '',
       languageLevel: json['languageLevel'] ?? '',
       sourceLanguageIds: List<String>.from(json['sourceLanguageIds'] ?? []),
@@ -69,7 +51,7 @@ class UserModel {
       interests: List<String>.from(json['interests'] ?? []),
       occupation: json['occupation'],
       education: json['education'],
-       languageIds: List<String>.from(json['languageIds'] ?? []),
+      languageIds: List<String>.from(json['languageIds'] ?? []),
       profilePictureIds: List<String>.from(json['profilePictureIds'] ?? []),
     );
   }
@@ -78,9 +60,10 @@ class UserModel {
     return {
       'id': id,
       'name': name,
+      'email': email,
       'avatarUrl': avatarUrl,
       'languageLevel': languageLevel,
-     'sourceLanguageIds': sourceLanguageIds,
+      'sourceLanguageIds': sourceLanguageIds,
       'targetLanguageIds': targetLanguageIds,
       'spokenLanguageIds': spokenLanguageIds,
       'location': location,
@@ -89,13 +72,15 @@ class UserModel {
       'interests': interests,
       'occupation': occupation,
       'education': education,
-        'languageIds': languageIds,
+      'languageIds': languageIds,
       'profilePictureIds': profilePictureIds,
     };
   }
-   UserModel copyWith({
+
+  UserModel copyWith({
     String? id,
     String? name,
+    String? email,
     String? avatarUrl,
     String? languageLevel,
     List<String>? sourceLanguageIds,
@@ -113,9 +98,10 @@ class UserModel {
     return UserModel(
       id: id ?? this.id,
       name: name ?? this.name,
+      email: email ?? this.email,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       languageLevel: languageLevel ?? this.languageLevel,
-     sourceLanguageIds: sourceLanguageIds ?? this.sourceLanguageIds,
+      sourceLanguageIds: sourceLanguageIds ?? this.sourceLanguageIds,
       targetLanguageIds: targetLanguageIds ?? this.targetLanguageIds,
       spokenLanguageIds: spokenLanguageIds ?? this.spokenLanguageIds,
       location: location ?? this.location,
