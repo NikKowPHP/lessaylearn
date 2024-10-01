@@ -14,4 +14,8 @@ abstract class IChatService {
    Future<ChatModel?> getChatById(String chatId);
     Future<UserModel?> getUserById(String userId);
     Future<UserModel?> getChatPartner(String chatId, String currentUserId);
+     // New methods added
+  Stream<MessageModel> get messageStream; // Stream for real-time message updates
+  Future<void> deleteMessage(String messageId); // Method to delete a specific message
+  Future<void> markAllMessagesAsRead(String chatId); // Method to mark all messages in a chat as read
 }

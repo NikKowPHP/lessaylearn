@@ -118,6 +118,20 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       });
     });
 
+     ref.listen<AsyncValue<MessageModel>>(
+      messageStreamProvider(widget.chat.id),
+      (_, next) {
+        next.whenData((message) {
+          if (message.senderId != ref.read(currentUserProvider).value!.id) {
+            setState(() {
+              _messages.add(message);
+            });
+            _scrollToBottom();
+          }
+        });
+      },
+    );
+
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 600;
     return GestureDetector(
