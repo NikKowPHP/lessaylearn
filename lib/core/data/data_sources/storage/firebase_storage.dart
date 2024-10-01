@@ -1,19 +1,66 @@
-// lib/data/data_sources/storage/firebase_storage.dart
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
+class FirebaseService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
+  Future<User?> signInWithEmailAndPassword(String email, String password) async {
+    try {
+      final UserCredential result = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return result.user;
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
 
-// import 'package:lessay_learn/core/interfaces/storage_interface.dart';
+  Future<User?> registerWithEmailAndPassword(String email, String password) async {
+    try {
+      final UserCredential result = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return result.user;
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
 
-// class FirebaseStorage<T> implements IStorage<T> {
-//   final String _collection;
-//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Future<User?> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+            await googleSignInAccount.authentication;
 
-//   FirebaseStorage(this._collection);
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
 
-//   @override
-//   Future<void> create(String id, T item) async {
-//     await _firestore.collection(_collection).doc(id).set(item as Map<String, dynamic>);
-//   }
+        final UserCredential authResult = await _auth.signInWithCredential(credential);
+        return authResult.user;
+      }
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+    return null;
+  }
 
-//   // Implement other CRUD methods...
-// }
+  Future<void> signOut() async {
+    await _auth.signOut();
+    await _googleSignIn.signOut();
+  }
+
+  User? getCurrentUser() {
+    return _auth.currentUser;
+  }
+
+  Stream<User?> get onAuthStateChanged => _auth.authStateChanges();
+}
