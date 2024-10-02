@@ -9,10 +9,24 @@ import 'package:lessay_learn/core/dependency_injection.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lessay_learn/core/router/router.dart';
 
+// Function to conditionally initialize Firebase
+Future<void> initializeFirebase() async {
+  // Check for an environment variable or flag (e.g., 'MOCK_FIREBASE')
+  // final shouldInitializeFirebase = const bool.fromEnvironment('MOCK_FIREBASE', defaultValue: false); 
+  final shouldInitializeFirebase = kDebugMode;
+  if (shouldInitializeFirebase) {
+    // For production use:
+    await Firebase.initializeApp(); 
+  } else {
+    print('🔥 Firebase initialization is MOCKED.  This is for development/testing.');
+  }
+
+}
+
 Future<void> main() async {
   await WidgetsFlutterBinding.ensureInitialized();
 
-//  await Firebase.initializeApp(); 
+ await initializeFirebase();
 // Initialize Hive
   await Hive.initFlutter();
 
