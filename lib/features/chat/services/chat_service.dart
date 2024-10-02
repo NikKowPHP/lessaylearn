@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:math';
 
@@ -7,9 +6,7 @@ import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 
-import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
-
 
 abstract class IChatService {
   Future<List<ChatModel>> getChats();
@@ -20,32 +17,48 @@ abstract class IChatService {
   Future<void> deleteChat(String chatId);
   Future<void> createChat(ChatModel chat);
   Future<String> getChatPartnerName(String chatId, String currentUserId);
-   Future<ChatModel?> getChatById(String chatId);
-    Future<UserModel?> getUserById(String userId);
-    Future<UserModel?> getChatPartner(String chatId, String currentUserId);
-     // New methods added
+  Future<ChatModel?> getChatById(String chatId);
+  Future<UserModel?> getUserById(String userId);
+  Future<UserModel?> getChatPartner(String chatId, String currentUserId);
+  // New methods added
   Stream<MessageModel> get messageStream;
   Stream<bool> get typingIndicatorStream;
-  Future<void> deleteMessage(String messageId); // Method to delete a specific message
-  Future<void> markAllMessagesAsRead(String chatId); // Method to mark all messages in a chat as read
+  Future<void> deleteMessage(
+      String messageId); // Method to delete a specific message
+  Future<void> markAllMessagesAsRead(
+      String chatId); // Method to mark all messages in a chat as read
 }
-
 
 class ChatService implements IChatService {
   final ILocalStorageService localStorageService; // Use interface
-  final StreamController<MessageModel> _messageStreamController = StreamController<MessageModel>.broadcast();
-   final StreamController<bool> _typingIndicatorStreamController = StreamController<bool>.broadcast();
+  final StreamController<MessageModel> _messageStreamController =
+      StreamController<MessageModel>.broadcast();
+  final StreamController<bool> _typingIndicatorStreamController =
+      StreamController<bool>.broadcast();
 
   @override
   Stream<MessageModel> get messageStream => _messageStreamController.stream;
- @override
-  Stream<bool> get typingIndicatorStream => _typingIndicatorStreamController.stream;
-
+  @override
+  Stream<bool> get typingIndicatorStream =>
+      _typingIndicatorStreamController.stream;
 
   ChatService(this.localStorageService);
-  
+
   @override
-   Future<void> createChat(ChatModel chat) async {
+  Future<void> markAllMessagesAsRead(String chatId) async {
+    final messages = await getMessagesForChat(chatId);
+    for (var message in messages) {
+      if (!message.isRead) {
+        final updatedMessage = message.copyWith(
+            isRead: true); // Create a new message with isRead set to true
+        await localStorageService.updateMessage(
+            updatedMessage); // Update the message in local storage
+      }
+    }
+  }
+
+  @override
+  Future<void> createChat(ChatModel chat) async {
     await localStorageService.saveChat(chat);
   }
 
@@ -55,22 +68,14 @@ class ChatService implements IChatService {
     // Optionally, notify listeners or update the UI
   }
 
-  @override
-  Future<void> markAllMessagesAsRead(String chatId) async {
-    final messages = await getMessagesForChat(chatId);
-    for (var message in messages) {
-      if (!message.isRead) {
-        await markMessageAsRead(message.id);
-      }
-    }
-  }
 
-   @override
+  @override
   Future<UserModel?> getChatPartner(String chatId, String currentUserId) async {
     final chat = await localStorageService.getChatById(chatId);
     if (chat == null) return null;
 
-    final partnerUserId = chat.hostUserId == currentUserId ? chat.guestUserId : chat.hostUserId;
+    final partnerUserId =
+        chat.hostUserId == currentUserId ? chat.guestUserId : chat.hostUserId;
     return await localStorageService.getUserById(partnerUserId);
   }
 
@@ -81,22 +86,24 @@ class ChatService implements IChatService {
         (a, b) => b.lastMessageTimestamp.compareTo(a.lastMessageTimestamp));
     return savedChats;
   }
-@override
-  Future<String> getChatPartnerName(String chatId, String currentUserId) async {
-  final chat = await localStorageService.getChatById(chatId);
-  if (chat == null) return 'Unknown';
 
-  final partnerUserId = chat.hostUserId == currentUserId ? chat.guestUserId : chat.hostUserId;
-  final user = await localStorageService.getUserById(partnerUserId);
-  return user?.name ?? 'Unknown';
-}
+  @override
+  Future<String> getChatPartnerName(String chatId, String currentUserId) async {
+    final chat = await localStorageService.getChatById(chatId);
+    if (chat == null) return 'Unknown';
+
+    final partnerUserId =
+        chat.hostUserId == currentUserId ? chat.guestUserId : chat.hostUserId;
+    final user = await localStorageService.getUserById(partnerUserId);
+    return user?.name ?? 'Unknown';
+  }
 
   @override
   Future<void> saveChats(List<ChatModel> chats) async {
     await localStorageService.saveChats(chats);
-
   }
-    @override
+
+  @override
   Future<ChatModel?> getChatById(String chatId) async {
     return await localStorageService.getChatById(chatId);
   }
@@ -106,24 +113,29 @@ class ChatService implements IChatService {
     return await localStorageService.getMessagesForChat(chatId);
   }
 
- @override
+  @override
   Future<void> sendMessage(MessageModel message) async {
     await localStorageService.saveMessage(message);
     final updatedChat = await _updateChatWithLastMessage(message);
+
+    // Mark all messages in the chat as read
+    await markAllMessagesAsRead(message.chatId);
 
     _messageStreamController.add(message);
     // Notify listeners about the updated chat
     _notifyChatsUpdated();
 
-        // Simulate a reply from the partner (only if it's not a bot)
+    // Simulate a reply from the partner (only if it's not a bot)
     if (!message.senderId.startsWith('bot')) {
-     _typingIndicatorStreamController.add(true); // Signal typing start
-      await Future.delayed(Duration(seconds: Random().nextInt(3) + 1)); // Delay 1-3 seconds
+      _typingIndicatorStreamController.add(true); // Signal typing start
+      await Future.delayed(
+          Duration(seconds: Random().nextInt(3) + 1)); // Delay 1-3 seconds
       _simulatePartnerReply(message.chatId, message.senderId);
       _typingIndicatorStreamController.add(false); // Signal typing end
     }
   }
-   Future<void> _simulatePartnerReply(String chatId, String senderId) async {
+
+  Future<void> _simulatePartnerReply(String chatId, String senderId) async {
     final partner = await getChatPartner(chatId, senderId);
     if (partner != null) {
       final reply = MessageModel(
@@ -136,11 +148,11 @@ class ChatService implements IChatService {
       );
       _messageStreamController.add(reply);
       await _updateChatWithLastMessage(reply);
-       await localStorageService.saveMessage(reply);
+      await localStorageService.saveMessage(reply);
     }
   }
 
-    Future<ChatModel> _updateChatWithLastMessage(MessageModel message) async {
+  Future<ChatModel> _updateChatWithLastMessage(MessageModel message) async {
     final chat = await localStorageService.getChatById(message.chatId);
     if (chat != null) {
       final updatedChat = chat.copyWith(
@@ -157,7 +169,7 @@ class ChatService implements IChatService {
     // Implement a method to notify listeners about updated chats
   }
 
-    @override
+  @override
   Future<UserModel?> getUserById(String userId) async {
     return await localStorageService.getUserById(userId);
   }
@@ -176,5 +188,4 @@ class ChatService implements IChatService {
     await localStorageService.deleteChat(chatId);
     await localStorageService.deleteMessagesForChat(chatId);
   }
-  
 }
