@@ -8,7 +8,6 @@ import 'package:lessay_learn/core/router/router.dart'; // Assuming this provides
 abstract class IAppConfig {
   String get title;
   CupertinoThemeData get theme;
-  GoRouter get router; 
 }
 
 // Implement the app configuration using the interface
@@ -21,6 +20,4 @@ class AppConfig implements IAppConfig {
         primaryColor: CupertinoColors.systemGrey,
       );
 
-  @override
-  GoRouter get router => createAppRouter(); 
 }

@@ -1,11 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lessay_learn/core/auth/presentation/auth_screen.dart';
+import 'package:lessay_learn/core/auth/providers/auth_provider.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:lessay_learn/core/widgets/cupertino_bottom_nav_bar.dart';
-import 'package:lessay_learn/features/chat/widgets/chat_screen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:lessay_learn/features/chat/widgets/chat_screen.dart';
 import 'package:lessay_learn/features/chat/widgets/create_chat_view.dart';
-
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
 import 'package:lessay_learn/features/home/presentation/home_screen.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
@@ -20,42 +21,30 @@ import 'package:lessay_learn/features/voicer/presentation/recording_screen.dart'
 import 'package:lessay_learn/features/world/presentation/world_screen.dart';
 import 'package:lessay_learn/features/statistics/presentation/statistics_screen.dart';
 
-
-
-
-// Placeholder screens for Calls and Camera
-class CallsScreen extends StatelessWidget {
-  const CallsScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(middle: Text('Calls')),
-      child: Center(child: Text('Calls Screen')),
-    );
-  }
-}
-
-class CameraScreen extends StatelessWidget {
-  const CameraScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(middle: Text('Camera')),
-      child: Center(child: Text('Camera Screen')),
-    );
-  }
-}
-
-GoRouter createAppRouter() {
+final routerProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authStateProvider);
+  
   return GoRouter(
     initialLocation: '/',
+    redirect: (context, state) {
+      final isLoggedIn = authState.value != null;
+      final isAuthRoute = state.path == '/auth'; 
+
+      if (!isLoggedIn && !isAuthRoute) return '/auth';
+      if (isLoggedIn && isAuthRoute) return '/';
+
+      return null;
+    },
     routes: [
+      GoRoute(
+        path: '/auth',
+        builder: (context, state) => const AuthScreen(),
+      ),
       ShellRoute(
         builder: (context, state, child) {
           return CupertinoBottomNavBar(
             key: state.pageKey,
+       
           );
         },
         routes: [
@@ -95,48 +84,54 @@ GoRouter createAppRouter() {
               child: const RecordingScreen(),
             ),
           ),
+            GoRoute(
+            path: '/auth', // New route for RecordingScreen
+            pageBuilder: (context, state) => CupertinoPage(
+              child: const AuthScreen(),
+            ),
+          ),
         ],
       ),
-     GoRoute(
-  name: 'chatDetails',
-  path: '/chat/:chatId',
-  pageBuilder: (context, state) {
-    final chatId = state.pathParameters['chatId']!;
-    return CupertinoPage(
-         child: Consumer(
-    builder: (context, ref, _) => FutureBuilder<ChatModel?>(
-        future: ref.read(chatServiceProvider).getChatById(chatId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CupertinoPageScaffold(
-              child: Center(child: CupertinoActivityIndicator()),
-            );
-          } else if (snapshot.hasError) {
-            return CupertinoPageScaffold(
-              child: Center(child: Text('Error: ${snapshot.error}')),
-            );
-          } else if (snapshot.data == null) {
-            return const CupertinoPageScaffold(
-              child: Center(child: Text('Chat not found')),
-            );
-          } else {
-            return IndividualChatScreen(chat: snapshot.data!);
-          }
+      GoRoute(
+        name: 'chatDetails',
+        path: '/chat/:chatId',
+        pageBuilder: (context, state) {
+          final chatId = state.pathParameters['chatId']!;
+          return CupertinoPage(
+            child: Consumer(
+              builder: (context, ref, _) => FutureBuilder<ChatModel?>(
+                future: ref.read(chatServiceProvider).getChatById(chatId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CupertinoPageScaffold(
+                      child: Center(child: CupertinoActivityIndicator()),
+                    );
+                  } else if (snapshot.hasError) {
+                    return CupertinoPageScaffold(
+                      child: Center(child: Text('Error: ${snapshot.error}')),
+                    );
+                  } else if (snapshot.data == null) {
+                    return const CupertinoPageScaffold(
+                      child: Center(child: Text('Chat not found')),
+                    );
+                  } else {
+                    return IndividualChatScreen(chat: snapshot.data!);
+                  }
+                },
+              ),
+            ),
+          );
         },
       ),
+      GoRoute(
+        path: '/profile/:userId',
+        pageBuilder: (context, state) {
+          final userId = state.pathParameters['userId']!;
+          return CupertinoPage(
+            child: ProfileScreen(userId: userId),
+          );
+        },
       ),
-    );
-  },
-),
-GoRoute(
-  path: '/profile/:userId',
-  pageBuilder: (context, state) {
-    final userId = state.pathParameters['userId']!;
-    return CupertinoPage(
-      child: ProfileScreen(userId: userId),
-    );
-  },
-),
       GoRoute(
         path: '/create-chat',
         pageBuilder: (context, state) => CupertinoPage(
@@ -148,12 +143,10 @@ GoRoute(
           ),
         ),
       ),
-
-
       GoRoute(
         path: '/deck/:deckId',
         pageBuilder: (context, state) {
-       final deckId = state.pathParameters['deckId']!;
+          final deckId = state.pathParameters['deckId']!;
           return CupertinoPage(
             child: DeckDetailScreen(deckId: deckId),
           );
@@ -168,8 +161,7 @@ GoRoute(
           );
         },
       ),
-
-       // Add this new route for the user gallery
+      // Add this new route for the user gallery
       GoRoute(
         path: '/user-gallery/:userId',
         pageBuilder: (context, state) {
@@ -181,5 +173,4 @@ GoRoute(
       ),
     ],
   );
-}
-
+});
