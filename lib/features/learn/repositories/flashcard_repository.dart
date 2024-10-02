@@ -1,7 +1,8 @@
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/services/flashcard_service.dart';
-import 'package:lessay_learn/services/i_local_storage_service.dart';
+
+import 'package:lessay_learn/services/local_storage_service.dart';
 
 abstract class IFlashcardRepository {
   Future<List<DeckModel>> getDecks();

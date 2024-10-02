@@ -8,6 +8,7 @@ import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/providers/deck_provider.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
+import 'package:lessay_learn/services/local_storage_service.dart';
 import 'package:uuid/uuid.dart';
 
 class DeckService {

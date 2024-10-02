@@ -3,8 +3,9 @@ import 'package:lessay_learn/core/SRSA/engine/srsa_algoritm.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/services/i_flashcard_service.dart';
-import 'package:lessay_learn/services/i_local_storage_service.dart';
+
 import 'package:flutter/cupertino.dart';
+import 'package:lessay_learn/services/local_storage_service.dart';
 class FlashcardService implements IFlashcardService {
   final ILocalStorageService localStorageService;
 

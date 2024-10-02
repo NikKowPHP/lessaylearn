@@ -5,7 +5,8 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 import 'package:lessay_learn/services/i_user_service.dart';
-import 'package:lessay_learn/services/i_local_storage_service.dart';
+import 'package:lessay_learn/services/local_storage_service.dart';
+// import 'package:lessay_learn/services/i_local_storage_service.dart';
 
 class UserService implements IUserService {
   final ILocalStorageService _localStorageService;

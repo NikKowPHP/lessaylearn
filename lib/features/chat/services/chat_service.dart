@@ -8,6 +8,7 @@ import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 
 import 'package:lessay_learn/services/i_local_storage_service.dart';
+import 'package:lessay_learn/services/local_storage_service.dart';
 
 
 abstract class IChatService {
@@ -42,9 +43,9 @@ class ChatService implements IChatService {
 
 
   ChatService(this.localStorageService);
+  
   @override
-  @override
-  Future<void> createChat(ChatModel chat) async {
+   Future<void> createChat(ChatModel chat) async {
     await localStorageService.saveChat(chat);
   }
 
@@ -135,6 +136,7 @@ class ChatService implements IChatService {
       );
       _messageStreamController.add(reply);
       await _updateChatWithLastMessage(reply);
+       await localStorageService.saveMessage(reply);
     }
   }
 

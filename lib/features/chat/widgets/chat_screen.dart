@@ -182,7 +182,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
                   )
                 : const SizedBox.shrink();
           },
-          loading: () => const Center(child: CupertinoActivityIndicator()),
+          loading: () => const Center(child: SizedBox.shrink()),
           error: (error, stackTrace) => Text('Error: $error'),
         );
       },
