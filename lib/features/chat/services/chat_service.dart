@@ -6,16 +6,39 @@ import 'package:flutter/foundation.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
-import 'package:lessay_learn/services/i_chat_service.dart';
+
 import 'package:lessay_learn/services/i_local_storage_service.dart';
+
+
+abstract class IChatService {
+  Future<List<ChatModel>> getChats();
+  Future<void> saveChats(List<ChatModel> chats);
+  Future<List<MessageModel>> getMessagesForChat(String chatId);
+  Future<void> sendMessage(MessageModel message);
+  Future<void> markMessageAsRead(String messageId);
+  Future<void> deleteChat(String chatId);
+  Future<void> createChat(ChatModel chat);
+  Future<String> getChatPartnerName(String chatId, String currentUserId);
+   Future<ChatModel?> getChatById(String chatId);
+    Future<UserModel?> getUserById(String userId);
+    Future<UserModel?> getChatPartner(String chatId, String currentUserId);
+     // New methods added
+  Stream<MessageModel> get messageStream;
+  Stream<bool> get typingIndicatorStream;
+  Future<void> deleteMessage(String messageId); // Method to delete a specific message
+  Future<void> markAllMessagesAsRead(String chatId); // Method to mark all messages in a chat as read
+}
+
 
 class ChatService implements IChatService {
   final ILocalStorageService localStorageService; // Use interface
   final StreamController<MessageModel> _messageStreamController = StreamController<MessageModel>.broadcast();
+   final StreamController<bool> _typingIndicatorStreamController = StreamController<bool>.broadcast();
 
   @override
   Stream<MessageModel> get messageStream => _messageStreamController.stream;
-
+ @override
+  Stream<bool> get typingIndicatorStream => _typingIndicatorStreamController.stream;
 
 
   ChatService(this.localStorageService);
@@ -93,8 +116,10 @@ class ChatService implements IChatService {
 
         // Simulate a reply from the partner (only if it's not a bot)
     if (!message.senderId.startsWith('bot')) {
+     _typingIndicatorStreamController.add(true); // Signal typing start
       await Future.delayed(Duration(seconds: Random().nextInt(3) + 1)); // Delay 1-3 seconds
       _simulatePartnerReply(message.chatId, message.senderId);
+      _typingIndicatorStreamController.add(false); // Signal typing end
     }
   }
    Future<void> _simulatePartnerReply(String chatId, String senderId) async {
@@ -109,6 +134,7 @@ class ChatService implements IChatService {
         timestamp: DateTime.now(),
       );
       _messageStreamController.add(reply);
+      await _updateChatWithLastMessage(reply);
     }
   }
 
@@ -148,4 +174,5 @@ class ChatService implements IChatService {
     await localStorageService.deleteChat(chatId);
     await localStorageService.deleteMessagesForChat(chatId);
   }
+  
 }

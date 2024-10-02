@@ -8,7 +8,6 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/chat/services/chat_service.dart';
 import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
 import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
-import 'package:lessay_learn/services/i_chat_service.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:go_router/go_router.dart';
 

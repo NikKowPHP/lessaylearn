@@ -71,6 +71,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       error: (_, __) => null,
     );
   }
+
   Future<void> _loadFavoritesAndKnownWords() async {
     final favorites = ref.read(favoritesProvider);
     final knownWords = ref.read(knownWordsProvider);
@@ -118,7 +119,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       });
     });
 
-     ref.listen<AsyncValue<MessageModel>>(
+    ref.listen<AsyncValue<MessageModel>>(
       messageStreamProvider(widget.chat.id),
       (_, next) {
         next.whenData((message) {
@@ -131,6 +132,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
         });
       },
     );
+  
 
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 600;
@@ -155,12 +157,35 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
             child: Column(
               children: [
                 Expanded(child: _buildMessageList()),
+                _buildTypingIndicator(widget.chat.id),
                 _buildMessageInput(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTypingIndicator(String chatId) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final typingIndicatorAsyncValue =
+            ref.watch(typingIndicatorStreamProvider(chatId));
+
+        return typingIndicatorAsyncValue.when(
+          data: (isTyping) {
+            return isTyping
+                ? const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Center(child: Text('Partner is typing...')),
+                  )
+                : const SizedBox.shrink();
+          },
+          loading: () => const Center(child: CupertinoActivityIndicator()),
+          error: (error, stackTrace) => Text('Error: $error'),
+        );
+      },
     );
   }
 
@@ -332,7 +357,6 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUserMessage = message.senderId == currentUserId;
 
-  
     return Align(
       alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
@@ -449,7 +473,7 @@ class MessageBubble extends StatelessWidget {
 }
 
 class TappableText extends ConsumerStatefulWidget {
-   final String text;
+  final String text;
   final bool isUserMessage;
   final List<FavoriteModel> favorites;
   final List<KnownWordModel> knownWords;
@@ -500,65 +524,72 @@ class _TappableTextState extends ConsumerState<TappableText> {
   }
 
   Widget _buildTappableWord(String word, int index) {
-  final isFavorite = widget.favorites.any((favorite) => favorite.sourceText == word);
-  final isKnown = widget.knownWords.any((knownWord) => knownWord.word == word);
+    final isFavorite =
+        widget.favorites.any((favorite) => favorite.sourceText == word);
+    final isKnown =
+        widget.knownWords.any((knownWord) => knownWord.word == word);
 
-  return GestureDetector(
-    onTap: () {
-      if (!isKnown) {
-        _makeWordKnown(word);
-      }
-      _tooltipControllers[index].showTooltip();
-    },
-    child: JustTheTooltip(
-      controller: _tooltipControllers[index],
-      preferredDirection: AxisDirection.up,
-      tailLength: 10.0,
-      tailBaseWidth: 20.0,
-      backgroundColor: CupertinoColors.systemBackground,
-      content: _buildTooltipContent(word),
-      triggerMode: TooltipTriggerMode.manual,
-       isModal: true, 
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 2),
-          decoration: BoxDecoration(
-            color: _getHighlightColor(isKnown, isFavorite),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            word,
-            style: TextStyle(
-              color: widget.isUserMessage
-                  ? CupertinoColors.white
-                  : CupertinoColors.black,
-              fontWeight: isKnown ? FontWeight.bold : FontWeight.normal,
-              decoration: isFavorite ? TextDecoration.underline : TextDecoration.none,
+    return GestureDetector(
+      onTap: () {
+        if (!isKnown) {
+          _makeWordKnown(word);
+        }
+        _tooltipControllers[index].showTooltip();
+      },
+      child: JustTheTooltip(
+        controller: _tooltipControllers[index],
+        preferredDirection: AxisDirection.up,
+        tailLength: 10.0,
+        tailBaseWidth: 20.0,
+        backgroundColor: CupertinoColors.systemBackground,
+        content: _buildTooltipContent(word),
+        triggerMode: TooltipTriggerMode.manual,
+        isModal: true,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              color: _getHighlightColor(isKnown, isFavorite),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              word,
+              style: TextStyle(
+                color: widget.isUserMessage
+                    ? CupertinoColors.white
+                    : CupertinoColors.black,
+                fontWeight: isKnown ? FontWeight.bold : FontWeight.normal,
+                decoration:
+                    isFavorite ? TextDecoration.underline : TextDecoration.none,
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
-
-Color _getHighlightColor(bool isKnown, bool isFavorite) {
-  if (!isKnown) {
-    return CupertinoColors.systemYellow.withOpacity(0.3);
-  } else if (isFavorite) {
-    return widget.isUserMessage
-        ? CupertinoColors.systemPink.withOpacity(0.3)  // Different color for current user's favorites
-        : CupertinoColors.systemBlue.withOpacity(0.3); // Slight blue for other user's favorites
-  } else {
-    return CupertinoColors.transparent;
+    );
   }
-}
+
+  Color _getHighlightColor(bool isKnown, bool isFavorite) {
+    if (!isKnown) {
+      return CupertinoColors.systemYellow.withOpacity(0.3);
+    } else if (isFavorite) {
+      return widget.isUserMessage
+          ? CupertinoColors.systemPink
+              .withOpacity(0.3) // Different color for current user's favorites
+          : CupertinoColors.systemBlue
+              .withOpacity(0.3); // Slight blue for other user's favorites
+    } else {
+      return CupertinoColors.transparent;
+    }
+  }
+
   Widget _buildTooltipContent(String word) {
     return Consumer(
       builder: (context, ref, child) {
         final favorites = ref.watch(favoritesProvider);
-        bool isFavorite = favorites.any((favorite) => favorite.sourceText == word);
+        bool isFavorite =
+            favorites.any((favorite) => favorite.sourceText == word);
 
         return Padding(
           padding: EdgeInsets.all(8),
@@ -587,8 +618,12 @@ Color _getHighlightColor(bool isKnown, bool isFavorite) {
     if (currentUser == null) return;
 
     if (isFavorite) {
-      final favoriteToRemove = ref.read(favoritesProvider).firstWhere((fav) => fav.sourceText == word);
-      await ref.read(favoritesProvider.notifier).removeFavorite(favoriteToRemove.id);
+      final favoriteToRemove = ref
+          .read(favoritesProvider)
+          .firstWhere((fav) => fav.sourceText == word);
+      await ref
+          .read(favoritesProvider.notifier)
+          .removeFavorite(favoriteToRemove.id);
     } else {
       final newFavorite = FavoriteModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -602,7 +637,7 @@ Color _getHighlightColor(bool isKnown, bool isFavorite) {
     }
   }
 
-    Future<void> _makeWordKnown(String word) async {
+  Future<void> _makeWordKnown(String word) async {
     final currentUser = ref.read(currentUserProvider).value;
     if (currentUser == null) return;
 

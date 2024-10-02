@@ -4,11 +4,17 @@ import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 
 import 'package:lessay_learn/features/chat/services/chat_service.dart';
-import 'package:lessay_learn/services/i_chat_service.dart';
+
 import 'package:lessay_learn/services/local_storage_service.dart';
 
 
 final selectedChatIdProvider = StateProvider<String?>((ref) => null);
+
+// Provider for the typing indicator stream (unchanged)
+final typingIndicatorStreamProvider = StreamProvider.autoDispose.family<bool, String>((ref, chatId) {
+  final chatService = ref.watch(chatServiceProvider);
+  return chatService.typingIndicatorStream;
+});
 
 
 final chatServiceProvider = Provider<IChatService>((ref) {

@@ -13,7 +13,7 @@ import 'package:lessay_learn/core/router/router.dart';
 Future<void> initializeFirebase() async {
   // Check for an environment variable or flag (e.g., 'MOCK_FIREBASE')
   // final shouldInitializeFirebase = const bool.fromEnvironment('MOCK_FIREBASE', defaultValue: false); 
-  final shouldInitializeFirebase = kDebugMode;
+  final shouldInitializeFirebase = false;
   if (shouldInitializeFirebase) {
     // For production use:
     await Firebase.initializeApp(); 

@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
-import 'package:lessay_learn/services/i_chat_service.dart';
+import 'package:lessay_learn/features/chat/services/chat_service.dart';
+
 
 class CreateChatView extends StatefulWidget {
   final IChatService chatService;
