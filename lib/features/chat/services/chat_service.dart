@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
@@ -89,6 +90,26 @@ class ChatService implements IChatService {
     _messageStreamController.add(message);
     // Notify listeners about the updated chat
     _notifyChatsUpdated();
+
+        // Simulate a reply from the partner (only if it's not a bot)
+    if (!message.senderId.startsWith('bot')) {
+      await Future.delayed(Duration(seconds: Random().nextInt(3) + 1)); // Delay 1-3 seconds
+      _simulatePartnerReply(message.chatId, message.senderId);
+    }
+  }
+   Future<void> _simulatePartnerReply(String chatId, String senderId) async {
+    final partner = await getChatPartner(chatId, senderId);
+    if (partner != null) {
+      final reply = MessageModel(
+        id: UniqueKey().toString(),
+        chatId: chatId,
+        senderId: partner.id,
+        receiverId: senderId,
+        content: 'This is a simulated reply from ${partner.name}',
+        timestamp: DateTime.now(),
+      );
+      _messageStreamController.add(reply);
+    }
   }
 
     Future<ChatModel> _updateChatWithLastMessage(MessageModel message) async {
