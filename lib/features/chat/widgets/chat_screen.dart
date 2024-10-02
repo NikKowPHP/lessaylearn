@@ -39,9 +39,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   final FocusNode _rootFocusNode = FocusNode();
   List<FavoriteModel> _favorites = [];
   List<KnownWordModel> _knownWords = [];
-
-  final KnownWordService _knownWordService = getIt<KnownWordService>();
-  final FavoriteService _favoriteService = getIt<FavoriteService>();
+  bool _hasMarkedAsRead = false;
 
   @override
   void initState() {
@@ -107,6 +105,17 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<MessageModel>>(
+      messageStreamProvider(widget.chat.id),
+      (_, next) {
+        next.whenData((message) {
+          setState(() {
+            _hasMarkedAsRead = false;
+          });
+        });
+      },
+    );
+
     ref.listen<List<KnownWordModel>>(knownWordsProvider, (previous, next) {
       setState(() {
         _knownWords = next;
@@ -132,7 +141,6 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
         });
       },
     );
-  
 
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 600;
@@ -265,6 +273,22 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
                 color: CupertinoColors.systemGrey6,
                 borderRadius: BorderRadius.circular(20),
               ),
+              onChanged: (text) {
+                if (text.isNotEmpty && !_hasMarkedAsRead) {
+                  // Mark all messages as read when typing starts
+                  ref
+                      .read(chatServiceProvider)
+                      .markAllMessagesAsRead(widget.chat.id);
+
+                  // Invalidate providers to update the layout
+                  ref.invalidate(messageStreamProvider(widget.chat.id));
+                  ref.invalidate(typingIndicatorStreamProvider(widget.chat.id));
+
+                  setState(() {
+                    _hasMarkedAsRead = true;
+                  });
+                }
+              },
             ),
           ),
           SizedBox(width: 8),
