@@ -535,7 +535,7 @@ class LocalStorageService implements ILocalStorageService {
       chatsJson[chatIndex] = updatedChat.toJson();
       await chatsBox.put(_chatsBoxName, chatsJson);
 
-      debugPrint('Chat updated with last message: $updatedChat');
+      // debugPrint('Chat updated with last message: $updatedChat');
     } else {
       debugPrint('Chat not found for updating: $chatId');
     }
@@ -568,12 +568,28 @@ class LocalStorageService implements ILocalStorageService {
     return json != null ? MessageModel.fromJson(json) : null;
   }
 
-  @override
-  Future<void> updateMessage(MessageModel message) async {
-    final box = await _openMessagesBox();
-    await box.put(message.id, message.toJson());
+@override
+Future<void> updateMessage(MessageModel message) async {
+  final box = await _openMessagesBox();
+  
+  // Get the list of messages for the chat
+  List<dynamic> messagesJson = box.get(message.chatId, defaultValue: []);
+  
+  // Find the index of the message to update
+  int messageIndex = messagesJson.indexWhere((m) => m['id'] == message.id);
+  
+  if (messageIndex != -1) {
+    // Update the message in the list
+    messagesJson[messageIndex] = message.toJson();
+    
+    // Save the updated list back to the box
+    await box.put(message.chatId, messagesJson);
+    
+    debugPrint('Message updated successfully: ${message.id}');
+  } else {
+    debugPrint('Message not found for updating: ${message.id}');
   }
-
+}
   @override
   Future<void> deleteMessagesForChat(String chatId) async {
     final box = await _openMessagesBox();
