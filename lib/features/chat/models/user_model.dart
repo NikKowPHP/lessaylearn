@@ -114,4 +114,26 @@ class UserModel {
       profilePictureIds: profilePictureIds ?? this.profilePictureIds,
     );
   }
+
+   @override
+  String toString() {
+    return '''UserModel(
+      id: $id,
+      name: $name,
+      email: $email,
+      avatarUrl: $avatarUrl,
+      languageLevel: $languageLevel,
+      sourceLanguageIds: $sourceLanguageIds,
+      targetLanguageIds: $targetLanguageIds,
+      spokenLanguageIds: $spokenLanguageIds,
+      location: $location,
+      age: $age,
+      bio: $bio,
+      interests: $interests,
+      occupation: $occupation,
+      education: $education,
+      languageIds: $languageIds,
+      profilePictureIds: $profilePictureIds
+    )''';
+  }
 }

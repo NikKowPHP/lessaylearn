@@ -47,6 +47,14 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     _loadMessages();
     _loadChatPartner();
     _loadFavoritesAndKnownWords();
+     _markPartnerMessagesAsRead(); 
+  }
+   // Add this method
+  void _markPartnerMessagesAsRead() {
+    final currentUser = ref.read(currentUserProvider).value;
+    if (currentUser != null) {
+      ref.read(messagesProvider(widget.chat.id).notifier).markPartnerMessagesAsRead(currentUser.id);
+    }
   }
 
   Future<void> _loadChatPartner() async {
@@ -108,13 +116,17 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     final messages = ref.watch(messagesProvider(widget.chat.id));
     final currentUser = ref.watch(currentUserProvider).value;
 
-    ref.listen<AsyncValue<MessageModel>>(
+     ref.listen<AsyncValue<MessageModel>>(
       messageStreamProvider(widget.chat.id),
       (_, next) {
         next.whenData((message) {
-          setState(() {
-            _hasMarkedAsRead = false;
-          });
+          if (message.senderId != ref.read(currentUserProvider).value!.id) {
+            setState(() {
+              // _messages.add(message);
+              _markPartnerMessagesAsRead(); // Mark messages as read when receiving new message
+            });
+            _scrollToBottom();
+          }
         });
       },
     );
@@ -345,13 +357,16 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       final chatService = ref.read(chatServiceProvider);
       await chatService.sendMessage(newMessage);
 
-      // Update the chat in the chats list
-      ref.read(chatsProvider.notifier).updateChat(widget.chat.copyWith(
-            lastMessage: newMessage.content,
-            lastMessageTimestamp: newMessage.timestamp,
-          ));
+      // // Update the chat in the chats list
+      // ref.read(chatsProvider.notifier).updateChat(widget.chat.copyWith(
+      //       lastMessage: newMessage.content,
+      //       lastMessageTimestamp: newMessage.timestamp,
+      //     ));
 
       _scrollToBottom();
+
+        // Debug print the current state of messages
+       debugPrint('Current messages state after sending: $_messages');
     }
   }
 

@@ -592,7 +592,7 @@ class LocalStorageService implements ILocalStorageService {
       await box.put(user.id, user.toJson());
     }
 
-    debugPrint('Populated users box with ${mockUsers.length} mock users');
+    // debugPrint('Populated users box with ${mockUsers.length} mock users');
   }
 
   @override
@@ -600,9 +600,9 @@ class LocalStorageService implements ILocalStorageService {
     final box = await _openUsersBox();
 
     // await box.clear();
-    if (box.isEmpty) {
-      await _populateUsersWithMockData();
-    }
+    // if (box.isEmpty) {
+    //   await _populateUsersWithMockData();
+    // }
     // debugPrint('Users: ${box.values}');
 
     return box.values
@@ -896,7 +896,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
       await _populateUsersWithMockData();
     }
       // Debug print for all users in the box
-      debugPrint('Users in box: ${usersBox.values.map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson))).toList()}');
+      // debugPrint('Users in box: ${usersBox.values.map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson))).toList()}');
     
 
      if (recordingsBox.isEmpty) {
@@ -919,7 +919,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     }
 
 
- debugPrint('Current decks in box before adding mock decks: ${decksBox.values.toList()}');
+//  debugPrint('Current decks in box before adding mock decks: ${decksBox.values.toList()}');
 
     if (decksBox.isEmpty) {
       final mockDecks = MockStorageService.getDecks();

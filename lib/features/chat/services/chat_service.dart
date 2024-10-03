@@ -25,8 +25,10 @@ abstract class IChatService {
   Stream<bool> get typingIndicatorStream;
   Future<void> deleteMessage(
       String messageId); // Method to delete a specific message
-  Future<List<MessageModel>> markAllMessagesAsRead(
-      String chatId, String currentUserId); // Method to mark all messages in a chat as read
+  Future<List<MessageModel>> markAllMessagesAsRead(String chatId,
+      String currentUserId); // Method to mark all messages in a chat as read
+  Future<List<MessageModel>> markPartnerMessagesAsRead(
+      String chatId, String currentUserId);
 }
 
 class ChatService implements IChatService {
@@ -36,16 +38,36 @@ class ChatService implements IChatService {
   final StreamController<bool> _typingIndicatorStreamController =
       StreamController<bool>.broadcast();
 
+  ChatService(this.localStorageService);
+
   @override
   Stream<MessageModel> get messageStream => _messageStreamController.stream;
   @override
   Stream<bool> get typingIndicatorStream =>
       _typingIndicatorStreamController.stream;
 
-  ChatService(this.localStorageService);
+  @override
+  Future<List<MessageModel>> markPartnerMessagesAsRead(
+      String chatId, String currentUserId) async {
+    final messages = await getMessagesForChat(chatId);
+    List<MessageModel> updatedMessages = [];
 
-   @override
-  Future<List<MessageModel>> markAllMessagesAsRead(String chatId, String currentUserId) async {
+    for (var message in messages) {
+      if (!message.isRead && message.receiverId == currentUserId) {
+        final updatedMessage = message.copyWith(isRead: true);
+        await localStorageService.updateMessage(updatedMessage);
+        updatedMessages.add(updatedMessage);
+      } else {
+        updatedMessages.add(message);
+      }
+    }
+
+    return updatedMessages;
+  }
+
+  @override
+  Future<List<MessageModel>> markAllMessagesAsRead(
+      String chatId, String currentUserId) async {
     final messages = await getMessagesForChat(chatId);
     List<MessageModel> updatedMessages = [];
 
@@ -72,7 +94,6 @@ class ChatService implements IChatService {
     await localStorageService.deleteMessagesForChat(messageId);
     // Optionally, notify listeners or update the UI
   }
-
 
   @override
   Future<UserModel?> getChatPartner(String chatId, String currentUserId) async {
@@ -138,11 +159,22 @@ class ChatService implements IChatService {
       _simulatePartnerReply(message.chatId, message.senderId);
       _typingIndicatorStreamController.add(false); // Signal typing end
     }
+
+
   }
 
   Future<void> _simulatePartnerReply(String chatId, String senderId) async {
     final partner = await getChatPartner(chatId, senderId);
+    debugPrint('Simulating reply for chatId: $chatId, senderId: $senderId');
+    debugPrint('Retrieved partner: ${partner?.name}');
     if (partner != null) {
+      // Mark current user's messages as read before replying
+      await markPartnerMessagesAsRead(chatId, partner.id);
+
+      
+      debugPrint('Marking messages as read for user: ${senderId}');
+      debugPrint('Messages marked as read of current user: ${senderId}');
+
       final reply = MessageModel(
         id: UniqueKey().toString(),
         chatId: chatId,
@@ -150,10 +182,16 @@ class ChatService implements IChatService {
         receiverId: senderId,
         content: 'This is a simulated reply from ${partner.name}',
         timestamp: DateTime.now(),
+        isRead: false,
       );
+      debugPrint(
+          'Sending reply: ${reply.content} from ${reply.senderId} to ${reply.receiverId}');
       _messageStreamController.add(reply);
+      debugPrint('Updated chat with last message: ${reply.content}');
+
       await _updateChatWithLastMessage(reply);
       await localStorageService.saveMessage(reply);
+      debugPrint('Saved message: ${reply.content}');
     }
   }
 
@@ -179,7 +217,6 @@ class ChatService implements IChatService {
     return await localStorageService.getUserById(userId);
   }
 
- 
   @override
   Future<void> deleteChat(String chatId) async {
     await localStorageService.deleteChat(chatId);

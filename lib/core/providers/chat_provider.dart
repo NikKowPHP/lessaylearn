@@ -27,6 +27,9 @@ class MessagesNotifier extends StateNotifier<List<MessageModel>> {
   Future<void> loadMessages() async {
     state = await _chatService.getMessagesForChat(_chatId);
   }
+  Future<void> markPartnerMessagesAsRead(String currentUserId) async {
+    state = await _chatService.markPartnerMessagesAsRead(_chatId, currentUserId);
+  }
 
   Future<void> markAllAsRead(String currentUserId) async {
     state = await _chatService.markAllMessagesAsRead(_chatId, currentUserId);
