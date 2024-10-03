@@ -15,6 +15,27 @@ final messagesProvider = StateNotifierProvider.family<MessagesNotifier, List<Mes
   return MessagesNotifier(chatService, chatId);
 });
 
+// Provider for the typing indicator stream (unchanged)
+final typingIndicatorStreamProvider = StreamProvider.autoDispose.family<bool, String>((ref, chatId) {
+  final chatService = ref.watch(chatServiceProvider);
+  return chatService.typingIndicatorStream;
+});
+
+
+final chatServiceProvider = Provider<IChatService>((ref) {
+  final localStorageService = ref.watch(localStorageServiceProvider);
+  return ChatService(localStorageService);
+});
+final messageStreamProvider = StreamProvider.autoDispose.family<MessageModel, String>((ref, chatId) {
+  final chatService = ref.watch(chatServiceProvider);
+  return chatService.messageStream.where((message) => message.chatId == chatId);
+});
+
+final chatsProvider = StateNotifierProvider<ChatsNotifier, List<ChatModel>>((ref) {
+  final chatService = ref.watch(chatServiceProvider);
+  return ChatsNotifier(chatService);
+});
+
 
 class MessagesNotifier extends StateNotifier<List<MessageModel>> {
   final IChatService _chatService;
@@ -45,29 +66,12 @@ class MessagesNotifier extends StateNotifier<List<MessageModel>> {
         if (message.id == updatedMessage.id) updatedMessage else message
     ];
   }
+
+  void updateMessages(List<MessageModel> updatedMessages) {
+    state = updatedMessages;
+  }
 }
 
-
-// Provider for the typing indicator stream (unchanged)
-final typingIndicatorStreamProvider = StreamProvider.autoDispose.family<bool, String>((ref, chatId) {
-  final chatService = ref.watch(chatServiceProvider);
-  return chatService.typingIndicatorStream;
-});
-
-
-final chatServiceProvider = Provider<IChatService>((ref) {
-  final localStorageService = ref.watch(localStorageServiceProvider);
-  return ChatService(localStorageService);
-});
-final messageStreamProvider = StreamProvider.autoDispose.family<MessageModel, String>((ref, chatId) {
-  final chatService = ref.watch(chatServiceProvider);
-  return chatService.messageStream.where((message) => message.chatId == chatId);
-});
-
-final chatsProvider = StateNotifierProvider<ChatsNotifier, List<ChatModel>>((ref) {
-  final chatService = ref.watch(chatServiceProvider);
-  return ChatsNotifier(chatService);
-});
 
 class ChatsNotifier extends StateNotifier<List<ChatModel>> {
   final IChatService _chatService;

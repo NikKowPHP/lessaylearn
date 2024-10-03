@@ -17,7 +17,6 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
 import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
 
-
 class IndividualChatScreen extends ConsumerStatefulWidget {
   final ChatModel chat;
 
@@ -44,16 +43,20 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   @override
   void initState() {
     super.initState();
-    _loadMessages();
     _loadChatPartner();
     _loadFavoritesAndKnownWords();
-     _markPartnerMessagesAsRead(); 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _markPartnerMessagesAsRead();
+    });
   }
-   // Add this method
+
+  // Add this method
   void _markPartnerMessagesAsRead() {
     final currentUser = ref.read(currentUserProvider).value;
     if (currentUser != null) {
-      ref.read(messagesProvider(widget.chat.id).notifier).markPartnerMessagesAsRead(currentUser.id);
+      ref
+          .read(messagesProvider(widget.chat.id).notifier)
+          .markPartnerMessagesAsRead(currentUser.id);
     }
   }
 
@@ -90,15 +93,6 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     }
   }
 
-  Future<void> _loadMessages() async {
-    final chatService = ref.read(chatServiceProvider);
-    final messages = await chatService.getMessagesForChat(widget.chat.id);
-    setState(() {
-      _messages = messages;
-    });
-    _scrollToBottom();
-  }
-
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -116,15 +110,15 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     final messages = ref.watch(messagesProvider(widget.chat.id));
     final currentUser = ref.watch(currentUserProvider).value;
 
-     ref.listen<AsyncValue<MessageModel>>(
+    ref.listen<AsyncValue<MessageModel>>(
       messageStreamProvider(widget.chat.id),
       (_, next) {
         next.whenData((message) {
-          if (message.senderId != ref.read(currentUserProvider).value!.id) {
-            setState(() {
-              // _messages.add(message);
-              _markPartnerMessagesAsRead(); // Mark messages as read when receiving new message
-            });
+          if (message.senderId != currentUser?.id) {
+            ref
+                .read(messagesProvider(widget.chat.id).notifier)
+                .addMessage(message);
+            _markPartnerMessagesAsRead();
             _scrollToBottom();
           }
         });
@@ -163,7 +157,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       onTap: () {
         _rootFocusNode.requestFocus();
         // Close all tooltips
-        for (var message in messages) {
+        for (var message in _messages) {
           if (message is TappableText) {
             for (var controller
                 in (message as _TappableTextState)._tooltipControllers) {
@@ -247,32 +241,30 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   }
 
   Widget _buildMessageList() {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: CupertinoScrollbar(
-        controller: _scrollController,
-        child: ListView.builder(
-          controller: _scrollController,
-          itemCount: _messages.length,
-          itemBuilder: (context, index) {
-            final message = _messages[index];
-            final isLastInSequence = index == _messages.length - 1 ||
-                _messages[index + 1].senderId != message.senderId;
+    final messages = ref.watch(messagesProvider(widget.chat.id));
+    final currentUser = ref.watch(currentUserProvider).value;
 
-            return MessageBubble(
-              message: message,
-              currentUserId: ref.read(currentUserProvider).value!.id,
-              favorites: _favorites,
-              knownWords: _knownWords,
-              isLastInSequence: isLastInSequence,
-            );
-          },
-        ),
+    return CupertinoScrollbar(
+      controller: _scrollController,
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: messages.length,
+        itemBuilder: (context, index) {
+          final message = messages[index];
+          final isLastInSequence = index == messages.length - 1 ||
+              messages[index + 1].senderId != message.senderId;
+
+          return MessageBubble(
+            message: message,
+            currentUserId: currentUser!.id,
+            favorites: ref.watch(favoritesProvider),
+            knownWords: ref.watch(knownWordsProvider),
+            isLastInSequence: isLastInSequence,
+          );
+        },
       ),
     );
   }
-
-
 
   Widget _buildMessageInput() {
     return Container(
@@ -348,25 +340,20 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
         content: messageContent,
         timestamp: DateTime.now(),
       );
+      ref
+          .read(messagesProvider(widget.chat.id).notifier)
+          .addMessage(newMessage);
+      _messageController.clear();
 
-      setState(() {
-        _messages.add(newMessage);
-        _messageController.clear();
-      });
+       ref.read(messagesProvider(widget.chat.id).notifier).addMessage(newMessage);
+      _messageController.clear();
 
       final chatService = ref.read(chatServiceProvider);
       await chatService.sendMessage(newMessage);
 
-      // // Update the chat in the chats list
-      // ref.read(chatsProvider.notifier).updateChat(widget.chat.copyWith(
-      //       lastMessage: newMessage.content,
-      //       lastMessageTimestamp: newMessage.timestamp,
-      //     ));
-
       _scrollToBottom();
-
-        // Debug print the current state of messages
-       debugPrint('Current messages state after sending: $_messages');
+      // Debug print the current state of messages
+      debugPrint('Current messages state after sending: $_messages');
     }
   }
 
