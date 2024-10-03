@@ -152,18 +152,23 @@ class ChatService implements IChatService {
    
     if (!message.senderId.startsWith('bot')) {
       _typingIndicatorStreamController.add(true); 
+
       await Future.delayed(
           Duration(seconds: Random().nextInt(3) + 1)); 
-      simulateReply(message.chatId, message.senderId);
+
+     
+   await simulateReply(message.chatId, message.senderId); 
+    
+
       _typingIndicatorStreamController.add(false); 
     }
   }
 
-  Future<void> simulateReply(String chatId, String senderId) async {
+   Future<MessageModel?> simulateReply(String chatId, String senderId) async {
     final partner = await getChatPartner(chatId, senderId);
     debugPrint('Simulating reply for chatId: $chatId, senderId: $senderId');
     debugPrint('Retrieved partner: ${partner?.name}');
-    if (partner != null) {
+    
      
   
   
@@ -175,7 +180,7 @@ class ChatService implements IChatService {
       final reply = MessageModel(
         id: UniqueKey().toString(),
         chatId: chatId,
-        senderId: partner.id,
+        senderId: partner!.id,
         receiverId: senderId,
         content: 'This is a simulated reply from ${partner.name}',
         timestamp: DateTime.now(),
@@ -185,12 +190,14 @@ class ChatService implements IChatService {
       debugPrint(
           'Sending reply: ${reply.content} from ${reply.senderId} to ${reply.receiverId}');
       _messageStreamController.add(reply);
-      debugPrint('Updated chat with last message: ${reply.content}');
+     
 
       await _updateChatWithLastMessage(reply);
       await localStorageService.saveMessage(reply);
       debugPrint('Saved message: ${reply.content}');
-    }
+      return reply;
+    
+    
   }
 
   Future<ChatModel> _updateChatWithLastMessage(MessageModel message) async {

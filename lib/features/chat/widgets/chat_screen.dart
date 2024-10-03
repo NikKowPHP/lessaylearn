@@ -46,6 +46,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _markPartnerMessagesAsRead();
     });
+     _scrollToBottom(); 
   }
 
   // Add this method
@@ -101,22 +102,27 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 600;
 
-// MESSAGES LISTENER 
-    ref.listen<AsyncValue<MessageModel>>(
-      messageStreamProvider(widget.chat.id),
-      (_, next) {
-        next.whenData((message) {
-          if (message.senderId != currentUser?.id) {
-            ref
-                .read(messagesProvider(widget.chat.id).notifier)
-                .addMessage(message);
-            _markPartnerMessagesAsRead();
-            _scrollToBottom();
-          }
-        });
-      },
-    );
 
+  // MESSAGES LISTENER (Corrected)
+  ref.listen<AsyncValue<MessageModel>>(
+    messageStreamProvider(widget.chat.id),
+    (_, next) {
+      next.whenData((message) {
+        if (message.senderId != currentUser?.id) { // Use the watched currentUser
+          ref.read(messagesProvider(widget.chat.id).notifier).addMessage(message);
+          _markPartnerMessagesAsRead();
+          // _scrollToBottom();  Remove this here – scrolling is handled below
+        }
+      });
+    },
+  );
+  
+  ref.watch(messagesProvider(widget.chat.id)); // No need for AsyncValue
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (messages.isNotEmpty) { // Only scroll if there are messages
+      _scrollToBottom();
+    }
+  });
   
 
 
@@ -307,17 +313,10 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
         content: messageContent,
         timestamp: DateTime.now(),
       );
-      ref
-          .read(messagesProvider(widget.chat.id).notifier)
-          .addMessage(newMessage);
-      _messageController.clear();
-
-       ref.read(messagesProvider(widget.chat.id).notifier).addMessage(newMessage);
-      _messageController.clear();
-
+    _messageController.clear();
       final chatService = ref.read(chatServiceProvider);
       await chatService.sendMessage(newMessage);
-    
+   
 
       _scrollToBottom();
    
