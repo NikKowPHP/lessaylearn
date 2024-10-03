@@ -33,18 +33,16 @@ class IndividualChatScreen extends ConsumerStatefulWidget {
 class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  List<MessageModel> _messages = [];
+
   UserModel? _chatPartner;
   final FocusNode _rootFocusNode = FocusNode();
-  List<FavoriteModel> _favorites = [];
-  List<KnownWordModel> _knownWords = [];
+
   bool _hasMarkedAsRead = false;
 
   @override
   void initState() {
     super.initState();
     _loadChatPartner();
-    _loadFavoritesAndKnownWords();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _markPartnerMessagesAsRead();
     });
@@ -81,17 +79,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     );
   }
 
-  Future<void> _loadFavoritesAndKnownWords() async {
-    final favorites = ref.read(favoritesProvider);
-    final knownWords = ref.read(knownWordsProvider);
 
-    if (mounted) {
-      setState(() {
-        _favorites = favorites;
-        _knownWords = knownWords;
-      });
-    }
-  }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -110,6 +98,10 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     final messages = ref.watch(messagesProvider(widget.chat.id));
     final currentUser = ref.watch(currentUserProvider).value;
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth > 600;
+
+// MESSAGES LISTENER 
     ref.listen<AsyncValue<MessageModel>>(
       messageStreamProvider(widget.chat.id),
       (_, next) {
@@ -125,39 +117,14 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       },
     );
 
-    ref.listen<List<KnownWordModel>>(knownWordsProvider, (previous, next) {
-      setState(() {
-        _knownWords = next;
-      });
-    });
+  
 
-    ref.listen<List<FavoriteModel>>(favoritesProvider, (previous, next) {
-      setState(() {
-        _favorites = next;
-      });
-    });
 
-    ref.listen<AsyncValue<MessageModel>>(
-      messageStreamProvider(widget.chat.id),
-      (_, next) {
-        next.whenData((message) {
-          if (message.senderId != ref.read(currentUserProvider).value!.id) {
-            setState(() {
-              _messages.add(message);
-            });
-            _scrollToBottom();
-          }
-        });
-      },
-    );
-
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isWideScreen = screenWidth > 600;
     return GestureDetector(
       onTap: () {
         _rootFocusNode.requestFocus();
         // Close all tooltips
-        for (var message in _messages) {
+        for (var message in messages) {
           if (message is TappableText) {
             for (var controller
                 in (message as _TappableTextState)._tooltipControllers) {
@@ -350,10 +317,10 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
 
       final chatService = ref.read(chatServiceProvider);
       await chatService.sendMessage(newMessage);
+    
 
       _scrollToBottom();
-      // Debug print the current state of messages
-      debugPrint('Current messages state after sending: $_messages');
+   
     }
   }
 

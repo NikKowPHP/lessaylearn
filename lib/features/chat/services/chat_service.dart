@@ -154,18 +154,20 @@ class ChatService implements IChatService {
       _typingIndicatorStreamController.add(true); 
       await Future.delayed(
           Duration(seconds: Random().nextInt(3) + 1)); 
-      _simulatePartnerReply(message.chatId, message.senderId);
+      simulateReply(message.chatId, message.senderId);
       _typingIndicatorStreamController.add(false); 
     }
   }
 
-  Future<void> _simulatePartnerReply(String chatId, String senderId) async {
+  Future<void> simulateReply(String chatId, String senderId) async {
     final partner = await getChatPartner(chatId, senderId);
     debugPrint('Simulating reply for chatId: $chatId, senderId: $senderId');
     debugPrint('Retrieved partner: ${partner?.name}');
     if (partner != null) {
      
-      await markPartnerMessagesAsRead(chatId, partner.id);
+  
+  
+    await markPartnerMessagesAsRead(chatId, senderId);
 
       debugPrint('Marking messages as read for user: ${senderId}');
       debugPrint('Messages marked as read of current user: ${senderId}');
@@ -179,6 +181,7 @@ class ChatService implements IChatService {
         timestamp: DateTime.now(),
         isRead: false,
       );
+      
       debugPrint(
           'Sending reply: ${reply.content} from ${reply.senderId} to ${reply.receiverId}');
       _messageStreamController.add(reply);
