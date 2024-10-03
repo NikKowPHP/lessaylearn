@@ -16,7 +16,7 @@ import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
 import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
-import 'package:flutter/material.dart' show TooltipTriggerMode;
+
 
 class IndividualChatScreen extends ConsumerStatefulWidget {
   final ChatModel chat;
@@ -105,6 +105,9 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final messages = ref.watch(messagesProvider(widget.chat.id));
+    final currentUser = ref.watch(currentUserProvider).value;
+
     ref.listen<AsyncValue<MessageModel>>(
       messageStreamProvider(widget.chat.id),
       (_, next) {
@@ -148,7 +151,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
       onTap: () {
         _rootFocusNode.requestFocus();
         // Close all tooltips
-        for (var message in _messages) {
+        for (var message in messages) {
           if (message is TappableText) {
             for (var controller
                 in (message as _TappableTextState)._tooltipControllers) {
@@ -232,8 +235,6 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
   }
 
   Widget _buildMessageList() {
-    final currentUserId = 'user1';
-    //TODO: Replace with actual user ID
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: CupertinoScrollbar(
@@ -259,6 +260,8 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     );
   }
 
+
+
   Widget _buildMessageInput() {
     return Container(
       padding: EdgeInsets.all(8),
@@ -276,13 +279,12 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
               onChanged: (text) {
                 if (text.isNotEmpty && !_hasMarkedAsRead) {
                   // Mark all messages as read when typing starts
-                  ref
-                      .read(chatServiceProvider)
-                      .markAllMessagesAsRead(widget.chat.id);
-
-                  // Invalidate providers to update the layout
-                  ref.invalidate(messageStreamProvider(widget.chat.id));
-                  ref.invalidate(typingIndicatorStreamProvider(widget.chat.id));
+                  final currentUser = ref.read(currentUserProvider).value;
+                  if (currentUser != null) {
+                    ref
+                        .read(messagesProvider(widget.chat.id).notifier)
+                        .markAllAsRead(currentUser.id);
+                  }
 
                   setState(() {
                     _hasMarkedAsRead = true;

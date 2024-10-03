@@ -13,7 +13,7 @@ abstract class IChatService {
   Future<void> saveChats(List<ChatModel> chats);
   Future<List<MessageModel>> getMessagesForChat(String chatId);
   Future<void> sendMessage(MessageModel message);
-  Future<void> markMessageAsRead(String messageId);
+
   Future<void> deleteChat(String chatId);
   Future<void> createChat(ChatModel chat);
   Future<String> getChatPartnerName(String chatId, String currentUserId);
@@ -25,8 +25,8 @@ abstract class IChatService {
   Stream<bool> get typingIndicatorStream;
   Future<void> deleteMessage(
       String messageId); // Method to delete a specific message
-  Future<void> markAllMessagesAsRead(
-      String chatId); // Method to mark all messages in a chat as read
+  Future<List<MessageModel>> markAllMessagesAsRead(
+      String chatId, String currentUserId); // Method to mark all messages in a chat as read
 }
 
 class ChatService implements IChatService {
@@ -44,17 +44,22 @@ class ChatService implements IChatService {
 
   ChatService(this.localStorageService);
 
-  @override
-  Future<void> markAllMessagesAsRead(String chatId) async {
+   @override
+  Future<List<MessageModel>> markAllMessagesAsRead(String chatId, String currentUserId) async {
     final messages = await getMessagesForChat(chatId);
+    List<MessageModel> updatedMessages = [];
+
     for (var message in messages) {
-      if (!message.isRead) {
-        final updatedMessage = message.copyWith(
-            isRead: true); // Create a new message with isRead set to true
-        await localStorageService.updateMessage(
-            updatedMessage); // Update the message in local storage
+      if (!message.isRead && message.receiverId == currentUserId) {
+        final updatedMessage = message.copyWith(isRead: true);
+        await localStorageService.updateMessage(updatedMessage);
+        updatedMessages.add(updatedMessage);
+      } else {
+        updatedMessages.add(message);
       }
     }
+
+    return updatedMessages;
   }
 
   @override
@@ -119,7 +124,7 @@ class ChatService implements IChatService {
     final updatedChat = await _updateChatWithLastMessage(message);
 
     // Mark all messages in the chat as read
-    await markAllMessagesAsRead(message.chatId);
+    await markAllMessagesAsRead(message.chatId, message.senderId);
 
     _messageStreamController.add(message);
     // Notify listeners about the updated chat
@@ -174,15 +179,7 @@ class ChatService implements IChatService {
     return await localStorageService.getUserById(userId);
   }
 
-  @override
-  Future<void> markMessageAsRead(String messageId) async {
-    final message = await localStorageService.getMessageById(messageId);
-    if (message != null) {
-      final updatedMessage = message.copyWith(isRead: true);
-      await localStorageService.updateMessage(updatedMessage);
-    }
-  }
-
+ 
   @override
   Future<void> deleteChat(String chatId) async {
     await localStorageService.deleteChat(chatId);
