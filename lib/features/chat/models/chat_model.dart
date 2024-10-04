@@ -8,6 +8,7 @@ class ChatModel {
   final String languageLevel;
   final String sourceLanguage;
   final String targetLanguage;
+   final bool isAi;
 
   ChatModel({
     required this.id,
@@ -19,6 +20,7 @@ class ChatModel {
     required this.languageLevel,
     required this.sourceLanguage,
     required this.targetLanguage,
+      required this.isAi,
   });
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class ChatModel {
       languageLevel: json['languageLevel'] ?? '',
       sourceLanguage: json['sourceLanguage'] ?? '',
       targetLanguage: json['targetLanguage'] ?? '',
+        isAi: json['isAi'] ?? false,
     );
   }
 
@@ -48,6 +51,7 @@ class ChatModel {
       'languageLevel': languageLevel,
       'sourceLanguage': sourceLanguage,
       'targetLanguage': targetLanguage,
+      'isAi': isAi,
     };
   }
 
@@ -61,6 +65,7 @@ class ChatModel {
     String? languageLevel,
     String? sourceLanguage,
     String? targetLanguage,
+    bool? isAi,
   }) {
     return ChatModel(
       id: id ?? this.id,
@@ -72,6 +77,7 @@ class ChatModel {
       languageLevel: languageLevel ?? this.languageLevel,
       sourceLanguage: sourceLanguage ?? this.sourceLanguage,
       targetLanguage: targetLanguage ?? this.targetLanguage,
+      isAi: isAi ?? this.isAi,
     );
   }
 
@@ -88,7 +94,8 @@ class ChatModel {
           chatTopic == other.chatTopic &&
           languageLevel == other.languageLevel &&
           sourceLanguage == other.sourceLanguage &&
-          targetLanguage == other.targetLanguage;
+          targetLanguage == other.targetLanguage &&
+          isAi == other.isAi;
 
   @override
   int get hashCode =>
@@ -100,7 +107,9 @@ class ChatModel {
       chatTopic.hashCode ^
       languageLevel.hashCode ^
       sourceLanguage.hashCode ^
-      targetLanguage.hashCode;
+      targetLanguage.hashCode ^
+      isAi.hashCode
+      ;
       
        @override
   String toString() {
@@ -113,7 +122,8 @@ class ChatModel {
       chatTopic: $chatTopic,
       languageLevel: $languageLevel,
       sourceLanguage: $sourceLanguage,
-      targetLanguage: $targetLanguage
+      targetLanguage: $targetLanguage,
+      isAi: $isAi
     )''';
   }
 }

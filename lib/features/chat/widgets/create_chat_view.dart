@@ -109,6 +109,7 @@ class _CreateChatViewState extends State<CreateChatView> {
         languageLevel: _languageLevel,
         sourceLanguage: _sourceLanguage,
         targetLanguage: _targetLanguage,
+        isAi: true,
       );
 
       // await widget.chatService.createChat(newChat);

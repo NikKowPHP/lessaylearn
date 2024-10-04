@@ -24,6 +24,7 @@ class ChatList extends ConsumerStatefulWidget {
 
 class _ChatListState extends ConsumerState<ChatList> {
   late Timer _timer;
+  int _selectedTabIndex = 0;
 
   @override
   void initState() {
@@ -46,12 +47,67 @@ class _ChatListState extends ConsumerState<ChatList> {
     final isWideScreen = widget.isWideScreen;
     final selectedChatId = widget.selectedChatId;
 
-   return currentUserAsync.when(
-      data: (currentUser) => _buildChatListView(context, ref, chats, currentUser, isWideScreen, selectedChatId),
+    return currentUserAsync.when(
+      data: (currentUser) => _buildChatListWithTabs(
+          context, ref, chats, currentUser, isWideScreen, selectedChatId),
       loading: () => _buildLoadingIndicator(),
       error: (error, stack) => buildErrorWidget(error.toString()),
     );
+
+
+    
   }
+
+
+
+ Widget _buildChatListWithTabs(
+    BuildContext context,
+    WidgetRef ref,
+    List<ChatModel> chats,
+    UserModel currentUser,
+    bool isWideScreen,
+    String? selectedChatId,
+  ) {
+    return Column(
+      children: [
+        CupertinoSegmentedControl<int>(
+          children: {
+            0: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text('People'),
+            ),
+            1: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text('AI'),
+            ),
+          },
+          onValueChanged: (int index) {
+            setState(() {
+              _selectedTabIndex = index;
+            });
+          },
+          groupValue: _selectedTabIndex,
+        ),
+        SizedBox(height: 10),
+        Expanded(
+          child: _buildChatListView(
+            context,
+            ref,
+            _filterChats(chats),
+            currentUser,
+            isWideScreen,
+            selectedChatId,
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<ChatModel> _filterChats(List<ChatModel> chats) {
+    return chats.where((chat) => chat.isAi == (_selectedTabIndex == 1)).toList();
+  }
+
+
 
   String formatDate(DateTime date) {
     final now = DateTime.now();
@@ -90,7 +146,8 @@ Widget _buildChatListView(
     UserModel currentUser,
     bool isWideScreen,
     String? selectedChatId) {
-      chats.sort((a, b) => b.lastMessageTimestamp.compareTo(a.lastMessageTimestamp));
+  chats
+      .sort((a, b) => b.lastMessageTimestamp.compareTo(a.lastMessageTimestamp));
   return CupertinoScrollbar(
     child: CustomScrollView(
       slivers: [
@@ -111,6 +168,8 @@ Widget _buildChatListView(
   );
 }
 
+
+ 
 Widget _buildChatListItem(
     BuildContext context,
     WidgetRef ref,

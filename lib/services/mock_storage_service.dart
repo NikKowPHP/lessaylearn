@@ -99,6 +99,7 @@ class MockStorageService {
       languageLevel: 'Intermediate',
       sourceLanguage: 'English',
       targetLanguage: 'Spanish',
+      isAi: false,
     ),
     ChatModel(
       id: 'chat2',
@@ -110,6 +111,7 @@ class MockStorageService {
       languageLevel: 'Beginner',
       sourceLanguage: 'English',
       targetLanguage: 'French',
+       isAi: false,
     ),
     ChatModel(
       id: 'chat3',
@@ -121,6 +123,7 @@ class MockStorageService {
       languageLevel: 'Intermediate',
       sourceLanguage: 'English',
       targetLanguage: 'Spanish',
+       isAi: true,
     ),
   ];
 
