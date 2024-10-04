@@ -16,36 +16,69 @@ class CreateChatView extends ConsumerStatefulWidget {
 
 class _CreateChatViewState extends ConsumerState<CreateChatView> {
   final _formKey = GlobalKey<FormState>();
-  String _aiName = '';
-  String _chatTopic = '';
   String _languageLevel = 'Beginner';
   String _sourceLanguage = '';
   String _targetLanguage = '';
   int _aiAge = 25;
-  String _aiOccupation = '';
-  List<String> _aiInterests = [];
   List<String> _personalityTraits = [];
+  List<String> _aiInterests = [];
   List<String> _bioTags = [];
 
-  final List<String> _languageLevels = ['Beginner', 'Intermediate', 'Advanced', 'Native'];
+  final List<String> _languageLevels = [
+    'Beginner',
+    'Intermediate',
+    'Advanced',
+    'Native'
+  ];
   final List<String> _personalityOptions = [
-    'Friendly', 'Professional', 'Humorous', 'Strict', 'Patient', 'Empathetic',
-    'Analytical', 'Creative', 'Motivational', 'Calm', 'Enthusiastic', 'Sarcastic'
+    'Friendly',
+    'Professional',
+    'Humorous',
+    'Strict',
+    'Patient',
+    'Empathetic',
+    'Analytical',
+    'Creative',
+    'Motivational',
+    'Calm',
+    'Enthusiastic',
+    'Sarcastic'
   ];
   final List<String> _interestOptions = [
-    'Travel', 'Music', 'Sports', 'Technology', 'Cooking', 'Literature', 'Movies',
-    'Art', 'Science', 'History', 'Philosophy', 'Photography', 'Nature', 'Fashion'
+    'Travel',
+    'Music',
+    'Sports',
+    'Technology',
+    'Cooking',
+    'Literature',
+    'Movies',
+    'Art',
+    'Science',
+    'History',
+    'Philosophy',
+    'Photography',
+    'Nature',
+    'Fashion'
   ];
   final List<String> _bioTagOptions = [
-    'Language enthusiast', 'Cultural explorer', 'Grammar nerd', 'Conversation starter',
-    'Idiom expert', 'Pronunciation coach', 'Vocabulary builder', 'Writing mentor',
-    'Reading companion', 'Debate partner', 'Storyteller', 'Global citizen'
+    'Language enthusiast',
+    'Cultural explorer',
+    'Grammar nerd',
+    'Conversation starter',
+    'Idiom expert',
+    'Pronunciation coach',
+    'Vocabulary builder',
+    'Writing mentor',
+    'Reading companion',
+    'Debate partner',
+    'Storyteller',
+    'Global citizen'
   ];
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-       backgroundColor: CupertinoColors.systemBackground,
+      backgroundColor: CupertinoColors.systemBackground,
       navigationBar: CupertinoNavigationBar(
         middle: Text('Create AI Language Partner'),
         trailing: CupertinoButton(
@@ -60,22 +93,16 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
           child: ListView(
             padding: EdgeInsets.all(16),
             children: [
-              CupertinoTextFormFieldRow(
-                prefix: Text('AI Name'),
-                placeholder: 'Enter AI partner name',
-                onChanged: (value) => setState(() => _aiName = value),
-                validator: (value) => value!.isEmpty ? 'Please enter a name' : null,
-              ),
-              CupertinoTextFormFieldRow(
-                prefix: Text('Chat Topic'),
-                placeholder: 'Enter chat topic',
-                onChanged: (value) => setState(() => _chatTopic = value),
-                validator: (value) => value!.isEmpty ? 'Please enter a topic' : null,
-              ),
+              _buildSectionTitle('Language Settings'),
               _buildLanguageSettings(),
+              _buildSectionTitle('AI Partner Profile'),
               _buildAIProfile(),
-              _buildTagSection('Personality Traits', _personalityTraits, _personalityOptions),
+              _buildSectionTitle('Personality Traits'),
+              _buildTagSection('Personality Traits', _personalityTraits,
+                  _personalityOptions),
+              _buildSectionTitle('AI Interests'),
               _buildTagSection('AI Interests', _aiInterests, _interestOptions),
+              _buildSectionTitle('Bio Tags'),
               _buildTagSection('Bio Tags', _bioTags, _bioTagOptions),
             ],
           ),
@@ -84,15 +111,26 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     );
   }
 
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
   Widget _buildLanguageSettings() {
     return CupertinoFormSection(
-      header: Text('Language Settings'),
       children: [
         CupertinoFormRow(
           prefix: Text('Level'),
           child: CupertinoPicker(
             itemExtent: 32.0,
-            onSelectedItemChanged: (index) => setState(() => _languageLevel = _languageLevels[index]),
+            onSelectedItemChanged: (index) =>
+                setState(() => _languageLevel = _languageLevels[index]),
             children: _languageLevels.map((level) => Text(level)).toList(),
           ),
         ),
@@ -100,13 +138,15 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
           prefix: Text('Source Language'),
           placeholder: 'Enter source language',
           onChanged: (value) => setState(() => _sourceLanguage = value),
-          validator: (value) => value!.isEmpty ? 'Please enter source language' : null,
+          validator: (value) =>
+              value!.isEmpty ? 'Please enter source language' : null,
         ),
         CupertinoTextFormFieldRow(
           prefix: Text('Target Language'),
           placeholder: 'Enter target language',
           onChanged: (value) => setState(() => _targetLanguage = value),
-          validator: (value) => value!.isEmpty ? 'Please enter target language' : null,
+          validator: (value) =>
+              value!.isEmpty ? 'Please enter target language' : null,
         ),
       ],
     );
@@ -114,42 +154,41 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
 
   Widget _buildAIProfile() {
     return CupertinoFormSection(
-      header: Text('AI Partner Profile'),
       children: [
         CupertinoFormRow(
           prefix: Text('Age'),
           child: CupertinoPicker(
             itemExtent: 32.0,
-            onSelectedItemChanged: (index) => setState(() => _aiAge = index + 18),
+            onSelectedItemChanged: (index) =>
+                setState(() => _aiAge = index + 18),
             children: List.generate(63, (index) => Text('${index + 18}')),
           ),
-        ),
-        CupertinoTextFormFieldRow(
-          prefix: Text('Occupation'),
-          placeholder: 'Enter AI occupation',
-          onChanged: (value) => setState(() => _aiOccupation = value),
         ),
       ],
     );
   }
 
-  Widget _buildTagSection(String title, List<String> selectedTags, List<String> allOptions) {
+  Widget _buildTagSection(
+      String title, List<String> selectedTags, List<String> allOptions) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        ),
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: selectedTags.map((tag) => _buildTagChip(tag, selectedTags)).toList(),
+          children: selectedTags
+              .map((tag) => _buildTagChip(tag, selectedTags))
+              .toList(),
         ),
+        SizedBox(height: 16),
         CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Text('Add ${title.toLowerCase()}'),
-          onPressed: () => _showBottomSheet(context, title, selectedTags, allOptions),
+          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          color: CupertinoColors.activeBlue,
+          borderRadius: BorderRadius.circular(20),
+          child: Text('Add ${title.toLowerCase()}',
+              style: TextStyle(color: CupertinoColors.white)),
+          onPressed: () =>
+              _showBottomSheet(context, title, selectedTags, allOptions),
         ),
       ],
     );
@@ -169,14 +208,16 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
           SizedBox(width: 4),
           GestureDetector(
             onTap: () => setState(() => selectedTags.remove(tag)),
-            child: Icon(CupertinoIcons.xmark_circle_fill, size: 18, color: CupertinoColors.systemGrey3),
+            child: Icon(CupertinoIcons.xmark_circle_fill,
+                size: 18, color: CupertinoColors.systemGrey3),
           ),
         ],
       ),
     );
   }
 
-  void _showBottomSheet(BuildContext context, String title, List<String> selectedTags, List<String> allOptions) {
+  void _showBottomSheet(BuildContext context, String title,
+      List<String> selectedTags, List<String> allOptions) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
@@ -189,12 +230,16 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
           ),
           child: Column(
             children: [
-              Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(title,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               SizedBox(height: 16),
               Expanded(
                 child: CupertinoScrollbar(
                   child: ListView(
-                    children: allOptions.map((option) => _buildTagTile(option, selectedTags, allOptions)).toList(),
+                    children: allOptions
+                        .map((option) =>
+                            _buildTagTile(option, selectedTags, allOptions))
+                        .toList(),
                   ),
                 ),
               ),
@@ -209,7 +254,6 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     );
   }
 
-
   String _getTitleForTags(List<String> tags) {
     if (tags == _personalityTraits) return 'Personality Traits';
     if (tags == _aiInterests) return 'AI Interests';
@@ -217,8 +261,8 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     return '';
   }
 
-
-Widget _buildTagTile(String tag, List<String> selectedTags, List<String> allOptions) {
+  Widget _buildTagTile(
+      String tag, List<String> selectedTags, List<String> allOptions) {
     final isSelected = selectedTags.contains(tag);
     return CupertinoButton(
       padding: EdgeInsets.zero,
@@ -227,8 +271,12 @@ Widget _buildTagTile(String tag, List<String> selectedTags, List<String> allOpti
         children: [
           Text(tag),
           Icon(
-            isSelected ? CupertinoIcons.minus_circle : CupertinoIcons.plus_circle,
-            color: isSelected ? CupertinoColors.destructiveRed : CupertinoColors.activeBlue,
+            isSelected
+                ? CupertinoIcons.minus_circle
+                : CupertinoIcons.plus_circle,
+            color: isSelected
+                ? CupertinoColors.destructiveRed
+                : CupertinoColors.activeBlue,
           ),
         ],
       ),
@@ -241,7 +289,8 @@ Widget _buildTagTile(String tag, List<String> selectedTags, List<String> allOpti
           }
         });
         Navigator.of(context).pop();
-        _showBottomSheet(context, _getTitleForTags(selectedTags), selectedTags, allOptions);
+        _showBottomSheet(
+            context, _getTitleForTags(selectedTags), selectedTags, allOptions);
       },
     );
   }
@@ -255,11 +304,11 @@ Widget _buildTagTile(String tag, List<String> selectedTags, List<String> allOpti
       }
 
       final promptString = _generatePromptString();
-      final bio = await _generateBioUsingAI(promptString);
+      final aiData = await _generateAIDataUsingAI(promptString);
 
       final aiUser = UserModel(
         id: 'ai_${DateTime.now().millisecondsSinceEpoch}',
-        name: _aiName,
+        name: aiData.name,
         email: 'ai@example.com',
         avatarUrl: 'assets/ai_avatar.png',
         languageLevel: _languageLevel,
@@ -268,46 +317,47 @@ Widget _buildTagTile(String tag, List<String> selectedTags, List<String> allOpti
         spokenLanguageIds: [_sourceLanguage, _targetLanguage],
         location: 'AI World',
         age: _aiAge,
-        bio: bio,
+        bio: aiData.bio,
         interests: _aiInterests,
-        occupation: _aiOccupation,
+        occupation: aiData.occupation,
         education: 'AI Training',
         languageIds: [_sourceLanguage, _targetLanguage],
       );
 
-      await ref.read(userServiceProvider).createUser(aiUser);
+      
 
-      final newChat = ChatModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        hostUserId: currentUser.id,
-        guestUserId: aiUser.id,
-        lastMessage: '',
-        lastMessageTimestamp: DateTime.now(),
-        chatTopic: _chatTopic,
-        languageLevel: _languageLevel,
-        sourceLanguage: _sourceLanguage,
-        targetLanguage: _targetLanguage,
-        isAi: true,
-      );
+      // await ref.read(userServiceProvider).createUser(aiUser);
 
-      await ref.read(chatServiceProvider).createChat(newChat);
-      ref.read(chatsProvider.notifier).addChat(newChat);
-      context.go('/');
+      // final newChat = ChatModel(
+      //   id: DateTime.now().millisecondsSinceEpoch.toString(),
+      //   hostUserId: currentUser.id,
+      //   guestUserId: aiUser.id,
+      //   lastMessage: '',
+      //   lastMessageTimestamp: DateTime.now(),
+      //   chatTopic: aiData.chatTopic,
+      //   languageLevel: _languageLevel,
+      //   sourceLanguage: _sourceLanguage,
+      //   targetLanguage: _targetLanguage,
+      //   isAi: true,
+      // );
+
+      // await ref.read(chatServiceProvider).createChat(newChat);
+      // ref.read(chatsProvider.notifier).addChat(newChat);
+      // context.go('/');
     }
   }
 
   String _generatePromptString() {
     final promptParts = [
-      "Create a bio for an AI language learning partner with the following characteristics:",
-      "Name: $_aiName",
+      "Create an AI language learning partner with the following characteristics:",
       "Age: $_aiAge",
-      "Occupation: $_aiOccupation",
       "Personality traits: ${_personalityTraits.join(', ')}",
       "Interests: ${_aiInterests.join(', ')}",
       "Language level: $_languageLevel",
       "Source language: $_sourceLanguage",
       "Target language: $_targetLanguage",
       "Bio tags: ${_bioTags.join(', ')}",
+      "Generate a name, occupation, chat topic, and bio for this AI partner.",
       "The bio should be friendly, engaging, and highlight the AI's role as a language learning partner.",
       "It should incorporate the personality traits, interests, and bio tags in a natural way.",
       "The bio should be about 3-4 sentences long and written in first person.",
@@ -316,14 +366,23 @@ Widget _buildTagTile(String tag, List<String> selectedTags, List<String> allOpti
     return promptParts.join("\n");
   }
 
-  Future<String> _generateBioUsingAI(String promptString) async {
+  Future<AIData> _generateAIDataUsingAI(String promptString) async {
     // This is a placeholder. In a real application, you would send the promptString
-    // to your AI service (e.g., OpenAI's GPT) and receive a generated bio.
-    // For now, we'll return a dummy bio.
+    // to your AI service (e.g., OpenAI's GPT) and receive generated data.
+    // For now, we'll return dummy data.
     await Future.delayed(Duration(seconds: 2)); // Simulating API call
-    return "Hello! I'm $_aiName, a $_aiAge-year-old $_aiOccupation and your AI language partner. "
-           "As someone who's ${_personalityTraits.take(2).join(' and ')}, I love discussing "
-           "${_aiInterests.take(2).join(' and ')}. Let's improve your $_targetLanguage skills together!";
+
+    final AIData aiData = AIData(
+      name: "Alex",
+      occupation: "Language Tutor",
+      chatTopic: "Cultural Exchange",
+      bio:
+          "Hi, I'm Alex, a $_aiAge-year-old language enthusiast and your AI language partner. "
+          "As someone who's ${_personalityTraits.take(2).join(' and ')}, I love discussing "
+          "${_aiInterests.take(2).join(' and ')}. Let's explore $_targetLanguage together "
+          "while sharing our cultural experiences!",
+    );
+    return aiData;
   }
 
   void _showErrorDialog(String message) {
@@ -341,6 +400,30 @@ Widget _buildTagTile(String tag, List<String> selectedTags, List<String> allOpti
           ],
         );
       },
+    );
+  }
+}
+
+class AIData {
+  final String name;
+  final String occupation;
+  final String chatTopic;
+  final String bio;
+
+  AIData({
+    required this.name,
+    required this.occupation,
+    required this.chatTopic,
+    required this.bio,
+  });
+
+  // Factory method to create an instance from a map
+  factory AIData.fromMap(Map<String, String> map) {
+    return AIData(
+      name: map['name'] ?? '',
+      occupation: map['occupation'] ?? '',
+      chatTopic: map['chatTopic'] ?? '',
+      bio: map['bio'] ?? '',
     );
   }
 }
