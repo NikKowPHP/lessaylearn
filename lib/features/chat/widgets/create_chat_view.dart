@@ -121,9 +121,12 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
         );
         return;
       }
+
+      // TODO: Create new ai agent user 
+
       final newChat = ChatModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        hostUserId: 'currentUserId', // Replace with actual current user ID
+        hostUserId: currentUser.id, // Replace with actual current user ID
         guestUserId: '', // This will be empty for a new chat
         lastMessage: '',
         lastMessageTimestamp: DateTime.now(),
