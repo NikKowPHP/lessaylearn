@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lessay_learn/core/models/language_model.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
+import 'package:lessay_learn/core/providers/language_provider.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -30,6 +32,9 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
   String _generatedBio = '';
   String _generatedLocation = ''; // New variable
   String _generatedEducation = ''; // New variable
+  LanguageModel? _preferredLanguage;
+  LanguageModel? _studyLanguage;
+  List<LanguageModel> _availableLanguages = [];
 
   final List<String> _languageLevels = [
     'Beginner',
@@ -84,6 +89,32 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUserAsync = ref.watch(currentUserProvider);
+    return currentUserAsync.when(
+      data: (currentUser) {
+        if (currentUser == null) {
+          return Center(child: Text('User not found'));
+        }
+        return FutureBuilder<List<LanguageModel>>(
+          future: _fetchUserLanguages(currentUser),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CupertinoActivityIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error loading languages'));
+            }
+            _availableLanguages = snapshot.data ?? [];
+            return _buildPageContent(currentUser);
+          },
+        );
+      },
+      loading: () => Center(child: CupertinoActivityIndicator()),
+      error: (_, __) => Center(child: Text('Error loading user')),
+    );
+  }
+
+  Widget _buildPageContent(UserModel currentUser) {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.systemBackground,
       navigationBar: CupertinoNavigationBar(
@@ -101,7 +132,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
             padding: EdgeInsets.all(16),
             children: [
               _buildSectionTitle('Language Settings'),
-              _buildLanguageSettings(),
+              _buildLanguageSettings(currentUser),
               _buildSectionTitle('AI Partner Profile'),
               _buildAIProfile(),
               _buildSectionTitle('Personality Traits'),
@@ -120,6 +151,23 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     );
   }
 
+  Future<List<LanguageModel>> _fetchUserLanguages(UserModel user) async {
+    final sourceLanguageFutures = user.sourceLanguageIds
+        .map((id) => ref.read(languageByIdProvider(id).future));
+    final targetLanguageFutures = user.targetLanguageIds
+        .map((id) => ref.read(languageByIdProvider(id).future));
+
+    final allLanguageFutures = [
+      ...sourceLanguageFutures,
+      ...targetLanguageFutures
+    ];
+
+    final languages = await Future.wait(allLanguageFutures);
+    debugPrint('languages $languages');
+
+    return languages.whereType<LanguageModel>().toList();
+  }
+
   // New method to build the generated profile section
   Widget _buildGeneratedProfileSection() {
     return Padding(
@@ -130,18 +178,16 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
           Text('Generated AI Profile',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           SizedBox(height: 8),
-
-            if (_isLoading) // Show loading indicator if loading
-             Center(child: CupertinoActivityIndicator())
-           else ...[
-             Text('Name: $_generatedName'),
-             Text('Occupation: $_generatedOccupation'),
-             Text('Chat Topic: $_generatedChatTopic'),
-             Text('Bio: $_generatedBio'),
-             Text('Location: $_generatedLocation'), // New field
-             Text('Education: $_generatedEducation'), // New field
-           ],
-         
+          if (_isLoading) // Show loading indicator if loading
+            Center(child: CupertinoActivityIndicator())
+          else ...[
+            Text('Name: $_generatedName'),
+            Text('Occupation: $_generatedOccupation'),
+            Text('Chat Topic: $_generatedChatTopic'),
+            Text('Bio: $_generatedBio'),
+            Text('Location: $_generatedLocation'), // New field
+            Text('Education: $_generatedEducation'), // New field
+          ],
         ],
       ),
     );
@@ -187,31 +233,34 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     );
   }
 
-  Widget _buildLanguageSettings() {
+  Widget _buildLanguageSettings(UserModel currentUser) {
     return CupertinoFormSection(
       children: [
         CupertinoFormRow(
-          prefix: Text('Level'),
+          prefix: Text('Your Preferred Language'),
           child: CupertinoPicker(
             itemExtent: 32.0,
-            onSelectedItemChanged: (index) =>
-                setState(() => _languageLevel = _languageLevels[index]),
-            children: _languageLevels.map((level) => Text(level)).toList(),
+            onSelectedItemChanged: (index) {
+              setState(() {
+                _preferredLanguage = _availableLanguages[index];
+              });
+            },
+            children:
+                _availableLanguages.map((lang) => Text(lang.name)).toList(),
           ),
         ),
-        CupertinoTextFormFieldRow(
-          prefix: Text('Source Language'),
-          placeholder: 'Enter source language',
-          onChanged: (value) => setState(() => _sourceLanguage = value),
-          validator: (value) =>
-              value!.isEmpty ? 'Please enter source language' : null,
-        ),
-        CupertinoTextFormFieldRow(
-          prefix: Text('Target Language'),
-          placeholder: 'Enter target language',
-          onChanged: (value) => setState(() => _targetLanguage = value),
-          validator: (value) =>
-              value!.isEmpty ? 'Please enter target language' : null,
+        CupertinoFormRow(
+          prefix: Text('Study Language'),
+          child: CupertinoPicker(
+            itemExtent: 32.0,
+            onSelectedItemChanged: (index) {
+              setState(() {
+                _studyLanguage = _availableLanguages[index];
+              });
+            },
+            children:
+                _availableLanguages.map((lang) => Text(lang.name)).toList(),
+          ),
         ),
       ],
     );
@@ -363,7 +412,9 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final currentUser = ref.read(currentUserProvider).value;
-      if (currentUser == null) {
+      if (currentUser == null ||
+          _preferredLanguage == null ||
+          _studyLanguage == null) {
         _showErrorDialog('Unable to create chat. Please try again later.');
         return;
       }
@@ -377,16 +428,16 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
         email: 'ai@example.com',
         avatarUrl: 'assets/ai_avatar.png',
         languageLevel: _languageLevel,
-        sourceLanguageIds: [_sourceLanguage],
-        targetLanguageIds: [_targetLanguage],
-        spokenLanguageIds: [_sourceLanguage, _targetLanguage],
-        location: 'AI World',
+        sourceLanguageIds: [_preferredLanguage!.id],
+        targetLanguageIds: [_studyLanguage!.id],
+        spokenLanguageIds: [_preferredLanguage!.id, _studyLanguage!.id],
+        location: aiData.location,
         age: _aiAge,
         bio: aiData.bio,
         interests: _aiInterests,
         occupation: aiData.occupation,
-        education: 'AI Training',
-        languageIds: [_sourceLanguage, _targetLanguage],
+        education: aiData.education,
+        languageIds: [_preferredLanguage!.id, _studyLanguage!.id],
       );
 
       await ref.read(userServiceProvider).createUser(aiUser);
