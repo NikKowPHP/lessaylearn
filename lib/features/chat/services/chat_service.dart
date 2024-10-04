@@ -147,57 +147,46 @@ class ChatService implements IChatService {
     await markAllMessagesAsRead(message.chatId, message.senderId);
 
     _messageStreamController.add(message);
-  
 
-   
     if (!message.senderId.startsWith('bot')) {
-      _typingIndicatorStreamController.add(true); 
+      _typingIndicatorStreamController.add(true);
 
-      await Future.delayed(
-          Duration(seconds: Random().nextInt(3) + 1)); 
+      await Future.delayed(Duration(seconds: Random().nextInt(3) + 1));
 
-     
-   await simulateReply(message.chatId, message.senderId); 
-    
+      await simulateReply(message.chatId, message.senderId);
 
-      _typingIndicatorStreamController.add(false); 
+      _typingIndicatorStreamController.add(false);
     }
   }
 
-   Future<MessageModel?> simulateReply(String chatId, String senderId) async {
+  Future<MessageModel?> simulateReply(String chatId, String senderId) async {
     final partner = await getChatPartner(chatId, senderId);
     debugPrint('Simulating reply for chatId: $chatId, senderId: $senderId');
     debugPrint('Retrieved partner: ${partner?.name}');
-    
-     
-  
-  
+
     await markPartnerMessagesAsRead(chatId, senderId);
 
-      debugPrint('Marking messages as read for user: ${senderId}');
-      debugPrint('Messages marked as read of current user: ${senderId}');
+    debugPrint('Marking messages as read for user: ${senderId}');
+    debugPrint('Messages marked as read of current user: ${senderId}');
 
-      final reply = MessageModel(
-        id: UniqueKey().toString(),
-        chatId: chatId,
-        senderId: partner!.id,
-        receiverId: senderId,
-        content: 'This is a simulated reply from ${partner.name}',
-        timestamp: DateTime.now(),
-        isRead: false,
-      );
-      
-      debugPrint(
-          'Sending reply: ${reply.content} from ${reply.senderId} to ${reply.receiverId}');
-      _messageStreamController.add(reply);
-     
+    final reply = MessageModel(
+      id: UniqueKey().toString(),
+      chatId: chatId,
+      senderId: partner!.id,
+      receiverId: senderId,
+      content: 'This is a simulated reply from ${partner.name}',
+      timestamp: DateTime.now(),
+      isRead: false,
+    );
 
-      await _updateChatWithLastMessage(reply);
-      await localStorageService.saveMessage(reply);
-      debugPrint('Saved message: ${reply.content}');
-      return reply;
-    
-    
+    debugPrint(
+        'Sending reply: ${reply.content} from ${reply.senderId} to ${reply.receiverId}');
+    _messageStreamController.add(reply);
+
+    await _updateChatWithLastMessage(reply);
+    await localStorageService.saveMessage(reply);
+    debugPrint('Saved message: ${reply.content}');
+    return reply;
   }
 
   Future<ChatModel> _updateChatWithLastMessage(MessageModel message) async {
@@ -213,7 +202,6 @@ class ChatService implements IChatService {
     throw Exception('Chat not found');
   }
 
-  
   @override
   Future<UserModel?> getUserById(String userId) async {
     return await localStorageService.getUserById(userId);
