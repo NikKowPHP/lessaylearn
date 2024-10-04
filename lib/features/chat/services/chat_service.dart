@@ -159,7 +159,7 @@ class ChatService implements IChatService {
     debugPrint('Simulating reply for chatId: $chatId, senderId: $senderId');
     debugPrint('Retrieved partner: ${partner?.name}');
 
-    await markAllMessagesAsRead(chatId, senderId);
+    await markAllMessagesAsRead(chatId, partner!.id);
 
     debugPrint('Marking messages as read for user: $senderId');
     debugPrint('Messages marked as read of current user: $senderId');

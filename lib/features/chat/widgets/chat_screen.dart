@@ -193,7 +193,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
                   AvatarWidget(
                     imageUrl: _chatPartner!.avatarUrl,
                     size: 30,
-                    isNetworkImage: true,
+                    isNetworkImage: false,
                   ),
                   const SizedBox(width: 8),
                   Text(_chatPartner!.name),
