@@ -45,6 +45,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+       backgroundColor: CupertinoColors.systemBackground,
       navigationBar: CupertinoNavigationBar(
         middle: Text('Create AI Language Partner'),
         trailing: CupertinoButton(
@@ -158,7 +159,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemGrey5,
+        color: CupertinoColors.systemGrey,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -168,7 +169,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
           SizedBox(width: 4),
           GestureDetector(
             onTap: () => setState(() => selectedTags.remove(tag)),
-            child: Icon(CupertinoIcons.xmark_circle_fill, size: 18, color: CupertinoColors.systemGrey),
+            child: Icon(CupertinoIcons.xmark_circle_fill, size: 18, color: CupertinoColors.systemGrey3),
           ),
         ],
       ),
@@ -182,7 +183,10 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
         return Container(
           height: MediaQuery.of(context).size.height * 0.6,
           padding: EdgeInsets.all(16),
-          color: CupertinoColors.systemBackground,
+          decoration: BoxDecoration(
+            color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
           child: Column(
             children: [
               Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -204,7 +208,6 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
       },
     );
   }
-
   Widget _buildTagTile(String tag, List<String> selectedTags) {
     final isSelected = selectedTags.contains(tag);
     return CupertinoButton(
