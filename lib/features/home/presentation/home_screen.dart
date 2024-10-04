@@ -6,22 +6,37 @@ import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/widgets/chat_list.dart';
 import 'package:lessay_learn/features/chat/widgets/chat_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isAiTabActive = false;
+
+  void _onTabChanged(bool isAiTab) {
+    setState(() {
+      _isAiTabActive = isAiTab;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 600; // Adjust this breakpoint as needed
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: const Text('Chats'),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => context.go('/create-chat'),
-          child: Icon(CupertinoIcons.create),
-        ),
+        trailing: _isAiTabActive
+            ? CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => context.go('/create-chat'),
+                child: Icon(CupertinoIcons.create),
+              )
+            : null,
       ),
       child: SafeArea(
         child: isWideScreen
@@ -32,6 +47,7 @@ class HomeScreen extends ConsumerWidget {
                     child: ChatList(
                       isWideScreen: true,
                       selectedChatId: ref.watch(selectedChatIdProvider),
+                      onTabChanged: _onTabChanged,
                     ),
                   ),
                   const CupertinoVerticalSeparator(),
@@ -68,7 +84,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ],
               )
-            : ChatList(),
+            : ChatList(onTabChanged: _onTabChanged),
       ),
     );
   }

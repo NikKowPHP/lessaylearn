@@ -15,8 +15,14 @@ import 'package:go_router/go_router.dart';
 class ChatList extends ConsumerStatefulWidget {
   final bool isWideScreen;
   final String? selectedChatId;
-  ChatList({Key? key, this.isWideScreen = false, this.selectedChatId})
-      : super(key: key);
+  final Function(bool isAiTab)? onTabChanged; 
+
+   ChatList({
+    Key? key,
+    this.isWideScreen = false,
+    this.selectedChatId,
+    this.onTabChanged, 
+  }) : super(key: key);
 
   @override
   ConsumerState<ChatList> createState() => _ChatListState();
@@ -38,6 +44,13 @@ class _ChatListState extends ConsumerState<ChatList> {
   void dispose() {
     _timer.cancel();
     super.dispose();
+  }
+
+   void _onTabChanged(int index) {
+    setState(() {
+      _selectedTabIndex = index;
+    });
+    widget.onTabChanged?.call(index == 1); 
   }
 
   @override
@@ -81,11 +94,7 @@ class _ChatListState extends ConsumerState<ChatList> {
               child: Text('AI'),
             ),
           },
-          onValueChanged: (int index) {
-            setState(() {
-              _selectedTabIndex = index;
-            });
-          },
+         onValueChanged: _onTabChanged,
           groupValue: _selectedTabIndex,
         ),
         SizedBox(height: 10),
