@@ -32,4 +32,7 @@ abstract class IUserService {
   Future<void> updateUserChart(ChartModel chart);
   Future<void> deleteUserChart(String chartId);
     Future<List<ChartModel>> getUserCharts(String userId); 
+
+    Future<void> createUser(UserModel user);
+
 }

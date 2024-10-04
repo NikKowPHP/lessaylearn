@@ -18,6 +18,7 @@ import 'package:flutter/foundation.dart';
 
 
 abstract class ILocalStorageService {
+   Future<void> addUser(UserModel user);
   Future<bool> isUserLoggedIn();
   Future<void> saveChats(List<ChatModel> chats);
   Future<List<ChatModel>> getChats();
@@ -621,6 +622,11 @@ Future<void> updateMessage(MessageModel message) async {
     }
 
     // debugPrint('Populated users box with ${mockUsers.length} mock users');
+  }
+    @override
+  Future<void> addUser(UserModel user) async {
+    final box = await _openUsersBox(); // Open the users box
+    await box.put(user.id, user.toJson()); // Save the user using their ID as the key
   }
 
   @override

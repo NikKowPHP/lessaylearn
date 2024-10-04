@@ -14,6 +14,11 @@ class UserService implements IUserService {
   UserService(this._localStorageService);
 
   @override
+  Future<void> createUser(UserModel user) async {
+    await _localStorageService.addUser(user);
+  }
+
+  @override
   Future<UserModel> getCurrentUser() async {
     if (_cachedCurrentUser != null) {
       return _cachedCurrentUser!;
