@@ -16,6 +16,7 @@ class CreateChatView extends ConsumerStatefulWidget {
 
 class _CreateChatViewState extends ConsumerState<CreateChatView> {
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
   String _languageLevel = 'Beginner';
   String _sourceLanguage = '';
   String _targetLanguage = '';
@@ -129,12 +130,18 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
           Text('Generated AI Profile',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           SizedBox(height: 8),
-          Text('Name: $_generatedName'),
-          Text('Occupation: $_generatedOccupation'),
-          Text('Chat Topic: $_generatedChatTopic'),
-          Text('Bio: $_generatedBio'),
-          Text('Location: $_generatedLocation'), // New field
-          Text('Education: $_generatedEducation'), // New field
+
+            if (_isLoading) // Show loading indicator if loading
+             Center(child: CupertinoActivityIndicator())
+           else ...[
+             Text('Name: $_generatedName'),
+             Text('Occupation: $_generatedOccupation'),
+             Text('Chat Topic: $_generatedChatTopic'),
+             Text('Bio: $_generatedBio'),
+             Text('Location: $_generatedLocation'), // New field
+             Text('Education: $_generatedEducation'), // New field
+           ],
+         
         ],
       ),
     );
@@ -151,6 +158,10 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
 
   // New method to generate the AI profile
   void _generateProfile() async {
+    setState(() {
+      _isLoading = true; // Set loading state to true
+    });
+
     final promptString = _generatePromptString();
     final aiData = await _generateAIDataUsingAI(promptString);
 
@@ -162,6 +173,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
       _generatedLocation = aiData.location; // New field
       _generatedEducation = aiData.education; // New field
     });
+    _isLoading = false;
   }
 
   Widget _buildSectionTitle(String title) {
