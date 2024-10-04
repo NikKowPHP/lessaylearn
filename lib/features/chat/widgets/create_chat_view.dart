@@ -23,6 +23,12 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
   List<String> _personalityTraits = [];
   List<String> _aiInterests = [];
   List<String> _bioTags = [];
+  String _generatedName = '';
+  String _generatedOccupation = '';
+  String _generatedChatTopic = '';
+  String _generatedBio = '';
+  String _generatedLocation = ''; // New variable
+  String _generatedEducation = ''; // New variable
 
   final List<String> _languageLevels = [
     'Beginner',
@@ -104,11 +110,58 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
               _buildTagSection('AI Interests', _aiInterests, _interestOptions),
               _buildSectionTitle('Bio Tags'),
               _buildTagSection('Bio Tags', _bioTags, _bioTagOptions),
+              _buildGeneratedProfileSection(), // New section for generated profile
+              _buildGenerateProfileButton(), // New button to generate profile
             ],
           ),
         ),
       ),
     );
+  }
+
+  // New method to build the generated profile section
+  Widget _buildGeneratedProfileSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Generated AI Profile',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          SizedBox(height: 8),
+          Text('Name: $_generatedName'),
+          Text('Occupation: $_generatedOccupation'),
+          Text('Chat Topic: $_generatedChatTopic'),
+          Text('Bio: $_generatedBio'),
+          Text('Location: $_generatedLocation'), // New field
+          Text('Education: $_generatedEducation'), // New field
+        ],
+      ),
+    );
+  }
+
+  // New method to build the generate profile button
+  Widget _buildGenerateProfileButton() {
+    return CupertinoButton(
+      color: CupertinoColors.activeBlue,
+      child: Text('Generate Profile'),
+      onPressed: _generateProfile,
+    );
+  }
+
+  // New method to generate the AI profile
+  void _generateProfile() async {
+    final promptString = _generatePromptString();
+    final aiData = await _generateAIDataUsingAI(promptString);
+
+    setState(() {
+      _generatedName = aiData.name;
+      _generatedOccupation = aiData.occupation;
+      _generatedChatTopic = aiData.chatTopic;
+      _generatedBio = aiData.bio;
+      _generatedLocation = aiData.location; // New field
+      _generatedEducation = aiData.education; // New field
+    });
   }
 
   Widget _buildSectionTitle(String title) {
@@ -324,26 +377,24 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
         languageIds: [_sourceLanguage, _targetLanguage],
       );
 
-      
+      await ref.read(userServiceProvider).createUser(aiUser);
 
-      // await ref.read(userServiceProvider).createUser(aiUser);
+      final newChat = ChatModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        hostUserId: currentUser.id,
+        guestUserId: aiUser.id,
+        lastMessage: '',
+        lastMessageTimestamp: DateTime.now(),
+        chatTopic: aiData.chatTopic,
+        languageLevel: _languageLevel,
+        sourceLanguage: _sourceLanguage,
+        targetLanguage: _targetLanguage,
+        isAi: true,
+      );
 
-      // final newChat = ChatModel(
-      //   id: DateTime.now().millisecondsSinceEpoch.toString(),
-      //   hostUserId: currentUser.id,
-      //   guestUserId: aiUser.id,
-      //   lastMessage: '',
-      //   lastMessageTimestamp: DateTime.now(),
-      //   chatTopic: aiData.chatTopic,
-      //   languageLevel: _languageLevel,
-      //   sourceLanguage: _sourceLanguage,
-      //   targetLanguage: _targetLanguage,
-      //   isAi: true,
-      // );
-
-      // await ref.read(chatServiceProvider).createChat(newChat);
-      // ref.read(chatsProvider.notifier).addChat(newChat);
-      // context.go('/');
+      await ref.read(chatServiceProvider).createChat(newChat);
+      ref.read(chatsProvider.notifier).addChat(newChat);
+      context.go('/');
     }
   }
 
@@ -381,6 +432,8 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
           "As someone who's ${_personalityTraits.take(2).join(' and ')}, I love discussing "
           "${_aiInterests.take(2).join(' and ')}. Let's explore $_targetLanguage together "
           "while sharing our cultural experiences!",
+      location: "AI World",
+      education: "AI Training",
     );
     return aiData;
   }
@@ -409,12 +462,16 @@ class AIData {
   final String occupation;
   final String chatTopic;
   final String bio;
+  final String location;
+  final String education;
 
   AIData({
     required this.name,
     required this.occupation,
     required this.chatTopic,
     required this.bio,
+    required this.location,
+    required this.education,
   });
 
   // Factory method to create an instance from a map
@@ -424,6 +481,8 @@ class AIData {
       occupation: map['occupation'] ?? '',
       chatTopic: map['chatTopic'] ?? '',
       bio: map['bio'] ?? '',
+      location: map['location'] ?? '',
+      education: map['education'] ?? '',
     );
   }
 }
