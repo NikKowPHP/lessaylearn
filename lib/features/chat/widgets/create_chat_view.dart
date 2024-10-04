@@ -15,9 +15,6 @@ class CreateChatView extends ConsumerStatefulWidget {
 }
 
 class _CreateChatViewState extends ConsumerState<CreateChatView> {
-
-
-
   final _formKey = GlobalKey<FormState>();
   String _aiName = '';
   String _chatTopic = '';
@@ -29,8 +26,6 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
   List<String> _aiInterests = [];
   List<String> _personalityTraits = [];
   List<String> _bioTags = [];
-
-
 
   final List<String> _languageLevels = ['Beginner', 'Intermediate', 'Advanced', 'Native'];
   final List<String> _personalityOptions = [
@@ -78,9 +73,9 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
               ),
               _buildLanguageSettings(),
               _buildAIProfile(),
-              _buildPersonalityTraits(),
-              _buildInterests(),
-              _buildBioTags(),
+              _buildTagSection('Personality Traits', _personalityTraits, _personalityOptions),
+              _buildTagSection('AI Interests', _aiInterests, _interestOptions),
+              _buildTagSection('Bio Tags', _bioTags, _bioTagOptions),
             ],
           ),
         ),
@@ -137,66 +132,104 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     );
   }
 
-  Widget _buildPersonalityTraits() {
-    return CupertinoFormSection(
-      header: Text('Personality Traits'),
-      children: _personalityOptions.map((trait) => CupertinoFormRow(
-        prefix: Text(trait),
-        child: CupertinoSwitch(
-          value: _personalityTraits.contains(trait),
-          onChanged: (bool value) {
-            setState(() {
-              if (value) {
-                _personalityTraits.add(trait);
-              } else {
-                _personalityTraits.remove(trait);
-              }
-            });
-          },
+  Widget _buildTagSection(String title, List<String> selectedTags, List<String> allOptions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
-      )).toList(),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: selectedTags.map((tag) => _buildTagChip(tag, selectedTags)).toList(),
+        ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: Text('Add ${title.toLowerCase()}'),
+          onPressed: () => _showBottomSheet(context, title, selectedTags, allOptions),
+        ),
+      ],
     );
   }
 
-  Widget _buildInterests() {
-    return CupertinoFormSection(
-      header: Text('AI Interests'),
-      children: _interestOptions.map((interest) => CupertinoFormRow(
-        prefix: Text(interest),
-        child: CupertinoSwitch(
-          value: _aiInterests.contains(interest),
-          onChanged: (bool value) {
-            setState(() {
-              if (value) {
-                _aiInterests.add(interest);
-              } else {
-                _aiInterests.remove(interest);
-              }
-            });
-          },
-        ),
-      )).toList(),
+  Widget _buildTagChip(String tag, List<String> selectedTags) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemGrey5,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(tag, style: TextStyle(fontSize: 14)),
+          SizedBox(width: 4),
+          GestureDetector(
+            onTap: () => setState(() => selectedTags.remove(tag)),
+            child: Icon(CupertinoIcons.xmark_circle_fill, size: 18, color: CupertinoColors.systemGrey),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildBioTags() {
-    return CupertinoFormSection(
-      header: Text('Bio Tags'),
-      children: _bioTagOptions.map((tag) => CupertinoFormRow(
-        prefix: Text(tag),
-        child: CupertinoSwitch(
-          value: _bioTags.contains(tag),
-          onChanged: (bool value) {
-            setState(() {
-              if (value) {
-                _bioTags.add(tag);
-              } else {
-                _bioTags.remove(tag);
-              }
-            });
-          },
-        ),
-      )).toList(),
+  void _showBottomSheet(BuildContext context, String title, List<String> selectedTags, List<String> allOptions) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.6,
+          padding: EdgeInsets.all(16),
+          color: CupertinoColors.systemBackground,
+          child: Column(
+            children: [
+              Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              Expanded(
+                child: CupertinoScrollbar(
+                  child: ListView(
+                    children: allOptions.map((option) => _buildTagTile(option, selectedTags)).toList(),
+                  ),
+                ),
+              ),
+              CupertinoButton(
+                child: Text('Done'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTagTile(String tag, List<String> selectedTags) {
+    final isSelected = selectedTags.contains(tag);
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(tag),
+          Icon(
+            isSelected ? CupertinoIcons.minus_circle : CupertinoIcons.plus_circle,
+            color: isSelected ? CupertinoColors.destructiveRed : CupertinoColors.activeBlue,
+          ),
+        ],
+      ),
+      onPressed: () {
+        setState(() {
+          if (isSelected) {
+            selectedTags.remove(tag);
+          } else {
+            selectedTags.add(tag);
+          }
+        });
+        Navigator.of(context).pop();
+        _showBottomSheet(context, tag, selectedTags, selectedTags == _personalityTraits ? _personalityOptions : _interestOptions);
+      },
     );
   }
 
@@ -207,7 +240,6 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
         _showErrorDialog('Unable to create chat. Please try again later.');
         return;
       }
-
 
       final promptString = _generatePromptString();
       final bio = await _generateBioUsingAI(promptString);
@@ -228,8 +260,6 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
         occupation: _aiOccupation,
         education: 'AI Training',
         languageIds: [_sourceLanguage, _targetLanguage],
-        
-       
       );
 
       await ref.read(userServiceProvider).createUser(aiUser);
@@ -253,7 +283,6 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     }
   }
 
-
   String _generatePromptString() {
     final promptParts = [
       "Create a bio for an AI language learning partner with the following characteristics:",
@@ -274,8 +303,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     return promptParts.join("\n");
   }
 
-
- Future<String> _generateBioUsingAI(String promptString) async {
+  Future<String> _generateBioUsingAI(String promptString) async {
     // This is a placeholder. In a real application, you would send the promptString
     // to your AI service (e.g., OpenAI's GPT) and receive a generated bio.
     // For now, we'll return a dummy bio.
@@ -284,7 +312,6 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
            "As someone who's ${_personalityTraits.take(2).join(' and ')}, I love discussing "
            "${_aiInterests.take(2).join(' and ')}. Let's improve your $_targetLanguage skills together!";
   }
-
 
   void _showErrorDialog(String message) {
     showCupertinoDialog(
