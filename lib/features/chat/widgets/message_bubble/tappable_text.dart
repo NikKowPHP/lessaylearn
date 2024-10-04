@@ -227,10 +227,10 @@ class TappableTextState extends ConsumerState<TappableText> {
         userId: currentUser.id,
         sourceText: word,
         translatedText: translationResult!
-            .translatedText, // You might want to add translation functionality
-        sourceLanguage: translationResult
-            .detectedLanguage, // Replace with actual source language
-        targetLanguage: 'lang_en', // Replace with actual target language
+            .translatedText, 
+        sourceLanguage: currentUser.preferableTranslationLanguage!, 
+        targetLanguage: translationResult
+            .detectedLanguage, 
       );
       await ref.read(favoritesProvider.notifier).addFavorite(newFavorite);
     }
@@ -245,8 +245,7 @@ class TappableTextState extends ConsumerState<TappableText> {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: currentUser.id,
         word: word,
-        language: currentUser.preferableTranslationLanguage!, // Replace with actual language
-        // TODO: USER SETS THE Translation target language
+        language: currentUser.preferableTranslationLanguage!,
       );
       await ref.read(knownWordsProvider.notifier).addKnownWord(newKnownWord);
     }
