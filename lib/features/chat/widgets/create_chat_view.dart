@@ -194,7 +194,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
               Expanded(
                 child: CupertinoScrollbar(
                   child: ListView(
-                    children: allOptions.map((option) => _buildTagTile(option, selectedTags)).toList(),
+                    children: allOptions.map((option) => _buildTagTile(option, selectedTags, allOptions)).toList(),
                   ),
                 ),
               ),
@@ -208,7 +208,17 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
       },
     );
   }
-  Widget _buildTagTile(String tag, List<String> selectedTags) {
+
+
+  String _getTitleForTags(List<String> tags) {
+    if (tags == _personalityTraits) return 'Personality Traits';
+    if (tags == _aiInterests) return 'AI Interests';
+    if (tags == _bioTags) return 'Bio Tags';
+    return '';
+  }
+
+
+Widget _buildTagTile(String tag, List<String> selectedTags, List<String> allOptions) {
     final isSelected = selectedTags.contains(tag);
     return CupertinoButton(
       padding: EdgeInsets.zero,
@@ -231,7 +241,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
           }
         });
         Navigator.of(context).pop();
-        _showBottomSheet(context, tag, selectedTags, selectedTags == _personalityTraits ? _personalityOptions : _interestOptions);
+        _showBottomSheet(context, _getTitleForTags(selectedTags), selectedTags, allOptions);
       },
     );
   }
