@@ -17,9 +17,10 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/chat/widgets/message_bubble/bubble_wing_painter.dart';
 import 'package:lessay_learn/features/chat/widgets/message_bubble/message_bubble.dart';
 import 'package:lessay_learn/features/chat/widgets/message_bubble/tappable_text.dart';
-import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
-import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
+// import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
 
+import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
+import 'package:lessay_learn/core/providers/user_provider.dart';
 class IndividualChatScreen extends ConsumerStatefulWidget {
   final ChatModel chat;
 
@@ -316,7 +317,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
         timestamp: DateTime.now(),
       );
       _messageController.clear();
-      ref
+     await ref
           .read(messagesProvider(widget.chat.id).notifier)
           .sendMessage(newMessage);
 
