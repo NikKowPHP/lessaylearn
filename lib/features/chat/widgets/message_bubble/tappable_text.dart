@@ -12,9 +12,6 @@ import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
 
-
-
-
 class TappableText extends ConsumerStatefulWidget {
   final String text;
   final bool isUserMessage;
@@ -34,15 +31,17 @@ class TappableText extends ConsumerStatefulWidget {
 }
 
 class TappableTextState extends ConsumerState<TappableText> {
-  final List<JustTheController> tooltipControllers = [];
-  final KnownWordService _knownWordService = getIt<KnownWordService>();
-  final FavoriteService _favoriteService = getIt<FavoriteService>();
+  late List<JustTheController> tooltipControllers = [];
+
+  late List<_WordSpan> _wordSpans;
 
   @override
   void initState() {
     super.initState();
-    tooltipControllers.addAll(
-      widget.text.split(' ').map((_) => JustTheController()),
+    _wordSpans = _splitTextIntoWordSpans(widget.text);
+    tooltipControllers = List.generate(
+      _wordSpans.where((span) => span.isWord).length,
+      (_) => JustTheController(),
     );
   }
 
@@ -54,16 +53,41 @@ class TappableTextState extends ConsumerState<TappableText> {
     super.dispose();
   }
 
+  List<_WordSpan> _splitTextIntoWordSpans(String text) {
+    final RegExp wordRegex = RegExp(r"\p{L}[\p{L}\p{M}'\p{Nd}]*", unicode: true);
+    final List<_WordSpan> spans = [];
+    int lastIndex = 0;
+
+    for (Match match in wordRegex.allMatches(text)) {
+      if (match.start > lastIndex) {
+        spans.add(_WordSpan(text.substring(lastIndex, match.start), false));
+      }
+      spans.add(_WordSpan(match.group(0)!, true));
+      lastIndex = match.end;
+    }
+
+    if (lastIndex < text.length) {
+      spans.add(_WordSpan(text.substring(lastIndex), false));
+    }
+   
+    return spans;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final words = widget.text.split(' ');
     return Wrap(
-      children: words.asMap().entries.map((entry) {
+      children: _wordSpans.asMap().entries.map((entry) {
         final index = entry.key;
-        final word = entry.value;
-        return _buildTappableWord(word, index);
+        final span = entry.value;
+        return span.isWord
+            ? _buildTappableWord(span.text, _getWordIndex(index))
+            : Text(span.text);
       }).toList(),
     );
+  }
+
+  int _getWordIndex(int spanIndex) {
+    return _wordSpans.sublist(0, spanIndex).where((span) => span.isWord).length;
   }
 
   Widget _buildTappableWord(String word, int index) {
@@ -83,7 +107,8 @@ class TappableTextState extends ConsumerState<TappableText> {
             TranslationTrigger(
           messageId: '${widget.text}_$index',
           text: word,
-          targetLanguage: 'es', // Change this to the desired target language
+          targetLanguage:
+              'es', // TODO: Change this to the desired target language
         );
       },
       child: JustTheTooltip(
@@ -210,4 +235,11 @@ class TappableTextState extends ConsumerState<TappableText> {
       await ref.read(knownWordsProvider.notifier).addKnownWord(newKnownWord);
     }
   }
+}
+
+class _WordSpan {
+  final String text;
+  final bool isWord;
+
+  _WordSpan(this.text, this.isWord);
 }
