@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/providers/local_storage_provider.dart';
+import 'package:lessay_learn/core/providers/translate_provider.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 
@@ -91,3 +92,28 @@ class ChatsNotifier extends StateNotifier<List<ChatModel>> {
     ];
   }
 }
+
+final translationTriggerProvider = StateProvider<TranslationTrigger?>((ref) => null);
+
+class TranslationTrigger {
+  final String messageId;
+  final String text;
+  final String targetLanguage;
+
+  TranslationTrigger({
+    required this.messageId,
+    required this.text,
+    required this.targetLanguage,
+  });
+}
+
+final translatedMessageProvider = FutureProvider.autoDispose.family<String?, String>((ref, messageId) async {
+  final trigger = ref.watch(translationTriggerProvider);
+  if (trigger == null || trigger.messageId != messageId) return null;
+
+  final translation = await ref.watch(translateProvider(
+    TranslateParams(text: trigger.text, targetLanguage: trigger.targetLanguage)
+  ).future);
+
+  return translation;
+});

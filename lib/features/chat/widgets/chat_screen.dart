@@ -46,7 +46,7 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _markPartnerMessagesAsRead();
     });
-     _scrollToBottom(); 
+    _scrollToBottom();
   }
 
   // Add this method
@@ -80,8 +80,6 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     );
   }
 
-
-
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -102,29 +100,30 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 600;
 
+    // MESSAGES LISTENER (Corrected)
+    ref.listen<AsyncValue<MessageModel>>(
+      messageStreamProvider(widget.chat.id),
+      (_, next) {
+        next.whenData((message) {
+          if (message.senderId != currentUser?.id) {
+            // Use the watched currentUser
+            ref
+                .read(messagesProvider(widget.chat.id).notifier)
+                .addMessage(message);
+            _markPartnerMessagesAsRead();
+            // _scrollToBottom();  Remove this here – scrolling is handled below
+          }
+        });
+      },
+    );
 
-  // MESSAGES LISTENER (Corrected)
-  ref.listen<AsyncValue<MessageModel>>(
-    messageStreamProvider(widget.chat.id),
-    (_, next) {
-      next.whenData((message) {
-        if (message.senderId != currentUser?.id) { // Use the watched currentUser
-          ref.read(messagesProvider(widget.chat.id).notifier).addMessage(message);
-          _markPartnerMessagesAsRead();
-          // _scrollToBottom();  Remove this here – scrolling is handled below
-        }
-      });
-    },
-  );
-  
-  ref.watch(messagesProvider(widget.chat.id)); // No need for AsyncValue
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (messages.isNotEmpty) { // Only scroll if there are messages
-      _scrollToBottom();
-    }
-  });
-  
-
+    ref.watch(messagesProvider(widget.chat.id)); // No need for AsyncValue
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (messages.isNotEmpty) {
+        // Only scroll if there are messages
+        _scrollToBottom();
+      }
+    });
 
     return GestureDetector(
       onTap: () {
@@ -313,13 +312,11 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
         content: messageContent,
         timestamp: DateTime.now(),
       );
-    _messageController.clear();
+      _messageController.clear();
       final chatService = ref.read(chatServiceProvider);
       await chatService.sendMessage(newMessage);
-   
 
       _scrollToBottom();
-   
     }
   }
 
@@ -529,6 +526,13 @@ class _TappableTextState extends ConsumerState<TappableText> {
           _makeWordKnown(word);
         }
         _tooltipControllers[index].showTooltip();
+        // Trigger translation when tapped
+        ref.read(translationTriggerProvider.notifier).state =
+            TranslationTrigger(
+          messageId: '${widget.text}_$index',
+          text: word,
+          targetLanguage: 'es', // Change this to the desired target language
+        );
       },
       child: JustTheTooltip(
         controller: _tooltipControllers[index],
@@ -536,7 +540,7 @@ class _TappableTextState extends ConsumerState<TappableText> {
         tailLength: 10.0,
         tailBaseWidth: 20.0,
         backgroundColor: CupertinoColors.systemBackground,
-        content: _buildTooltipContent(word),
+        content: _buildTooltipContent(word, '${widget.text}_$index'),
         triggerMode: TooltipTriggerMode.manual,
         isModal: true,
         child: MouseRegion(
@@ -578,19 +582,28 @@ class _TappableTextState extends ConsumerState<TappableText> {
     }
   }
 
-  Widget _buildTooltipContent(String word) {
+  Widget _buildTooltipContent(String word, String messageId) {
     return Consumer(
       builder: (context, ref, child) {
         final favorites = ref.watch(favoritesProvider);
         bool isFavorite =
             favorites.any((favorite) => favorite.sourceText == word);
+        final translationAsyncValue =
+            ref.watch(translatedMessageProvider(messageId));
 
         return Padding(
           padding: EdgeInsets.all(8),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(word),
+              SizedBox(height: 8),
+              translationAsyncValue.when(
+                data: (translation) => translation != null
+                    ? Text('Translation: $translation')
+                    : Text('Tap to translate'),
+                loading: () => CupertinoActivityIndicator(),
+                error: (error, _) => Text('Error: $error'),
+              ),
               SizedBox(width: 8),
               GestureDetector(
                 onTap: () => _toggleFavorite(word, isFavorite),
