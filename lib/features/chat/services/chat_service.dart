@@ -86,6 +86,8 @@ class ChatService implements IChatService {
   @override
   Future<void> createChat(ChatModel chat) async {
     await localStorageService.saveChat(chat);
+    //TODO: Optionally, you can add any additional logic here,
+    // such as creating an initial message for the chat
   }
 
   @override

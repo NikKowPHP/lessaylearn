@@ -39,6 +39,14 @@ final chatsProvider = StateNotifierProvider<ChatsNotifier, List<ChatModel>>((ref
 });
 
 
+// create chat provider
+final createChatProvider = Provider<Future<void> Function(ChatModel)>((ref) {
+  final chatService = ref.watch(chatServiceProvider);
+  return (ChatModel newChat) async {
+    await chatService.createChat(newChat);
+    ref.read(chatsProvider.notifier).addChat(newChat);
+  };
+});
 
 
 
@@ -118,6 +126,10 @@ class ChatsNotifier extends StateNotifier<List<ChatModel>> {
         else
           chat
     ];
+  }
+
+  void addChat(ChatModel newChat) {
+    state = [newChat, ...state];
   }
 }
 

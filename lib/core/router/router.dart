@@ -137,8 +137,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CupertinoPage(
           child: Consumer(
             builder: (context, ref, _) {
-              final chatService = ref.watch(chatServiceProvider);
-              return CreateChatView(chatService: chatService);
+             
+              return CreateChatView();
             },
           ),
         ),

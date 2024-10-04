@@ -1,19 +1,19 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lessay_learn/core/providers/chat_provider.dart';
+import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/services/chat_service.dart';
 
-
-class CreateChatView extends StatefulWidget {
-  final IChatService chatService;
-
-  CreateChatView({Key? key, required this.chatService}) : super(key: key);
+class CreateChatView extends ConsumerStatefulWidget {
+  CreateChatView({Key? key}) : super(key: key);
 
   @override
-  _CreateChatViewState createState() => _CreateChatViewState();
+  ConsumerState<CreateChatView> createState() => _CreateChatViewState();
 }
 
-class _CreateChatViewState extends State<CreateChatView> {
+class _CreateChatViewState extends ConsumerState<CreateChatView> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   String _chatTopic = '';
@@ -97,8 +97,30 @@ class _CreateChatViewState extends State<CreateChatView> {
     );
   }
 
- void _submitForm() async {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      final currentUser = ref.read(currentUserProvider).value;
+      if (currentUser == null) {
+        // Handle the case where there's no current user
+        showCupertinoDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('Error'),
+              content: Text('Unable to create chat. Please try again later.'),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
       final newChat = ChatModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         hostUserId: 'currentUserId', // Replace with actual current user ID
@@ -112,7 +134,8 @@ class _CreateChatViewState extends State<CreateChatView> {
         isAi: true,
       );
 
-      // await widget.chatService.createChat(newChat);
+      await ref.read(chatServiceProvider).createChat(newChat);
+      ref.read(chatsProvider.notifier).addChat(newChat);
       context.go('/');
     }
   }
