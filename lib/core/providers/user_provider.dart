@@ -8,6 +8,15 @@ import 'package:lessay_learn/services/i_user_service.dart';
 import 'package:lessay_learn/services/user_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
 
+final updateUserProvider = Provider<Future<void> Function(UserModel)>((ref) {
+  final userService = ref.watch(userServiceProvider);
+  return (UserModel updatedUser) async {
+    await userService.updateUser(updatedUser);
+    // Invalidate the currentUserProvider to force a refresh
+    ref.invalidate(currentUserProvider);
+  };
+});
+
 // Provider for IUserService
 final userServiceProvider = Provider<IUserService>((ref) {
   final localStorageService = ref.watch(localStorageServiceProvider);
@@ -15,44 +24,79 @@ final userServiceProvider = Provider<IUserService>((ref) {
 });
 
 // Provider for current user
-final currentUserProvider = FutureProvider<UserModel>((ref) async {
+final currentUserProvider = StateNotifierProvider<CurrentUserNotifier, AsyncValue<UserModel>>((ref) {
   final userService = ref.watch(userServiceProvider);
-  return await userService.getCurrentUser();
+  return CurrentUserNotifier(userService);
 });
-
 // Provider to fetch a user by ID
-final userByIdProvider = FutureProvider.family<UserModel?, String>((ref, userId) async {
+final userByIdProvider =
+    FutureProvider.family<UserModel?, String>((ref, userId) async {
   final userService = ref.watch(userServiceProvider);
   return await userService.getUserById(userId);
 });
 
-final userProfilePicturesProvider = FutureProvider.family<List<ProfilePictureModel>, String>((ref, userId) async {
+final userProfilePicturesProvider =
+    FutureProvider.family<List<ProfilePictureModel>, String>(
+        (ref, userId) async {
   final userService = ref.watch(userServiceProvider);
   return await userService.getUserProfilePictures(userId);
 });
 
-final likesForPictureProvider = FutureProvider.family<List<LikeModel>, String>((ref, pictureId) async {
+final likesForPictureProvider =
+    FutureProvider.family<List<LikeModel>, String>((ref, pictureId) async {
   final userService = ref.watch(userServiceProvider);
   return await userService.getLikesForPicture(pictureId);
 });
 
-final commentsForPictureProvider = FutureProvider.family<List<CommentModel>, String>((ref, pictureId) async {
+final commentsForPictureProvider =
+    FutureProvider.family<List<CommentModel>, String>((ref, pictureId) async {
   final userService = ref.watch(userServiceProvider);
   return await userService.getCommentsForPicture(pictureId);
 });
 
 // New providers
-final profilePictureByIdProvider = FutureProvider.family<ProfilePictureModel?, String>((ref, pictureId) async {
+final profilePictureByIdProvider =
+    FutureProvider.family<ProfilePictureModel?, String>((ref, pictureId) async {
   final userService = ref.watch(userServiceProvider);
   return await userService.getProfilePictureById(pictureId);
 });
 
-final userLikesProvider = FutureProvider.family<List<LikeModel>, String>((ref, userId) async {
+final userLikesProvider =
+    FutureProvider.family<List<LikeModel>, String>((ref, userId) async {
   final userService = ref.watch(userServiceProvider);
   return await userService.getUserLikes(userId);
 });
 
-final userCommentsProvider = FutureProvider.family<List<CommentModel>, String>((ref, userId) async {
+final userCommentsProvider =
+    FutureProvider.family<List<CommentModel>, String>((ref, userId) async {
   final userService = ref.watch(userServiceProvider);
   return await userService.getUserComments(userId);
 });
+
+class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel>> {
+  final IUserService _userService;
+
+  CurrentUserNotifier(this._userService) : super(AsyncValue.loading()) {
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    state = AsyncValue.loading();
+    try {
+      final user = await _userService.getCurrentUser();
+      state = AsyncValue.data(user);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  Future<void> updateUser(UserModel updatedUser) async {
+    state = AsyncValue.loading();
+    try {
+      await _userService.updateUser(updatedUser);
+      state = AsyncValue.data(updatedUser);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}

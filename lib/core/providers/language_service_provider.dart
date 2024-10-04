@@ -44,3 +44,9 @@ final recordingServiceProvider = Provider<RecordingService>((ref) {
   final localStorage = ref.watch(localStorageServiceProvider);
   return RecordingService(localStorage);
 });
+final languageModelsByIdsProvider = FutureProvider.family<List<LanguageModel>, List<String>>((ref, languageIds) async {
+  final languageService = ref.watch(languageServiceProvider);
+  final futures = languageIds.map((id) => languageService.fetchLanguageById(id));
+  final languages = await Future.wait(futures);
+  return languages.whereType<LanguageModel>().toList();
+});

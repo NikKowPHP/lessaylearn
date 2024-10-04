@@ -15,6 +15,7 @@ class UserModel {
   final String? education;
   final List<String> languageIds;
   final List<String> profilePictureIds;
+  final String? preferableTranslationLanguage;
 
   UserModel({
     required this.id,
@@ -33,6 +34,7 @@ class UserModel {
     this.education,
     this.languageIds = const [],
     this.profilePictureIds = const [],
+    this.preferableTranslationLanguage,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -53,6 +55,7 @@ class UserModel {
       education: json['education'],
       languageIds: List<String>.from(json['languageIds'] ?? []),
       profilePictureIds: List<String>.from(json['profilePictureIds'] ?? []),
+      preferableTranslationLanguage: json['preferableTranslationLanguage'],
     );
   }
 
@@ -74,6 +77,7 @@ class UserModel {
       'education': education,
       'languageIds': languageIds,
       'profilePictureIds': profilePictureIds,
+      'preferableTranslationLanguage': preferableTranslationLanguage,
     };
   }
 
@@ -94,6 +98,7 @@ class UserModel {
     String? education,
     List<String>? languageIds,
     List<String>? profilePictureIds,
+    String? preferableTranslationLanguage,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -112,10 +117,12 @@ class UserModel {
       education: education ?? this.education,
       languageIds: languageIds ?? this.languageIds,
       profilePictureIds: profilePictureIds ?? this.profilePictureIds,
+      preferableTranslationLanguage:
+          preferableTranslationLanguage ?? this.preferableTranslationLanguage,
     );
   }
 
-   @override
+  @override
   String toString() {
     return '''UserModel(
       id: $id,
@@ -133,7 +140,8 @@ class UserModel {
       occupation: $occupation,
       education: $education,
       languageIds: $languageIds,
-      profilePictureIds: $profilePictureIds
+      profilePictureIds: $profilePictureIds,
+      preferableTranslationLanguage: $preferableTranslationLanguage 
     )''';
   }
 }

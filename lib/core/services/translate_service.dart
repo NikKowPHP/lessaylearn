@@ -20,6 +20,9 @@ class TranslateService implements ITranslateService {
   @override
   Future<TranslationResult> translate(String text, String targetLanguage) async {
     try {
+     
+       targetLanguage = targetLanguage.trim().toLowerCase();
+        print('target language to translate $targetLanguage');
       final translation = await _translator.translate(text, to: targetLanguage);
       return TranslationResult(translation.text, translation.sourceLanguage.code);
     } catch (e) {

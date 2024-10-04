@@ -25,10 +25,10 @@ final authServiceProvider = Provider<AuthService>((ref) {
 // });
 
 final authStateProvider = FutureProvider<UserModel?>((ref) async {
-  final currentUser = await ref.watch(currentUserProvider.future);
-  // You might want to handle the case where currentUser is null:
-  debugPrint('current user $currentUser');
-  return currentUser; // Or return a default user or handle the null case appropriately
+final currentUser = ref.watch(currentUserProvider).value;
+  
+  
+  return currentUser; 
 });
 
 

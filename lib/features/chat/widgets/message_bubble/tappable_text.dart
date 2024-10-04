@@ -6,11 +6,14 @@ import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
 import 'package:lessay_learn/core/providers/favorite_provider.dart';
 import 'package:lessay_learn/core/providers/known_word_provider.dart';
+import 'package:lessay_learn/core/providers/language_service_provider.dart';
 import 'package:lessay_learn/core/services/favorite_service.dart';
 import 'package:lessay_learn/core/services/known_word_service.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
-import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
+import 'package:lessay_learn/core/services/translate_service.dart';
+import 'package:lessay_learn/core/providers/user_provider.dart';
+
 
 class TappableText extends ConsumerStatefulWidget {
   final String text;
@@ -54,7 +57,8 @@ class TappableTextState extends ConsumerState<TappableText> {
   }
 
   List<_WordSpan> _splitTextIntoWordSpans(String text) {
-    final RegExp wordRegex = RegExp(r"\p{L}[\p{L}\p{M}'\p{Nd}]*", unicode: true);
+    final RegExp wordRegex =
+        RegExp(r"\p{L}[\p{L}\p{M}'\p{Nd}]*", unicode: true);
     final List<_WordSpan> spans = [];
     int lastIndex = 0;
 
@@ -69,7 +73,7 @@ class TappableTextState extends ConsumerState<TappableText> {
     if (lastIndex < text.length) {
       spans.add(_WordSpan(text.substring(lastIndex), false));
     }
-   
+
     return spans;
   }
 
@@ -96,20 +100,27 @@ class TappableTextState extends ConsumerState<TappableText> {
     final isKnown =
         widget.knownWords.any((knownWord) => knownWord.word == word);
 
+    final currentUser = ref.watch(currentUserProvider).value;
+
     return GestureDetector(
       onTap: () {
+        
+        if (currentUser?.preferableTranslationLanguage == null) {
+          _showLanguageSelectionSheet(context, word);
+        } else {
+          tooltipControllers[index].showTooltip();
+          // Trigger translation when tapped
+          ref.read(translationTriggerProvider.notifier).state =
+              TranslationTrigger(
+            messageId: '${widget.text}_$index',
+            text: word,
+            targetLanguage:
+                currentUser!.preferableTranslationLanguage!,
+          );
+        }
         if (!isKnown) {
           _makeWordKnown(word);
         }
-        tooltipControllers[index].showTooltip();
-        // Trigger translation when tapped
-        ref.read(translationTriggerProvider.notifier).state =
-            TranslationTrigger(
-          messageId: '${widget.text}_$index',
-          text: word,
-          targetLanguage:
-              'es', // TODO: Change this to the desired target language
-        );
       },
       child: JustTheTooltip(
         controller: tooltipControllers[index],
@@ -183,7 +194,8 @@ class TappableTextState extends ConsumerState<TappableText> {
               ),
               SizedBox(width: 8),
               GestureDetector(
-                onTap: () => _toggleFavorite(word, isFavorite),
+                onTap: () => _toggleFavorite(
+                    word, isFavorite, translationAsyncValue.value),
                 child: Icon(
                   isFavorite ? CupertinoIcons.star_fill : CupertinoIcons.star,
                   color: CupertinoColors.activeBlue,
@@ -197,7 +209,8 @@ class TappableTextState extends ConsumerState<TappableText> {
     );
   }
 
-  Future<void> _toggleFavorite(String word, bool isFavorite) async {
+  Future<void> _toggleFavorite(String word, bool isFavorite,
+      TranslationResult? translationResult) async {
     final currentUser = ref.read(currentUserProvider).value;
     if (currentUser == null) return;
 
@@ -213,8 +226,10 @@ class TappableTextState extends ConsumerState<TappableText> {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: currentUser.id,
         sourceText: word,
-        translatedText: '', // You might want to add translation functionality
-        sourceLanguage: 'lang_en', // Replace with actual source language
+        translatedText: translationResult!
+            .translatedText, // You might want to add translation functionality
+        sourceLanguage: translationResult
+            .detectedLanguage, // Replace with actual source language
         targetLanguage: 'lang_en', // Replace with actual target language
       );
       await ref.read(favoritesProvider.notifier).addFavorite(newFavorite);
@@ -230,10 +245,57 @@ class TappableTextState extends ConsumerState<TappableText> {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: currentUser.id,
         word: word,
-        language: 'lang_en', // Replace with actual language
+        language: currentUser.preferableTranslationLanguage!, // Replace with actual language
+        // TODO: USER SETS THE Translation target language
       );
       await ref.read(knownWordsProvider.notifier).addKnownWord(newKnownWord);
     }
+  }
+
+ Future<void> _setPreferredLanguage(String languageCode) async {
+    final currentUserAsync = ref.read(currentUserProvider);
+    
+    currentUserAsync.whenData((currentUser) async {
+      final updatedUser = currentUser.copyWith(preferableTranslationLanguage: languageCode);
+      await ref.read(currentUserProvider.notifier).updateUser(updatedUser);
+    });
+  }
+
+  Future<void> _translateWord(String word, String targetLanguage) async {
+    // Implement the translation logic here
+    // You can use the translatedMessageProvider or create a new provider for word translation
+  }
+
+  Future<void> _showLanguageSelectionSheet(
+      BuildContext context, String word) async {
+    final currentUser = ref.read(currentUserProvider).value;
+    if (currentUser == null) return;
+
+    final languageModels =
+        await ref.read(languagesProvider(currentUser.id).future);
+
+    await showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        title: Text('Select Preferred Translation Language'),
+        actions: languageModels
+            .map((lang) => CupertinoActionSheetAction(
+                  child: Text(lang.name),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _setPreferredLanguage(lang.shortcut);
+                    _translateWord(word, lang.shortcut);
+                  },
+                ))
+            .toList(),
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('Cancel'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
   }
 }
 

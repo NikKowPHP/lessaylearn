@@ -585,8 +585,7 @@ Future<void> updateMessage(MessageModel message) async {
     // Save the updated list back to the box
     await box.put(message.chatId, messagesJson);
     
-    debugPrint('Message updated successfully: ${message.id}');
-     debugPrint('Messages after updation: ${messagesJson}');
+
   } else {
     debugPrint('Message not found for updating: ${message.id}');
   }
