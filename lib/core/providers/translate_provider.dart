@@ -5,7 +5,7 @@ final translateServiceProvider = Provider<ITranslateService>((ref) {
   return TranslateService();
 });
 
-final translateProvider = FutureProvider.family<String, TranslateParams>((ref, params) async {
+final translateProvider = FutureProvider.family<TranslationResult, TranslateParams>((ref, params) async {
   final translateService = ref.watch(translateServiceProvider);
   return translateService.translate(params.text, params.targetLanguage);
 });

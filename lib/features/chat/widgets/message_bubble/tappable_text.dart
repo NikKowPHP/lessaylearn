@@ -176,7 +176,7 @@ class TappableTextState extends ConsumerState<TappableText> {
               SizedBox(height: 8),
               translationAsyncValue.when(
                 data: (translation) => translation != null
-                    ? Text('Translation: $translation')
+                    ? Text('Translation: ${translation.translatedText}')
                     : Text('Tap to translate'),
                 loading: () => CupertinoActivityIndicator(),
                 error: (error, _) => Text('Error: $error'),

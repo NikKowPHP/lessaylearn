@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/providers/local_storage_provider.dart';
 import 'package:lessay_learn/core/providers/translate_provider.dart';
+import 'package:lessay_learn/core/services/translate_service.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
 
@@ -134,7 +135,7 @@ class TranslationTrigger {
   });
 }
 
-final translatedMessageProvider = FutureProvider.autoDispose.family<String?, String>((ref, messageId) async {
+final translatedMessageProvider = FutureProvider.autoDispose.family<TranslationResult?, String>((ref, messageId) async {
   final trigger = ref.watch(translationTriggerProvider);
   if (trigger == null || trigger.messageId != messageId) return null;
 
