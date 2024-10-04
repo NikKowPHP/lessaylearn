@@ -1,0 +1,213 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/core/dependency_injection.dart';
+import 'package:lessay_learn/core/models/favorite_model.dart';
+import 'package:lessay_learn/core/models/known_word_model.dart';
+import 'package:lessay_learn/core/providers/favorite_provider.dart';
+import 'package:lessay_learn/core/providers/known_word_provider.dart';
+import 'package:lessay_learn/core/services/favorite_service.dart';
+import 'package:lessay_learn/core/services/known_word_service.dart';
+import 'package:lessay_learn/core/providers/chat_provider.dart';
+import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
+
+
+
+
+class TappableText extends ConsumerStatefulWidget {
+  final String text;
+  final bool isUserMessage;
+  final List<FavoriteModel> favorites;
+  final List<KnownWordModel> knownWords;
+
+  const TappableText({
+    Key? key,
+    required this.text,
+    required this.isUserMessage,
+    required this.favorites,
+    required this.knownWords,
+  }) : super(key: key);
+
+  @override
+  ConsumerState<TappableText> createState() => TappableTextState();
+}
+
+class TappableTextState extends ConsumerState<TappableText> {
+  final List<JustTheController> tooltipControllers = [];
+  final KnownWordService _knownWordService = getIt<KnownWordService>();
+  final FavoriteService _favoriteService = getIt<FavoriteService>();
+
+  @override
+  void initState() {
+    super.initState();
+    tooltipControllers.addAll(
+      widget.text.split(' ').map((_) => JustTheController()),
+    );
+  }
+
+  @override
+  void dispose() {
+    for (var controller in tooltipControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final words = widget.text.split(' ');
+    return Wrap(
+      children: words.asMap().entries.map((entry) {
+        final index = entry.key;
+        final word = entry.value;
+        return _buildTappableWord(word, index);
+      }).toList(),
+    );
+  }
+
+  Widget _buildTappableWord(String word, int index) {
+    final isFavorite =
+        widget.favorites.any((favorite) => favorite.sourceText == word);
+    final isKnown =
+        widget.knownWords.any((knownWord) => knownWord.word == word);
+
+    return GestureDetector(
+      onTap: () {
+        if (!isKnown) {
+          _makeWordKnown(word);
+        }
+        tooltipControllers[index].showTooltip();
+        // Trigger translation when tapped
+        ref.read(translationTriggerProvider.notifier).state =
+            TranslationTrigger(
+          messageId: '${widget.text}_$index',
+          text: word,
+          targetLanguage: 'es', // Change this to the desired target language
+        );
+      },
+      child: JustTheTooltip(
+        controller: tooltipControllers[index],
+        preferredDirection: AxisDirection.up,
+        tailLength: 10.0,
+        tailBaseWidth: 20.0,
+        backgroundColor: CupertinoColors.systemBackground,
+        content: _buildTooltipContent(word, '${widget.text}_$index'),
+        triggerMode: TooltipTriggerMode.manual,
+        isModal: true,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              color: _getHighlightColor(isKnown, isFavorite),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              word,
+              style: TextStyle(
+                color: widget.isUserMessage
+                    ? CupertinoColors.white
+                    : CupertinoColors.black,
+                fontWeight: isKnown ? FontWeight.bold : FontWeight.normal,
+                decoration:
+                    isFavorite ? TextDecoration.underline : TextDecoration.none,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _getHighlightColor(bool isKnown, bool isFavorite) {
+    if (!isKnown) {
+      return CupertinoColors.systemYellow.withOpacity(0.3);
+    } else if (isFavorite) {
+      return widget.isUserMessage
+          ? CupertinoColors.systemPink
+              .withOpacity(0.3) // Different color for current user's favorites
+          : CupertinoColors.systemBlue
+              .withOpacity(0.3); // Slight blue for other user's favorites
+    } else {
+      return CupertinoColors.transparent;
+    }
+  }
+
+  Widget _buildTooltipContent(String word, String messageId) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final favorites = ref.watch(favoritesProvider);
+        bool isFavorite =
+            favorites.any((favorite) => favorite.sourceText == word);
+        final translationAsyncValue =
+            ref.watch(translatedMessageProvider(messageId));
+
+        return Padding(
+          padding: EdgeInsets.all(8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 8),
+              translationAsyncValue.when(
+                data: (translation) => translation != null
+                    ? Text('Translation: $translation')
+                    : Text('Tap to translate'),
+                loading: () => CupertinoActivityIndicator(),
+                error: (error, _) => Text('Error: $error'),
+              ),
+              SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _toggleFavorite(word, isFavorite),
+                child: Icon(
+                  isFavorite ? CupertinoIcons.star_fill : CupertinoIcons.star,
+                  color: CupertinoColors.activeBlue,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _toggleFavorite(String word, bool isFavorite) async {
+    final currentUser = ref.read(currentUserProvider).value;
+    if (currentUser == null) return;
+
+    if (isFavorite) {
+      final favoriteToRemove = ref
+          .read(favoritesProvider)
+          .firstWhere((fav) => fav.sourceText == word);
+      await ref
+          .read(favoritesProvider.notifier)
+          .removeFavorite(favoriteToRemove.id);
+    } else {
+      final newFavorite = FavoriteModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: currentUser.id,
+        sourceText: word,
+        translatedText: '', // You might want to add translation functionality
+        sourceLanguage: 'lang_en', // Replace with actual source language
+        targetLanguage: 'lang_en', // Replace with actual target language
+      );
+      await ref.read(favoritesProvider.notifier).addFavorite(newFavorite);
+    }
+  }
+
+  Future<void> _makeWordKnown(String word) async {
+    final currentUser = ref.read(currentUserProvider).value;
+    if (currentUser == null) return;
+
+    if (!widget.knownWords.any((knownWord) => knownWord.word == word)) {
+      final newKnownWord = KnownWordModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: currentUser.id,
+        word: word,
+        language: 'lang_en', // Replace with actual language
+      );
+      await ref.read(knownWordsProvider.notifier).addKnownWord(newKnownWord);
+    }
+  }
+}
