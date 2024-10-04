@@ -143,11 +143,6 @@ class ChatService implements IChatService {
     await localStorageService.saveMessage(message);
     await _updateChatWithLastMessage(message);
 
-    // Mark all messages in the chat as read
-    await markAllMessagesAsRead(message.chatId, message.senderId);
-
-    _messageStreamController.add(message);
-
     if (!message.senderId.startsWith('bot')) {
       _typingIndicatorStreamController.add(true);
 
@@ -164,10 +159,10 @@ class ChatService implements IChatService {
     debugPrint('Simulating reply for chatId: $chatId, senderId: $senderId');
     debugPrint('Retrieved partner: ${partner?.name}');
 
-    await markPartnerMessagesAsRead(chatId, senderId);
+    await markAllMessagesAsRead(chatId, senderId);
 
-    debugPrint('Marking messages as read for user: ${senderId}');
-    debugPrint('Messages marked as read of current user: ${senderId}');
+    debugPrint('Marking messages as read for user: $senderId');
+    debugPrint('Messages marked as read of current user: $senderId');
 
     final reply = MessageModel(
       id: UniqueKey().toString(),
@@ -189,7 +184,7 @@ class ChatService implements IChatService {
     return reply;
   }
 
-  Future<ChatModel> _updateChatWithLastMessage(MessageModel message) async {
+  Future<void> _updateChatWithLastMessage(MessageModel message) async {
     final chat = await localStorageService.getChatById(message.chatId);
     if (chat != null) {
       final updatedChat = chat.copyWith(
@@ -197,9 +192,11 @@ class ChatService implements IChatService {
         lastMessageTimestamp: message.timestamp,
       );
       await localStorageService.updateChat(updatedChat);
-      return updatedChat;
+      // Notify listeners about the updated chat
+      _messageStreamController.add(message);
+    } else {
+      throw Exception('Chat not found');
     }
-    throw Exception('Chat not found');
   }
 
   @override

@@ -38,6 +38,10 @@ final chatsProvider = StateNotifierProvider<ChatsNotifier, List<ChatModel>>((ref
 });
 
 
+
+
+
+
 class MessagesNotifier extends StateNotifier<List<MessageModel>> {
   final IChatService _chatService;
   final String _chatId;
@@ -59,6 +63,16 @@ class MessagesNotifier extends StateNotifier<List<MessageModel>> {
 
   void addMessage(MessageModel message) {
     state = [...state, message];
+  }
+
+    Future<void> sendMessage(MessageModel message) async {
+    // Add the message to the state immediately
+    state = [...state, message];
+    
+    // Send the message through the chat service
+    await _chatService.sendMessage(message);
+    
+  
   }
 
   void updateMessage(MessageModel updatedMessage) {
@@ -89,6 +103,19 @@ class ChatsNotifier extends StateNotifier<List<ChatModel>> {
     state = [
       for (final chat in state)
         if (chat.id == updatedChat.id) updatedChat else chat
+    ];
+  }
+
+   void updateChatWithLastMessage(MessageModel message) {
+    state = [
+      for (final chat in state)
+        if (chat.id == message.chatId)
+          chat.copyWith(
+            lastMessage: message.content,
+            lastMessageTimestamp: message.timestamp,
+          )
+        else
+          chat
     ];
   }
 }

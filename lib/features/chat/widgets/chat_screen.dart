@@ -316,8 +316,9 @@ class _IndividualChatScreenState extends ConsumerState<IndividualChatScreen> {
         timestamp: DateTime.now(),
       );
       _messageController.clear();
-      final chatService = ref.read(chatServiceProvider);
-      await chatService.sendMessage(newMessage);
+      ref
+          .read(messagesProvider(widget.chat.id).notifier)
+          .sendMessage(newMessage);
 
       _scrollToBottom();
     }
