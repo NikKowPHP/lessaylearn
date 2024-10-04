@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
 
-import 'package:lessay_learn/core/providers/language_service_provider.dart';
+import 'package:lessay_learn/core/providers/language_provider.dart';
 
 import 'package:lessay_learn/features/voicer/models/recording_model.dart';
 import 'package:lessay_learn/features/voicer/presentation/widgets/recording_history_widget.dart';

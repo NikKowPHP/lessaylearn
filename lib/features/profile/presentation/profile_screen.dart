@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
-import 'package:lessay_learn/core/providers/language_service_provider.dart';
+import 'package:lessay_learn/core/providers/language_provider.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:go_router/go_router.dart';
