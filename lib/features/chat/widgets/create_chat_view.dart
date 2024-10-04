@@ -330,43 +330,44 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     );
   }
 
-  void _showBottomSheet(BuildContext context, String title,
-      List<String> selectedTags, List<String> allOptions) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.6,
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: CupertinoTheme.of(context).scaffoldBackgroundColor,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              Text(title,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
-              Expanded(
-                child: CupertinoScrollbar(
-                  child: ListView(
-                    children: allOptions
-                        .map((option) =>
-                            _buildTagTile(option, selectedTags, allOptions))
-                        .toList(),
-                  ),
+void _showBottomSheet(BuildContext context, String title,
+    List<String> selectedTags, List<String> allOptions) {
+  showCupertinoModalPopup(
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Text(title,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
+            Expanded(
+              child: CupertinoScrollbar(
+                child: ListView(
+                  primary: true, // Use the PrimaryScrollController
+                  children: allOptions
+                      .map((option) =>
+                          _buildTagTile(option, selectedTags, allOptions))
+                      .toList(),
                 ),
               ),
-              CupertinoButton(
-                child: Text('Done'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+            ),
+            CupertinoButton(
+              child: Text('Done'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
 
   String _getTitleForTags(List<String> tags) {
     if (tags == _personalityTraits) return 'Personality Traits';
