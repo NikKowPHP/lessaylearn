@@ -181,7 +181,19 @@ class LocalStorageService implements ILocalStorageService {
   }
 
 
+  // Map to store opened boxes
+  final Map<String, Box> _boxes = {};
 
+
+  // Method to get or open a box
+  Future<Box<T>> _getBox<T>(String boxName) async {
+    if (_boxes.containsKey(boxName)) {
+      return _boxes[boxName] as Box<T>;
+    }
+    final box = await Hive.openBox<T>(boxName);
+    _boxes[boxName] = box;
+    return box;
+  }
 
 
   @override
@@ -1030,7 +1042,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     // }
 
     try {
-      await closeBoxes();
+      // await closeBoxes();
     } catch (e) {
       print('Error closing boxes: $e');
     }
