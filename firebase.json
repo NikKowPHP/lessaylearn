@@ -1,9 +1,1 @@
-{
-  "dataconnect": {
-    "source": "dataconnect"
-  },
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  }
-}
+{"dataconnect":{"source":"dataconnect"},"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"flutter":{"platforms":{"android":{"default":{"projectId":"lessay","appId":"1:203834336057:android:794ccf9242ef9097e03ee8","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"lessay","appId":"1:203834336057:ios:1f098c31b145b956e03ee8","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"lessay","appId":"1:203834336057:ios:1f098c31b145b956e03ee8","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"lessay","configurations":{"android":"1:203834336057:android:794ccf9242ef9097e03ee8","ios":"1:203834336057:ios:1f098c31b145b956e03ee8","macos":"1:203834336057:ios:1f098c31b145b956e03ee8","web":"1:203834336057:web:d4ae28464089bbbae03ee8","windows":"1:203834336057:web:22a94c93f2b34193e03ee8"}}}}}}

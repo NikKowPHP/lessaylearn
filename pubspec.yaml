@@ -8,25 +8,21 @@ version: 1.0.0+2
 environment:
   sdk: ">=3.4.0 <4.0.0"
 
-  # Core Packages
 dependencies:
-  flutter_riverpod: 
+  flutter:
+    sdk: flutter
+  flutter_riverpod:
   go_router:
   dio: 
   json_annotation: 
   cupertino_icons: 
-
-  # Local Storage
   hive: 
   hive_flutter: 
-
-  # Dependency Injection
   get_it: 
   intl: ^0.19.0
   mocktail: ^1.0.4
   equatable: ^2.0.5
   uuid: ^4.5.0
-  # just_the_tooltip: ^0.0.12
   fl_chart: ^0.69.0
   word_cloud: ^1.0.3
   flutter_tts: ^3.8.5
@@ -37,30 +33,14 @@ dependencies:
   firebase_auth: 
   google_sign_in: 
   translator: ^1.0.0
-  
-
-  # Optional Packages (Uncomment as needed)
-  # flutter_staggered_grid_view: ^0.6.2
-  # animations: ^2.0.7
-  # cached_network_image: ^3.2.3
-  # flutter_svg: ^2.0.7
-  # firebase_analytics: ^10.4.0
-  # firebase_crashlytics: ^3.2.0
-  # workmanager: ^0.5.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # Code Generation for JSON Serialization
   build_runner: ^2.4.6
   json_serializable: ^6.7.0
   path_provider_platform_interface:
   plugin_platform_interface:
-
-  # Optional Dev Dependencies (Uncomment as needed)
-  # mockito: ^5.4.2
-  # integration_test: ^2.1.0
 
 flutter:
   uses-material-design: true

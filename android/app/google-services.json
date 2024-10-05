@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "203834336057",
+    "project_id": "lessay",
+    "storage_bucket": "lessay.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:203834336057:android:794ccf9242ef9097e03ee8",
+        "android_client_info": {
+          "package_name": "com.lessay.learn"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoMcVKsItcS7Q1SQ8LbIea3v-qJceoBKY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:203834336057:android:3c05fd80067dd058e03ee8",
+        "android_client_info": {
+          "package_name": "com.lessay.translate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoMcVKsItcS7Q1SQ8LbIea3v-qJceoBKY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
