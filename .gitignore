@@ -68,3 +68,10 @@ Pods/
 # API keys and secrets
 *.env
 *.keystore
+
+# Android
+/android/key.properties 
+/android/app/google-services.json  # Firebase config for Android
+
+# iOS
+/ios/Runner/GoogleService-Info.plist # Firebase config for iOS
