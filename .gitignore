@@ -71,7 +71,7 @@ Pods/
 
 # Android
 /android/key.properties 
-/android/app/google-services.json  # Firebase config for Android
+/android/app/google-services.json 
 
 # iOS
-/ios/Runner/GoogleService-Info.plist # Firebase config for iOS
+/ios/Runner/GoogleService-Info.plist
