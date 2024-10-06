@@ -8,6 +8,7 @@ import 'package:lessay_learn/core/app_config.dart';
 import 'package:lessay_learn/core/dependency_injection.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lessay_learn/core/router/router.dart';
+import 'firebase_options.dart';
 
 // Function to conditionally initialize Firebase
 Future<void> initializeFirebase() async {
@@ -26,7 +27,10 @@ Future<void> initializeFirebase() async {
 Future<void> main() async {
   await WidgetsFlutterBinding.ensureInitialized();
 
- await initializeFirebase();
+//  await initializeFirebase();
+ await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
 // Initialize Hive
   await Hive.initFlutter();
 

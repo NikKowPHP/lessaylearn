@@ -12,24 +12,23 @@ import 'package:flutter/foundation.dart';
 final firebaseServiceProvider = Provider<FirebaseService>((ref) => FirebaseService());
 final mockFirebaseServiceProvider = Provider<IFirebaseService>((ref) => MockFirebaseService());
 final authServiceProvider = Provider<AuthService>((ref) {
-  // final firebaseService = ref.watch(firebaseServiceProvider);
-    final firebaseService = ref.watch(mockFirebaseServiceProvider);
+  final firebaseService = ref.watch(firebaseServiceProvider);
+    // final firebaseService = ref.watch(mockFirebaseServiceProvider);
   final localStorageService = ref.watch(localStorageServiceProvider);
   return AuthService(firebaseService, localStorageService);
 });
 
-// final authStateProvider = StreamProvider<UserModel?>((ref) {
-//   final authService = ref.watch(authServiceProvider);
-//   return authService.onAuthStateChanged;
-//   return currentUserProvider()
-// });
-
-final authStateProvider = FutureProvider<UserModel?>((ref) async {
-final currentUser = ref.watch(currentUserProvider).value;
-  
-  
-  return currentUser; 
+final authStateProvider = StreamProvider<UserModel?>((ref) {
+  final authService = ref.watch(authServiceProvider);
+  return authService.onAuthStateChanged;
 });
+
+// final authStateProvider = FutureProvider<UserModel?>((ref) async {
+// final currentUser = ref.watch(currentUserProvider).value;
+  
+  
+//   return currentUser; 
+// });
 
 
 final isLoadingProvider = StateProvider<bool>((ref) => false);
