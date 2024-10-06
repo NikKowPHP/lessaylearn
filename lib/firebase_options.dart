@@ -87,4 +87,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'lessay-production.appspot.com',
     measurementId: 'G-VBLPNZCQ1G',
   );
+
 }

@@ -28,5 +28,20 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.651369577703-ntejekr05fge1dg0se1j2f74jebfojdo</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app needs access to the local network to connect to Firebase.</string>
+	<key>NSNetworkUsageDescription</key>
+	<string>This app needs internet access to function correctly.</string>
 </dict>
 </plist>
