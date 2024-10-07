@@ -26,7 +26,7 @@ final languageByIdProvider = FutureProvider.family<UserLanguage?, String>((ref, 
 });
 final allLanguagesProvider = FutureProvider<List<UserLanguage>>((ref) async {
   final localStorageService = ref.watch(localStorageServiceProvider);
-  return await localStorageService.getLanguages();
+  return await localStorageService.getUserLanguages();
 });
 
 final calculateLanguageLevelProvider = Provider.family<String, int>((ref, score) {

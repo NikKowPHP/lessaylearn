@@ -149,7 +149,7 @@ class UserService implements IUserService {
     UserModel? user = await getUserById(userId);
     if (user != null) {
       // Retrieve languages from local storage based on userId
-      return await _localStorageService.getLanguagesByUserId(userId);
+      return await _localStorageService.getUserLanguagesByUserId(userId);
     }
     return []; // Return an empty list if user is not found
   }

@@ -2,6 +2,7 @@ import 'package:hive/hive.dart';
 import 'package:lessay_learn/core/models/comment_model.dart';
 import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
+import 'package:lessay_learn/core/models/language_model.dart';
 import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
@@ -16,9 +17,8 @@ import 'package:lessay_learn/features/voicer/models/recording_model.dart';
 import 'package:lessay_learn/services/mock_storage_service.dart';
 import 'package:flutter/foundation.dart';
 
-
 abstract class ILocalStorageService {
-   Future<void> addUser(UserModel user);
+  Future<void> addUser(UserModel user);
   Future<bool> isUserLoggedIn();
   Future<void> saveChats(List<ChatModel> chats);
   Future<List<ChatModel>> getChats();
@@ -64,16 +64,16 @@ abstract class ILocalStorageService {
   Future<void> saveFavorite(FavoriteModel favorite);
   Future<List<FavoriteModel>> getFavorites();
   Future<void> deleteFavorite(String favoriteId);
-  Future<FavoriteModel?> getFavoriteById(String favoriteId); 
+  Future<FavoriteModel?> getFavoriteById(String favoriteId);
   Future<void> updateFavorite(FavoriteModel favorite);
 
   // Language methods
-  Future<void> saveLanguage(UserLanguage language);
-  Future<List<UserLanguage>> getLanguagesByUserId(String userId);
-  Future<UserLanguage?> getLanguageById(String languageId);
-  Future<void> updateLanguage(UserLanguage language);
-  Future<void> deleteLanguage(String languageId);
-  Future<List<UserLanguage>> getLanguages();
+  Future<void> saveUserLanguage(UserLanguage language);
+  Future<List<UserLanguage>> getUserLanguagesByUserId(String userId);
+  Future<UserLanguage?> getUserLanguageById(String languageId);
+  Future<void> updateUserLanguage(UserLanguage language);
+  Future<void> deleteUserLanguage(String languageId);
+  Future<List<UserLanguage>> getUserLanguages();
 // Profile Picture methods
   Future<void> saveProfilePicture(ProfilePictureModel picture);
   Future<List<ProfilePictureModel>> getProfilePicturesForUser(String userId);
@@ -89,22 +89,31 @@ abstract class ILocalStorageService {
   Future<void> saveComment(CommentModel comment);
   Future<void> deleteComment(String commentId);
   Future<List<CommentModel>> getCommentsForPicture(String pictureId);
-   Future<List<CommentModel>> getComments();
+  Future<List<CommentModel>> getComments();
   // Add these methods to the ILocalStorageService abstract class
 
-Future<List<ChartModel>> getCharts();
-Future<void> saveChart(ChartModel chart);
-Future<void> updateChart(ChartModel chart);
-  Future<void> deleteChart(String chartId) ;
-   Future<List<ChartModel>> getUserCharts(String userId);
+  Future<List<ChartModel>> getCharts();
+  Future<void> saveChart(ChartModel chart);
+  Future<void> updateChart(ChartModel chart);
+  Future<void> deleteChart(String chartId);
+  Future<List<ChartModel>> getUserCharts(String userId);
 
-   Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId);
-  Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId);
+  Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(
+      String userId, String languageId);
+  Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(
+      String userId, String languageId);
   Future<void> saveRecording(RecordingModel recording);
-Future<List<RecordingModel>> getRecordingsForUser(String userId);
-Future<List<RecordingModel>> getRecordingsForUserAndLanguage(String userId, String languageId);
-Future<void> deleteRecording(String recordingId);
-Future<void> updateRecording(RecordingModel recording);
+  Future<List<RecordingModel>> getRecordingsForUser(String userId);
+  Future<List<RecordingModel>> getRecordingsForUserAndLanguage(
+      String userId, String languageId);
+  Future<void> deleteRecording(String recordingId);
+  Future<void> updateRecording(RecordingModel recording);
+  Future<void> saveLanguage(Language language);
+  Future<List<Language>> getLanguages();
+  Future<Language?> getLanguageById(String languageId);
+  Future<void> updateLanguage(Language language);
+  Future<void> deleteLanguage(String languageId);
+  Future<void> ensureMockLanguages();
 }
 
 class LocalStorageService implements ILocalStorageService {
@@ -125,8 +134,7 @@ class LocalStorageService implements ILocalStorageService {
   static const String _likesBoxName = 'likes';
   static const String _commentsBoxName = 'comments';
 
-   static const String _recordingsBoxName = 'recordings';
-
+  static const String _recordingsBoxName = 'recordings';
 
   Future<Box> _openChartsBox() async {
     return await Hive.openBox(_chartsBoxName);
@@ -135,7 +143,6 @@ class LocalStorageService implements ILocalStorageService {
   Future<Box> _openRecordingsBox() async {
     return await Hive.openBox(_recordingsBoxName);
   }
-
 
   Future<Box> _openKnownWordsBox() async {
     return await Hive.openBox(_knownWordsBoxName);
@@ -181,10 +188,8 @@ class LocalStorageService implements ILocalStorageService {
     return await Hive.openBox(_commentsBoxName);
   }
 
-
   // Map to store opened boxes
   final Map<String, Box> _boxes = {};
-
 
   // Method to get or open a box
   Future<Box<T>> _getBox<T>(String boxName) async {
@@ -196,16 +201,13 @@ class LocalStorageService implements ILocalStorageService {
     return box;
   }
 
-
   @override
   Future<void> saveRecording(RecordingModel recording) async {
     final box = await _openRecordingsBox();
     await box.put(recording.id, recording.toJson());
   }
 
-
-
-   @override
+  @override
   Future<List<RecordingModel>> getRecordingsForUser(String userId) async {
     final box = await _openRecordingsBox();
     return box.values
@@ -214,12 +216,13 @@ class LocalStorageService implements ILocalStorageService {
         .toList();
   }
 
-
   @override
-  Future<List<RecordingModel>> getRecordingsForUserAndLanguage(String userId, String languageId) async {
+  Future<List<RecordingModel>> getRecordingsForUserAndLanguage(
+      String userId, String languageId) async {
     final box = await _openRecordingsBox();
     return box.values
-        .where((json) => json['userId'] == userId && json['languageId'] == languageId)
+        .where((json) =>
+            json['userId'] == userId && json['languageId'] == languageId)
         .map((json) => RecordingModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
   }
@@ -236,13 +239,14 @@ class LocalStorageService implements ILocalStorageService {
     await box.put(recording.id, recording.toJson());
   }
 
-@override
-  Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId) async {
+  @override
+  Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(
+      String userId, String languageId) async {
     final box = await Hive.openBox(_favoritesBoxName);
-    
+
     // Debug print for the box state
     debugPrint('Total favorites in box: ${box.values.length}');
-    
+
     // Step 1: Retrieve all favorites from the box
     final allFavorites = box.values
         .map((json) => FavoriteModel.fromJson(Map<String, dynamic>.from(json)))
@@ -250,16 +254,17 @@ class LocalStorageService implements ILocalStorageService {
 
     // Debug print for all favorites retrieved
     debugPrint('All favorites retrieved: ${allFavorites.length}');
-    debugPrint('Favorites details: ${allFavorites.map((fav) => fav.toJson()).toList()}');
+    debugPrint(
+        'Favorites details: ${allFavorites.map((fav) => fav.toJson()).toList()}');
 
     // Step 2: Filter favorites by userId
-    final userFavorites = allFavorites
-        .where((favorite) => favorite.userId == userId)
-        .toList();
+    final userFavorites =
+        allFavorites.where((favorite) => favorite.userId == userId).toList();
 
     // Debug print for favorites filtered by userId
     debugPrint('Total favorites for user $userId: ${userFavorites.length}');
-    debugPrint('User favorites details: ${userFavorites.map((fav) => fav.toJson()).toList()}');
+    debugPrint(
+        'User favorites details: ${userFavorites.map((fav) => fav.toJson()).toList()}');
 
     // Step 3: Apply languageId filter
     final filteredFavorites = userFavorites
@@ -267,19 +272,24 @@ class LocalStorageService implements ILocalStorageService {
         .toList();
 
     // Debug print for favorites filtered by userId and languageId
-    debugPrint('Total favorites for user $userId and language $languageId: ${filteredFavorites.length}');
+    debugPrint(
+        'Total favorites for user $userId and language $languageId: ${filteredFavorites.length}');
     if (filteredFavorites.isNotEmpty) {
-        debugPrint('Filtered favorites: ${filteredFavorites.map((fav) => fav.toJson()).toList()}');
+      debugPrint(
+          'Filtered favorites: ${filteredFavorites.map((fav) => fav.toJson()).toList()}');
     } else {
-        debugPrint('No favorites found for user $userId and language $languageId.');
+      debugPrint(
+          'No favorites found for user $userId and language $languageId.');
     }
 
     return filteredFavorites;
   }
+
   @override
- Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(String userId, String languageId) async {
+  Future<List<KnownWordModel>> getKnownWordsByUserAndLanguage(
+      String userId, String languageId) async {
     final box = await Hive.openBox(_knownWordsBoxName);
-      // Step 1: Retrieve all known words from the box
+    // Step 1: Retrieve all known words from the box
     final allKnownWords = box.values
         .map((json) => KnownWordModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
@@ -289,9 +299,8 @@ class LocalStorageService implements ILocalStorageService {
     // debugPrint('All known words: ${allKnownWords.map((kw) => kw.toJson()).toList()}');
 
     // Step 2: Filter known words by userId
-    final userKnownWords = allKnownWords
-        .where((knownWord) => knownWord.userId == userId)
-        .toList();
+    final userKnownWords =
+        allKnownWords.where((knownWord) => knownWord.userId == userId).toList();
 
     // Debug print for known words filtered by userId
     // debugPrint('Total known words for user $userId: ${userKnownWords.length}');
@@ -305,27 +314,30 @@ class LocalStorageService implements ILocalStorageService {
     // Debug print for known words filtered by userId and languageId
     // debugPrint('Total known words for user $userId and language $languageId: ${filteredKnownWords.length}');
     if (filteredKnownWords.isNotEmpty) {
-        // debugPrint('Filtered known words: ${filteredKnownWords.map((kw) => kw.toJson()).toList()}');
+      // debugPrint('Filtered known words: ${filteredKnownWords.map((kw) => kw.toJson()).toList()}');
     } else {
-        debugPrint('No known words found for user $userId and language $languageId.');
+      debugPrint(
+          'No known words found for user $userId and language $languageId.');
     }
 
     return filteredKnownWords;
   }
 
 // Known Words methods
- @override
+  @override
   Future<void> saveKnownWord(KnownWordModel knownWord) async {
     final box = await _openKnownWordsBox();
-    
+
     // Debug print before saving
-    debugPrint('Saving known word: ${knownWord.toJson()} with ID: ${knownWord.id}');
-    
+    debugPrint(
+        'Saving known word: ${knownWord.toJson()} with ID: ${knownWord.id}');
+
     await box.put(knownWord.id, knownWord.toJson());
-    
+
     // Debug print after saving
     debugPrint('Known word saved successfully with ID: ${knownWord.id}');
   }
+
   @override
   Future<List<KnownWordModel>> getKnownWords() async {
     final box = await _openKnownWordsBox();
@@ -373,13 +385,13 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<void> saveLanguage(UserLanguage language) async {
+  Future<void> saveUserLanguage(UserLanguage language) async {
     final box = await _openLanguagesBox();
     await box.put(language.id, language.toJson());
   }
 
   @override
-  Future<List<UserLanguage>> getLanguagesByUserId(String userId) async {
+  Future<List<UserLanguage>> getUserLanguagesByUserId(String userId) async {
     final box = await _openLanguagesBox();
     final languages = box.values
         .map((json) => UserLanguage.fromJson(Map<String, dynamic>.from(json)))
@@ -389,7 +401,7 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<UserLanguage?> getLanguageById(String languageId) async {
+  Future<UserLanguage?> getUserLanguageById(String languageId) async {
     final box = await _openLanguagesBox();
     final languageJson = box.get(languageId);
     return languageJson != null
@@ -398,7 +410,7 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<void> updateLanguage(UserLanguage language) async {
+  Future<void> updateUserLanguage(UserLanguage language) async {
     final box = await _openLanguagesBox();
     if (box.containsKey(language.id)) {
       await box.put(language.id, language.toJson());
@@ -408,7 +420,7 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<void> deleteLanguage(String languageId) async {
+  Future<void> deleteUserLanguage(String languageId) async {
     final box = await _openLanguagesBox();
     await box.delete(languageId);
   }
@@ -454,7 +466,6 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<List<ChatModel>> getChats() async {
-    
     await initializeDatabase();
     final box = await _openChatsBox();
 
@@ -468,7 +479,7 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<List<UserLanguage>> getLanguages() async {
+  Future<List<UserLanguage>> getUserLanguages() async {
     final box = await _openLanguagesBox();
 
     return box.values
@@ -527,8 +538,6 @@ class LocalStorageService implements ILocalStorageService {
     // Update the chat with the new message
     await updateChatWithLastMessage(
         message.chatId, message.content, message.timestamp);
-
-   
   }
 
   Future<void> updateChatWithLastMessage(
@@ -581,28 +590,27 @@ class LocalStorageService implements ILocalStorageService {
     return json != null ? MessageModel.fromJson(json) : null;
   }
 
-@override
-Future<void> updateMessage(MessageModel message) async {
-  final box = await _openMessagesBox();
-  
-  // Get the list of messages for the chat
-  List<dynamic> messagesJson = box.get(message.chatId, defaultValue: []);
-  
-  // Find the index of the message to update
-  int messageIndex = messagesJson.indexWhere((m) => m['id'] == message.id);
-  
-  if (messageIndex != -1) {
-    // Update the message in the list
-    messagesJson[messageIndex] = message.toJson();
-    
-    // Save the updated list back to the box
-    await box.put(message.chatId, messagesJson);
-    
+  @override
+  Future<void> updateMessage(MessageModel message) async {
+    final box = await _openMessagesBox();
 
-  } else {
-    debugPrint('Message not found for updating: ${message.id}');
+    // Get the list of messages for the chat
+    List<dynamic> messagesJson = box.get(message.chatId, defaultValue: []);
+
+    // Find the index of the message to update
+    int messageIndex = messagesJson.indexWhere((m) => m['id'] == message.id);
+
+    if (messageIndex != -1) {
+      // Update the message in the list
+      messagesJson[messageIndex] = message.toJson();
+
+      // Save the updated list back to the box
+      await box.put(message.chatId, messagesJson);
+    } else {
+      debugPrint('Message not found for updating: ${message.id}');
+    }
   }
-}
+
   @override
   Future<void> deleteMessagesForChat(String chatId) async {
     final box = await _openMessagesBox();
@@ -623,10 +631,12 @@ Future<void> updateMessage(MessageModel message) async {
 
     // debugPrint('Populated users box with ${mockUsers.length} mock users');
   }
-    @override
+
+  @override
   Future<void> addUser(UserModel user) async {
     final box = await _openUsersBox(); // Open the users box
-    await box.put(user.id, user.toJson()); // Save the user using their ID as the key
+    await box.put(
+        user.id, user.toJson()); // Save the user using their ID as the key
   }
 
   @override
@@ -673,35 +683,35 @@ Future<void> updateMessage(MessageModel message) async {
         await box.put(deck.id, deck.toJson());
       }
     }
-   
+
     return box.values
         .map((deck) => DeckModel.fromJson(Map<String, dynamic>.from(deck)))
         .toList();
   }
 
- @override
-@override
-Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
-  final box = await _openFlashcardsBox(); 
- 
- 
-  final allFlashcards = box.values
-    .expand((deckMap) => (deckMap as Map).values) 
-    .where((json) => json is Map && json['deckId'] == deckId) 
-    .map((json) => FlashcardModel.fromJson(Map<String, dynamic>.from(json))) 
-    .toList();
-
-  // debugPrint('Flashcards for deck $deckId: $allFlashcards'); 
-  return allFlashcards;
-}
   @override
-Future<List<FlashcardModel>> getAllFlashcards() async {
-  final box = await _openFlashcardsBox(); 
-  // debugPrint('Flashcards box: ${box.values}'); 
-  return box.values 
-    .map((json) => FlashcardModel.fromJson(Map<String, dynamic>.from(json))) 
-    .toList();
-}
+  @override
+  Future<List<FlashcardModel>> getFlashcardsForDeck(String deckId) async {
+    final box = await _openFlashcardsBox();
+
+    final allFlashcards = box.values
+        .expand((deckMap) => (deckMap as Map).values)
+        .where((json) => json is Map && json['deckId'] == deckId)
+        .map((json) => FlashcardModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+
+    // debugPrint('Flashcards for deck $deckId: $allFlashcards');
+    return allFlashcards;
+  }
+
+  @override
+  Future<List<FlashcardModel>> getAllFlashcards() async {
+    final box = await _openFlashcardsBox();
+    // debugPrint('Flashcards box: ${box.values}');
+    return box.values
+        .map((json) => FlashcardModel.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
 
   @override
   Future<void> updateFlashcard(FlashcardModel flashcard) async {
@@ -721,7 +731,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
         : null;
   }
 
- @override
+  @override
   Future<void> updateUser(UserModel user) async {
     final box = await _openUsersBox();
     await box.put(user.id, user.toJson());
@@ -739,14 +749,17 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     debugPrint('Adding deck: ${deck.toJson()}');
     await box.put(deck.id, deck.toJson());
   }
+
   @override
   Future<List<UserModel>> getAllUsers() async {
     final box = await _openUsersBox();
     return box.values
-        .map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson)))
+        .map((userJson) =>
+            UserModel.fromJson(Map<String, dynamic>.from(userJson)))
         .toList();
   }
-   @override
+
+  @override
   Future<void> clearCurrentUser() async {
     final box = await _openUsersBox();
     await box.delete(_currentUserKey);
@@ -792,13 +805,14 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     return box.isNotEmpty;
   }
 
- Future<DeckModel?> getDeckById(String deckId) async {
+  Future<DeckModel?> getDeckById(String deckId) async {
     final box = await _openDecksBox();
     final deckJson = box.get(deckId);
     return deckJson != null
-        ? DeckModel.fromJson(Map<String, dynamic>.from(deckJson as Map)) // Cast to Map<String, dynamic>
+        ? DeckModel.fromJson(Map<String, dynamic>.from(
+            deckJson as Map)) // Cast to Map<String, dynamic>
         : null;
-}
+  }
 
   Future<void> updateDeckLastStudied(
       String deckId, DateTime lastStudied) async {
@@ -829,7 +843,6 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     await Hive.deleteBoxFromDisk(_profilePicturesBoxName);
     await Hive.deleteBoxFromDisk(_likesBoxName);
     await Hive.deleteBoxFromDisk(_commentsBoxName);
-
   }
 
   @override
@@ -907,8 +920,6 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
   }
 
   Future<void> initializeDatabase() async {
-  
-
     final usersBox = await _openUsersBox();
     final chatsBox = await _openChatsBox();
     final messagesBox = await _openMessagesBox();
@@ -929,14 +940,13 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
     }
-      // Debug print for all users in the box
-      // debugPrint('Users in box: ${usersBox.values.map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson))).toList()}');
-    
+    // Debug print for all users in the box
+    // debugPrint('Users in box: ${usersBox.values.map((userJson) => UserModel.fromJson(Map<String, dynamic>.from(userJson))).toList()}');
 
-     if (recordingsBox.isEmpty) {
+    if (recordingsBox.isEmpty) {
       final mockRecordings = MockStorageService.getRecordings();
       for (var recording in mockRecordings) {
-        await saveRecording(recording); 
+        await saveRecording(recording);
       }
     }
 
@@ -952,13 +962,12 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
       }
     }
 
-
 //  debugPrint('Current decks in box before adding mock decks: ${decksBox.values.toList()}');
 
     if (decksBox.isEmpty) {
       final mockDecks = MockStorageService.getDecks();
       for (var deck in mockDecks) {
-          debugPrint('Mock deck to be added: ${deck.toJson()}');
+        debugPrint('Mock deck to be added: ${deck.toJson()}');
         await addDeck(deck);
       }
     }
@@ -971,7 +980,6 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
       }
     }
 
-    
     if (knownWordsBox.isEmpty) {
       final mockKnownWords = MockStorageService.getKnownWords();
       for (var knownWord in mockKnownWords) {
@@ -984,7 +992,6 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     //     .map((json) => KnownWordModel.fromJson(Map<String, dynamic>.from(json)))
     //     .toList();
 
-  
     // for (var knownWord in allKnownWords) {
     //   print(knownWord.toJson());
     // }
@@ -1001,7 +1008,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     if (languagesBox.isEmpty) {
       final mockLanguages = MockStorageService.getLanguages();
       for (var language in mockLanguages) {
-        await saveLanguage(language);
+        await saveUserLanguage(language);
       }
     }
 
@@ -1034,14 +1041,13 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
         print('Saving chart: ${chart.toJson()}');
         await saveChart(chart);
       }
-    } 
+    }
     // else {
     //   print('chartsBox already populated with data.');
     //   final allCharts = chartsBox.values
     //       .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
     //       .toList();
 
-  
     //   for (var chart in allCharts) {
     //     print(chart.toJson());
     //   }
@@ -1052,7 +1058,6 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     } catch (e) {
       print('Error closing boxes: $e');
     }
-  
   }
 
   @override
@@ -1093,7 +1098,7 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     print('Updated chart: ${chart.toJson()}');
   }
 
- @override
+  @override
   Future<void> deleteChart(String chartId) async {
     final box = await _openChartsBox();
     await box.delete(chartId);
@@ -1107,11 +1112,10 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
         .map((json) => ChartModel.fromJson(Map<String, dynamic>.from(json)))
         .where((chart) => chart.userId == userId)
         .toList();
-    
+
     debugPrint('Retrieved ${allCharts.length} charts for user $userId');
     return allCharts;
   }
-  
 
   @override
   Future<void> updateFavorite(FavoriteModel favorite) async {
@@ -1119,7 +1123,59 @@ Future<List<FlashcardModel>> getAllFlashcards() async {
     debugPrint('Updating favorite!!!!: ${favorite.toJson()}');
     await box.put(favorite.id, favorite.toJson());
   }
-   Future<void> closeBoxes() async {
+
+  Future<void> closeBoxes() async {
     await Hive.close();
+  }
+
+  @override
+  Future<void> saveLanguage(Language language) async {
+    final box = await _openLanguagesBox();
+    await box.put(language.id, language.toJson());
+  }
+
+  @override
+  Future<List<Language>> getLanguages() async {
+    final box = await _openLanguagesBox();
+    return box.values
+        .map((json) => Language.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
+  Future<Language?> getLanguageById(String languageId) async {
+    final box = await _openLanguagesBox();
+    final languageJson = box.get(languageId);
+    return languageJson != null
+        ? Language.fromJson(Map<String, dynamic>.from(languageJson))
+        : null;
+  }
+
+  @override
+  Future<void> updateLanguage(Language language) async {
+    final box = await _openLanguagesBox();
+    if (box.containsKey(language.id)) {
+      await box.put(language.id, language.toJson());
+    } else {
+      throw Exception('Language not found');
+    }
+  }
+
+  @override
+  Future<void> deleteLanguage(String languageId) async {
+    final box = await _openLanguagesBox();
+    await box.delete(languageId);
+  }
+
+  // Ensure mock languages are saved if there are no existing languages
+  Future<void> ensureMockLanguages() async {
+    final box = await _openLanguagesBox();
+    if (box.isEmpty) {
+      final mockLanguages = MockStorageService
+          .getLanguages(); // Assuming you have a method to get mock languages
+      for (var language in mockLanguages) {
+        await saveUserLanguage(language);
+      }
+    }
   }
 }

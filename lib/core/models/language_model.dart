@@ -2,11 +2,15 @@ class Language {
   final String id;
   final String name;
   final String shortcut;
+  final String emoji; // New field for emoji
+   final String asciiShortcut;
 
   Language({
     required this.id,
     required this.name,
     required this.shortcut,
+    required this.emoji, // Include emoji in the constructor
+     required this.asciiShortcut,
   });
 
   @override
@@ -14,7 +18,9 @@ class Language {
     return '''Language(
       id: $id,
       name: $name,
-      shortcut: $shortcut
+      shortcut: $shortcut,
+      emoji: $emoji,
+      asciiShortcut: $asciiShortcut
     )''';
   }
 
@@ -23,6 +29,9 @@ class Language {
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       shortcut: json['shortcut'] ?? '',
+      emoji: json['emoji'] ?? '', // Handle emoji
+       asciiShortcut: json['asciiShortcut'] ?? '', 
+
     );
   }
 
@@ -31,6 +40,8 @@ class Language {
       'id': id,
       'name': name,
       'shortcut': shortcut,
+      'emoji': emoji, // Include emoji in the JSON representation
+        'asciiShortcut': asciiShortcut,
     };
   }
 
@@ -38,11 +49,15 @@ class Language {
     String? id,
     String? name,
     String? shortcut,
+    String? emoji,
+    String? asciiShortcut,
   }) {
     return Language(
       id: id ?? this.id,
       name: name ?? this.name,
       shortcut: shortcut ?? this.shortcut,
+      emoji: emoji ?? this.emoji,
+      asciiShortcut: asciiShortcut ?? this.asciiShortcut,
     );
   }
 }

@@ -19,7 +19,7 @@ class MockStorageService {
       id: 'user1',
       name: 'Alice',
       avatarUrl: 'assets/avatar-1.png',
-        email: 'alice@example.com',
+      email: 'alice@example.com',
       languageLevel: 'Intermediate',
       sourceLanguageIds: ['lang_en'],
       targetLanguageIds: ['lang_es'],
@@ -35,7 +35,7 @@ class MockStorageService {
     ),
     UserModel(
       id: 'user2',
-       email: 'bob@example.com',
+      email: 'bob@example.com',
       name: 'Bob',
       avatarUrl: 'assets/avatar-2.png',
       languageLevel: 'Beginner',
@@ -54,7 +54,7 @@ class MockStorageService {
     UserModel(
       id: 'user3',
       name: 'Charlie',
-      email: 'bob@example.com', 
+      email: 'bob@example.com',
       avatarUrl: 'assets/avatar-3.png',
       languageLevel: 'Advanced',
       sourceLanguageIds: ['lang_en', 'lang_fr'],
@@ -72,7 +72,7 @@ class MockStorageService {
     UserModel(
       id: 'user4',
       name: 'Diana',
-       email: 'alice@example.com',
+      email: 'alice@example.com',
       avatarUrl: 'assets/avatar-4.png',
       languageLevel: 'Advanced',
       sourceLanguageIds: ['lang_en', 'lang_de'],
@@ -112,7 +112,7 @@ class MockStorageService {
       languageLevel: 'Beginner',
       sourceLanguageId: 'lang_en',
       targetLanguageId: 'lang_fr',
-       isAi: false,
+      isAi: false,
     ),
     ChatModel(
       id: 'chat3',
@@ -124,7 +124,7 @@ class MockStorageService {
       languageLevel: 'Intermediate',
       sourceLanguageId: 'lang_en',
       targetLanguageId: 'lang_es',
-       isAi: true,
+      isAi: true,
     ),
   ];
 
@@ -365,7 +365,7 @@ class MockStorageService {
       userId: 'user2',
       sourceText: 'Goodbye',
       translatedText: 'Adiós',
-         sourceLanguageId: 'lang_es', // Updated to 'lang_en'
+      sourceLanguageId: 'lang_es', // Updated to 'lang_en'
       targetLanguageId: 'lang_en',
     ),
     FavoriteModel(
@@ -377,14 +377,214 @@ class MockStorageService {
       targetLanguageId: 'lang_en',
     ),
   ];
-
-  final List<Language> mockLanguages = [
-  Language(id: 'lang_en', name: 'English', shortcut: 'en'),
-  Language(id: 'lang_es', name: 'Spanish', shortcut: 'es'),
-  Language(id: 'lang_es', name: 'French', shortcut: 'fr'),
-  Language(id: 'lang_es', name: 'German', shortcut: 'de'),
-  Language(id: 'lang_es', name: 'Italian', shortcut: 'it'),
-];
+  static List<Language> getGenericLanguages() {
+    return [
+      Language(
+          id: 'lang_en',
+          name: 'English',
+          shortcut: 'en',
+          emoji: '🇬🇧',
+          asciiShortcut: 'en_US'),
+      Language(
+          id: 'lang_es',
+          name: 'Spanish',
+          shortcut: 'es',
+          emoji: '🇪🇸',
+          asciiShortcut: 'es_ES'),
+      Language(
+          id: 'lang_fr',
+          name: 'French',
+          shortcut: 'fr',
+          emoji: '🇫🇷',
+          asciiShortcut: 'fr_FR'),
+      Language(
+          id: 'lang_de',
+          name: 'German',
+          shortcut: 'de',
+          emoji: '🇩🇪',
+          asciiShortcut: 'de_DE'),
+      Language(
+          id: 'lang_it',
+          name: 'Italian',
+          shortcut: 'it',
+          emoji: '🇮🇹',
+          asciiShortcut: 'it_IT'),
+      Language(
+          id: 'lang_pt',
+          name: 'Portuguese',
+          shortcut: 'pt',
+          emoji: '🇧🇷',
+          asciiShortcut: 'pt_BR'),
+      Language(
+          id: 'lang_ru',
+          name: 'Russian',
+          shortcut: 'ru',
+          emoji: '🇷🇺',
+          asciiShortcut: 'ru_RU'),
+      Language(
+          id: 'lang_zh',
+          name: 'Chinese',
+          shortcut: 'zh',
+          emoji: '🇨🇳',
+          asciiShortcut: 'zh_CN'),
+      Language(
+          id: 'lang_ja',
+          name: 'Japanese',
+          shortcut: 'ja',
+          emoji: '🇯🇵',
+          asciiShortcut: 'ja_JP'),
+      Language(
+          id: 'lang_ko',
+          name: 'Korean',
+          shortcut: 'ko',
+          emoji: '🇰🇷',
+          asciiShortcut: 'ko_KR'),
+      Language(
+          id: 'lang_ar',
+          name: 'Arabic',
+          shortcut: 'ar',
+          emoji: '🇸🇦',
+          asciiShortcut: 'ar_SA'),
+      Language(
+          id: 'lang_hi',
+          name: 'Hindi',
+          shortcut: 'hi',
+          emoji: '🇮🇳',
+          asciiShortcut: 'hi_IN'),
+      Language(
+          id: 'lang_tr',
+          name: 'Turkish',
+          shortcut: 'tr',
+          emoji: '🇹🇷',
+          asciiShortcut: 'tr_TR'),
+      Language(
+          id: 'lang_nl',
+          name: 'Dutch',
+          shortcut: 'nl',
+          emoji: '🇳🇱',
+          asciiShortcut: 'nl_NL'),
+      Language(
+          id: 'lang_sv',
+          name: 'Swedish',
+          shortcut: 'sv',
+          emoji: '🇸🇪',
+          asciiShortcut: 'sv_SE'),
+      Language(
+          id: 'lang_no',
+          name: 'Norwegian',
+          shortcut: 'no',
+          emoji: '🇳🇴',
+          asciiShortcut: 'no_NO'),
+      Language(
+          id: 'lang_da',
+          name: 'Danish',
+          shortcut: 'da',
+          emoji: '🇩🇰',
+          asciiShortcut: 'da_DK'),
+      Language(
+          id: 'lang_fi',
+          name: 'Finnish',
+          shortcut: 'fi',
+          emoji: '🇫🇮',
+          asciiShortcut: 'fi_FI'),
+      Language(
+          id: 'lang_el',
+          name: 'Greek',
+          shortcut: 'el',
+          emoji: '🇬🇷',
+          asciiShortcut: 'el_GR'),
+      Language(
+          id: 'lang_he',
+          name: 'Hebrew',
+          shortcut: 'he',
+          emoji: '🇮🇱',
+          asciiShortcut: 'he_IL'),
+      Language(
+          id: 'lang_th',
+          name: 'Thai',
+          shortcut: 'th',
+          emoji: '🇹🇭',
+          asciiShortcut: 'th_TH'),
+      Language(
+          id: 'lang_vi',
+          name: 'Vietnamese',
+          shortcut: 'vi',
+          emoji: '🇻🇳',
+          asciiShortcut: 'vi_VN'),
+      Language(
+          id: 'lang_id',
+          name: 'Indonesian',
+          shortcut: 'id',
+          emoji: '🇮🇩',
+          asciiShortcut: 'id_ID'),
+      Language(
+          id: 'lang_ms',
+          name: 'Malay',
+          shortcut: 'ms',
+          emoji: '🇲🇾',
+          asciiShortcut: 'ms_MY'),
+      Language(
+          id: 'lang_cz',
+          name: 'Czech',
+          shortcut: 'cs',
+          emoji: '🇨🇿',
+          asciiShortcut: 'cs_CZ'),
+      Language(
+          id: 'lang_hu',
+          name: 'Hungarian',
+          shortcut: 'hu',
+          emoji: '🇭🇺',
+          asciiShortcut: 'hu_HU'),
+      Language(
+          id: 'lang_sk',
+          name: 'Slovak',
+          shortcut: 'sk',
+          emoji: '🇸🇰',
+          asciiShortcut: 'sk_SK'),
+      Language(
+          id: 'lang_ro',
+          name: 'Romanian',
+          shortcut: 'ro',
+          emoji: '🇷🇴',
+          asciiShortcut: 'ro_RO'),
+      Language(
+          id: 'lang_bg',
+          name: 'Bulgarian',
+          shortcut: 'bg',
+          emoji: '🇧🇬',
+          asciiShortcut: 'bg_BG'),
+      Language(
+          id: 'lang_sr',
+          name: 'Serbian',
+          shortcut: 'sr',
+          emoji: '🇷🇸',
+          asciiShortcut: 'sr_RS'),
+      Language(
+          id: 'lang_sl',
+          name: 'Slovenian',
+          shortcut: 'sl',
+          emoji: '🇸🇮',
+          asciiShortcut: 'sl_SI'),
+      Language(
+          id: 'lang_lt',
+          name: 'Lithuanian',
+          shortcut: 'lt',
+          emoji: '🇱🇹',
+          asciiShortcut: 'lt_LT'),
+      Language(
+          id: 'lang_lv',
+          name: 'Latvian',
+          shortcut: 'lv',
+          emoji: '🇱🇻',
+          asciiShortcut: 'lv_LV'),
+      Language(
+          id: 'lang_et',
+          name: 'Estonian',
+          shortcut: 'et',
+          emoji: '🇪🇪',
+          asciiShortcut: 'et_EE'),
+    ];
+  }
 
   static final List<UserLanguage> _languages = [
     UserLanguage(
@@ -400,7 +600,7 @@ class MockStorageService {
     UserLanguage(
       id: 'lang_fr',
       userId: 'user1',
-        languageId: 'lang_en',
+      languageId: 'lang_en',
       name: 'French',
       shortcut: 'fr',
       timestamp: DateTime.now(),
@@ -410,7 +610,7 @@ class MockStorageService {
     UserLanguage(
       id: 'lang_es',
       userId: 'user2',
-        languageId: 'lang_en',
+      languageId: 'lang_en',
       name: 'Spanish',
       shortcut: 'es',
       timestamp: DateTime.now(),
@@ -420,7 +620,7 @@ class MockStorageService {
     UserLanguage(
       id: 'lang_de',
       userId: 'user2',
-        languageId: 'lang_en',
+      languageId: 'lang_en',
       name: 'German',
       shortcut: 'de',
       timestamp: DateTime.now(),
@@ -430,7 +630,7 @@ class MockStorageService {
     UserLanguage(
       id: 'lang_it',
       userId: 'user3',
-        languageId: 'lang_en',
+      languageId: 'lang_en',
       name: 'Italian',
       shortcut: 'it',
       timestamp: DateTime.now(),
@@ -440,7 +640,7 @@ class MockStorageService {
     UserLanguage(
       id: 'lang_ja',
       userId: 'user3',
-        languageId: 'lang_en',
+      languageId: 'lang_en',
       name: 'Japanese',
       shortcut: 'ja',
       timestamp: DateTime.now(),
@@ -450,7 +650,7 @@ class MockStorageService {
     UserLanguage(
       id: 'lang_zh',
       userId: 'user4',
-        languageId: 'lang_en',
+      languageId: 'lang_en',
       name: 'Chinese',
       shortcut: 'zh',
       timestamp: DateTime.now(),
@@ -540,7 +740,8 @@ class MockStorageService {
       audioPath: 'assets/recordings/recording2.m4a',
       createdAt: DateTime.now().subtract(Duration(days: 2)),
       durationInSeconds: 150,
-      transcription: 'Esta es una transcripción de ejemplo para la grabación 2.',
+      transcription:
+          'Esta es una transcripción de ejemplo para la grabación 2.',
     ),
     RecordingModel(
       userId: 'user1',
@@ -548,12 +749,13 @@ class MockStorageService {
       audioPath: 'assets/recordings/recording3.m4a',
       createdAt: DateTime.now().subtract(Duration(days: 3)),
       durationInSeconds: 90,
-      transcription: 'Ceci est une transcription d\'exemple pour l\'enregistrement 3.',
+      transcription:
+          'Ceci est une transcription d\'exemple pour l\'enregistrement 3.',
     ),
   ];
 
   // Methods to access mock data
-   static List<RecordingModel> getRecordings() => _recordings;
+  static List<RecordingModel> getRecordings() => _recordings;
   static List<UserModel> getUsers() => _users;
   static List<ChatModel> getChats() => _chats;
   static List<DeckModel> getDecks() => _decks;
@@ -569,5 +771,6 @@ class MockStorageService {
   static List<MessageModel> getMessagesForChat(String chatId) {
     return _messages.where((message) => message.chatId == chatId).toList();
   }
+
   static List<ChartModel> getCharts() => charts;
 }

@@ -11,27 +11,27 @@ class LanguageService implements ILanguageService {
 
   @override
   Future<void> addLanguage(UserLanguage language) async {
-    await _localStorageService.saveLanguage(language);
+    await _localStorageService.saveUserLanguage(language);
   }
 
   @override
   Future<List<UserLanguage>> fetchLanguages(String userId) async {
-    return await _localStorageService.getLanguagesByUserId(userId);
+    return await _localStorageService.getUserLanguagesByUserId(userId);
   }
 
   @override
   Future<UserLanguage?> fetchLanguageById(String languageId) async {
-    return await _localStorageService.getLanguageById(languageId);
+    return await _localStorageService.getUserLanguageById(languageId);
   }
 
   @override
   Future<void> updateLanguage(UserLanguage language) async {
-    await _localStorageService.updateLanguage(language);
+    await _localStorageService.updateUserLanguage(language);
   }
 
   @override
   Future<void> removeLanguage(String languageId) async {
-    await _localStorageService.deleteLanguage(languageId);
+    await _localStorageService.deleteUserLanguage(languageId);
   }
 
    @override
