@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lessay_learn/core/auth/presentation/auth_screen.dart';
+import 'package:lessay_learn/core/auth/presentation/sign_up_forms.dart';
 import 'package:lessay_learn/core/auth/providers/auth_provider.dart';
+import 'package:lessay_learn/core/auth/providers/sign_up_provider.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:lessay_learn/core/widgets/cupertino_bottom_nav_bar.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/chat/widgets/chat_screen.dart';
 import 'package:lessay_learn/features/chat/widgets/create_chat_view.dart';
 import 'package:lessay_learn/features/chat/widgets/settings_screen.dart';
@@ -23,15 +26,25 @@ import 'package:lessay_learn/features/statistics/presentation/statistics_screen.
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
-  
+  final signUpState = ref.watch(signUpProvider);
+
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
       final isLoggedIn = authState.value != null;
-      final isAuthRoute = state.path == '/auth'; 
+      final isAuthRoute = state.path == '/auth';
+      final isSignUpFormsRoute = state.path == '/sign-up-forms';
 
       if (!isLoggedIn && !isAuthRoute) return '/auth';
-      if (isLoggedIn && isAuthRoute) return '/';
+      if (isLoggedIn && isAuthRoute) {
+        if (signUpState is AsyncLoading) {
+          return '/sign-up-forms';
+        }
+        return '/';
+      }
+      if (isLoggedIn && signUpState is AsyncLoading && !isSignUpFormsRoute) {
+        return '/sign-up-forms';
+      }
 
       return null;
     },
@@ -40,11 +53,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/auth',
         builder: (context, state) => const AuthScreen(),
       ),
+         GoRoute(
+        path: '/sign-up-forms',
+        pageBuilder: (context, state) => CupertinoPage(
+          child: SignUpFormsScreen(
+            initialUser: UserModel(
+              id: '', // You might want to generate or obtain this ID
+              name: '',
+              email: '', // You should pass the email from the auth process
+            
+            ),
+          ),
+        ),
+      ),
       ShellRoute(
         builder: (context, state, child) {
           return CupertinoBottomNavBar(
             key: state.pageKey,
-       
           );
         },
         routes: [
@@ -84,7 +109,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               child: const RecordingScreen(),
             ),
           ),
-            GoRoute(
+          GoRoute(
             path: '/auth', // New route for RecordingScreen
             pageBuilder: (context, state) => CupertinoPage(
               child: const AuthScreen(),
@@ -137,7 +162,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CupertinoPage(
           child: Consumer(
             builder: (context, ref, _) {
-             
               return CreateChatView();
             },
           ),
