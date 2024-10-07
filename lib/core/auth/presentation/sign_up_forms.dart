@@ -39,7 +39,11 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
         return LanguageSelectorSheet(
           title: title,
           selectedLanguages: selectedLanguages,
-          onSelect: onSelect,
+          onSelect: (updatedLanguages) {
+            setState(() {
+              onSelect(updatedLanguages);
+            });
+          },
         );
       },
     );
@@ -144,7 +148,7 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
   }
 }
 
-class LanguageSelectorSheet extends ConsumerWidget {
+class LanguageSelectorSheet extends ConsumerStatefulWidget {
   final String title;
   final List<String> selectedLanguages;
   final Function(List<String>) onSelect;
@@ -157,7 +161,20 @@ class LanguageSelectorSheet extends ConsumerWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _LanguageSelectorSheetState createState() => _LanguageSelectorSheetState();
+}
+
+class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
+  late List<String> _selectedLanguages;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLanguages = List.from(widget.selectedLanguages);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final allLanguagesAsyncValue = ref.watch(allLanguagesProvider);
 
     return Container(
@@ -167,7 +184,7 @@ class LanguageSelectorSheet extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(title,
+            child: Text(widget.title,
                 style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
           ),
           Expanded(
@@ -177,27 +194,33 @@ class LanguageSelectorSheet extends ConsumerWidget {
                   itemCount: languages.length,
                   itemBuilder: (context, index) {
                     final language = languages[index];
-                    final isSelected = selectedLanguages.contains(language.id);
+                    final isSelected = _selectedLanguages.contains(language.id);
                     return CupertinoButton(
-                      onPressed: () {
-                        final updatedSelection =
-                            List<String>.from(selectedLanguages);
-                        if (isSelected) {
-                          updatedSelection.remove(language.id);
-                        } else {
-                          updatedSelection.add(language.id);
-                        }
-                        onSelect(updatedSelection);
-                      },
+                      padding: EdgeInsets.zero,
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('${language.emoji} ${language.name}'),
-                          const Spacer(),
-                          if (isSelected)
-                            const Icon(CupertinoIcons.check_mark,
-                                color: CupertinoColors.activeBlue),
+                          Icon(
+                            isSelected
+                                ? CupertinoIcons.minus_circle
+                                : CupertinoIcons.plus_circle,
+                            color: isSelected
+                                ? CupertinoColors.destructiveRed
+                                : CupertinoColors.activeBlue,
+                          ),
                         ],
                       ),
+                      onPressed: () {
+                        setState(() {
+                          if (isSelected) {
+                            _selectedLanguages.remove(language.id);
+                          } else {
+                            _selectedLanguages.add(language.id);
+                          }
+                        });
+                        widget.onSelect(_selectedLanguages);
+                      },
                     );
                   },
                 ),
