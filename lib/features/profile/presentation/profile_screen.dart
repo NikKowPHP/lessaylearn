@@ -184,7 +184,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildLanguageBubble(String languageId, WidgetRef ref) {
     return FutureBuilder<UserLanguage?>(
-      future: ref.read(languageByIdProvider(languageId).future),
+      future: ref.read(userLanguageByIdProvider(languageId).future),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CupertinoActivityIndicator();
@@ -225,7 +225,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildLearningLanguageChart(String languageId, WidgetRef ref) {
     return FutureBuilder<UserLanguage?>(
-      future: ref.read(languageByIdProvider(languageId).future),
+      future: ref.read(userLanguageByIdProvider(languageId).future),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CupertinoActivityIndicator();

@@ -128,8 +128,8 @@ class LocalStorageService implements ILocalStorageService {
   static const String _currentUserKey = 'currentUser';
   static const String _knownWordsBoxName = 'knownWords';
   static const String _favoritesBoxName = 'favorites';
+  static const String _userLanguagesBoxName = 'userLanguages';
   static const String _languagesBoxName = 'languages';
-
   static const String _profilePicturesBoxName = 'profilePictures';
   static const String _likesBoxName = 'likes';
   static const String _commentsBoxName = 'comments';
@@ -138,6 +138,9 @@ class LocalStorageService implements ILocalStorageService {
 
   Future<Box> _openChartsBox() async {
     return await Hive.openBox(_chartsBoxName);
+  }
+    Future<Box> _openLanguagesBox() async {
+    return await Hive.openBox(_languagesBoxName);
   }
 
   Future<Box> _openRecordingsBox() async {
@@ -148,8 +151,8 @@ class LocalStorageService implements ILocalStorageService {
     return await Hive.openBox(_knownWordsBoxName);
   }
 
-  Future<Box> _openLanguagesBox() async {
-    return await Hive.openBox(_languagesBoxName);
+  Future<Box> _openUserLanguagesBox() async {
+    return await Hive.openBox(_userLanguagesBoxName);
   }
 
   Future<Box> _openFavoritesBox() async {
@@ -386,13 +389,13 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<void> saveUserLanguage(UserLanguage language) async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     await box.put(language.id, language.toJson());
   }
 
   @override
   Future<List<UserLanguage>> getUserLanguagesByUserId(String userId) async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     final languages = box.values
         .map((json) => UserLanguage.fromJson(Map<String, dynamic>.from(json)))
         .where((language) => language.userId == userId)
@@ -402,7 +405,7 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<UserLanguage?> getUserLanguageById(String languageId) async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     final languageJson = box.get(languageId);
     return languageJson != null
         ? UserLanguage.fromJson(Map<String, dynamic>.from(languageJson))
@@ -411,7 +414,7 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<void> updateUserLanguage(UserLanguage language) async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     if (box.containsKey(language.id)) {
       await box.put(language.id, language.toJson());
     } else {
@@ -421,7 +424,7 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<void> deleteUserLanguage(String languageId) async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     await box.delete(languageId);
   }
 
@@ -480,7 +483,7 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<List<UserLanguage>> getUserLanguages() async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
 
     return box.values
         .map((json) => UserLanguage.fromJson(Map<String, dynamic>.from(json)))
@@ -927,12 +930,14 @@ class LocalStorageService implements ILocalStorageService {
     final flashcardsBox = await _openFlashcardsBox();
     final knownWordsBox = await _openKnownWordsBox();
     final favoritesBox = await _openFavoritesBox();
-    final languagesBox = await _openLanguagesBox();
+    final userLanguagesBox = await _openUserLanguagesBox();
     final profilePicturesBox = await _openProfilePicturesBox();
     final likesBox = await _openLikesBox();
     final commentsBox = await _openCommentsBox();
     final chartsBox = await _openChartsBox();
     final recordingsBox = await _openRecordingsBox();
+    final languages = await _openLanguagesBox();
+
 
     // print('chartsBox is empty: ${chartsBox.isEmpty}');
     // print('chartsBox is empty: ${knownWordsBox.isEmpty}');
@@ -1005,10 +1010,16 @@ class LocalStorageService implements ILocalStorageService {
       }
     }
 
-    if (languagesBox.isEmpty) {
+    if (userLanguagesBox.isEmpty) {
       final mockLanguages = MockStorageService.getLanguages();
       for (var language in mockLanguages) {
         await saveUserLanguage(language);
+      }
+    }
+     if (languages.isEmpty) {
+      final mockLanguages = MockStorageService.getGenericLanguages();
+      for (var language in mockLanguages) {
+        await saveLanguage(language);
       }
     }
 
@@ -1130,13 +1141,13 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<void> saveLanguage(Language language) async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     await box.put(language.id, language.toJson());
   }
 
   @override
   Future<List<Language>> getLanguages() async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     return box.values
         .map((json) => Language.fromJson(Map<String, dynamic>.from(json)))
         .toList();
@@ -1144,7 +1155,7 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<Language?> getLanguageById(String languageId) async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     final languageJson = box.get(languageId);
     return languageJson != null
         ? Language.fromJson(Map<String, dynamic>.from(languageJson))
@@ -1153,7 +1164,7 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<void> updateLanguage(Language language) async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     if (box.containsKey(language.id)) {
       await box.put(language.id, language.toJson());
     } else {
@@ -1163,13 +1174,13 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<void> deleteLanguage(String languageId) async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     await box.delete(languageId);
   }
 
   // Ensure mock languages are saved if there are no existing languages
   Future<void> ensureMockLanguages() async {
-    final box = await _openLanguagesBox();
+    final box = await _openUserLanguagesBox();
     if (box.isEmpty) {
       final mockLanguages = MockStorageService
           .getLanguages(); // Assuming you have a method to get mock languages

@@ -4,7 +4,7 @@ import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/services/i_language_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
 
-class LanguageService implements ILanguageService {
+class LanguageService implements IUserLanguageService {
   final ILocalStorageService _localStorageService;
 
   LanguageService(this._localStorageService);

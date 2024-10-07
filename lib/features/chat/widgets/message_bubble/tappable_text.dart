@@ -5,7 +5,7 @@ import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
 import 'package:lessay_learn/core/providers/favorite_provider.dart';
 import 'package:lessay_learn/core/providers/known_word_provider.dart';
-import 'package:lessay_learn/core/providers/language_provider.dart';
+import 'package:lessay_learn/core/providers/language_provider.dart' as languageProvider;
 import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:lessay_learn/core/services/translate_service.dart';
@@ -268,7 +268,7 @@ class TappableTextState extends ConsumerState<TappableText> {
     if (currentUser == null) return;
 
     final languageModels =
-        await ref.read(languagesProvider(currentUser.id).future);
+        await ref.read(languageProvider.userLanguagesProvider(currentUser.id).future);
 
     await showCupertinoModalPopup<void>(
       context: context,

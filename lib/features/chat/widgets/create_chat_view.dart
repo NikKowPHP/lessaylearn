@@ -153,9 +153,9 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
 
   Future<List<UserLanguage>> _fetchUserLanguages(UserModel user) async {
     final sourceLanguageFutures = user.sourceLanguageIds
-        .map((id) => ref.read(languageByIdProvider(id).future));
+        .map((id) => ref.read(userLanguageByIdProvider(id).future));
     final targetLanguageFutures = user.targetLanguageIds
-        .map((id) => ref.read(languageByIdProvider(id).future));
+        .map((id) => ref.read(userLanguageByIdProvider(id).future));
 
     final allLanguageFutures = [
       ...sourceLanguageFutures,

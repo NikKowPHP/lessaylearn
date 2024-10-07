@@ -10,32 +10,32 @@ final localStorageServiceProvider = Provider<ILocalStorageService>((ref) {
   return LocalStorageService();
 });
 
-final languageServiceProvider = Provider<ILanguageService>((ref) {
+final userLanguageServiceProvider = Provider<IUserLanguageService>((ref) {
   final localStorage = ref.watch(localStorageServiceProvider);
   return LanguageService(localStorage);
 });
 
-final languagesProvider = FutureProvider.family<List<UserLanguage>, String>((ref, userId) {
-  final languageService = ref.watch(languageServiceProvider);
+final userLanguagesProvider = FutureProvider.family<List<UserLanguage>, String>((ref, userId) {
+  final languageService = ref.watch(userLanguageServiceProvider);
   return languageService.fetchLanguages(userId);
 });
 
-final languageByIdProvider = FutureProvider.family<UserLanguage?, String>((ref, languageId) {
-  final languageService = ref.watch(languageServiceProvider);
+final userLanguageByIdProvider = FutureProvider.family<UserLanguage?, String>((ref, languageId) {
+  final languageService = ref.watch(userLanguageServiceProvider);
   return languageService.fetchLanguageById(languageId);
 });
-final allLanguagesProvider = FutureProvider<List<UserLanguage>>((ref) async {
+final allUserLanguagesProvider = FutureProvider<List<UserLanguage>>((ref) async {
   final localStorageService = ref.watch(localStorageServiceProvider);
   return await localStorageService.getUserLanguages();
 });
 
 final calculateLanguageLevelProvider = Provider.family<String, int>((ref, score) {
-  final languageService = ref.watch(languageServiceProvider);
+  final languageService = ref.watch(userLanguageServiceProvider);
   return languageService.calculateLanguageLevel(score);
 });
 
 final userLanguageLevelsProvider = FutureProvider.family<Map<String, String>, String>((ref, userId) {
-  final languageService = ref.watch(languageServiceProvider);
+  final languageService = ref.watch(userLanguageServiceProvider);
   return languageService.getUserLanguageLevels(userId);
 });
 
@@ -44,8 +44,8 @@ final recordingServiceProvider = Provider<RecordingService>((ref) {
   final localStorage = ref.watch(localStorageServiceProvider);
   return RecordingService(localStorage);
 });
-final languageModelsByIdsProvider = FutureProvider.family<List<UserLanguage>, List<String>>((ref, languageIds) async {
-  final languageService = ref.watch(languageServiceProvider);
+final userLanguageModelsByIdsProvider = FutureProvider.family<List<UserLanguage>, List<String>>((ref, languageIds) async {
+  final languageService = ref.watch(userLanguageServiceProvider);
   final futures = languageIds.map((id) => languageService.fetchLanguageById(id));
   final languages = await Future.wait(futures);
   return languages.whereType<UserLanguage>().toList();

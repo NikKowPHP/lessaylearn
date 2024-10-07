@@ -1,6 +1,6 @@
 import 'package:lessay_learn/core/models/user_language_model.dart';
 
-abstract class ILanguageService {
+abstract class IUserLanguageService {
   Future<void> addLanguage(UserLanguage language);
   Future<List<UserLanguage>> fetchLanguages(String userId);
   Future<UserLanguage?> fetchLanguageById(String languageId);

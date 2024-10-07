@@ -25,7 +25,7 @@ class _RecordingScreenState extends ConsumerState<RecordingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languagesAsync = ref.watch(allLanguagesProvider);
+    final languagesAsync = ref.watch(allUserLanguagesProvider);
     final recordingsAsync = ref.watch(userRecordingsProvider('currentUserId')); // Replace with actual user ID
 
     return CupertinoPageScaffold(

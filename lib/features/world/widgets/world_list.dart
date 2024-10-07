@@ -81,7 +81,7 @@ class WorldList extends ConsumerWidget {
   Widget _buildLanguageTags(WidgetRef ref, UserModel user) {
     return FutureBuilder<List<UserLanguage?>>(
       future: Future.wait(user.sourceLanguageIds.map((id) => 
-        ref.read(languageByIdProvider(id).future))),
+        ref.read(userLanguageByIdProvider(id).future))),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CupertinoActivityIndicator();
