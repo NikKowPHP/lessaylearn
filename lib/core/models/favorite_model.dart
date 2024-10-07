@@ -3,8 +3,8 @@ class FavoriteModel {
   final String userId;
   final String sourceText;
   final String translatedText;
-  final String sourceLanguage;
-  final String targetLanguage;
+  final String sourceLanguageId;
+  final String targetLanguageId;
   final DateTime createdAt;
   final bool isFlashcard;
   final DateTime? addedToFlashcardsDate;
@@ -14,8 +14,8 @@ class FavoriteModel {
     required this.userId,
     required this.sourceText,
     required this.translatedText,
-    required this.sourceLanguage,
-    required this.targetLanguage,
+    required this.sourceLanguageId,
+    required this.targetLanguageId,
     this.isFlashcard = false,
     this.addedToFlashcardsDate,
     DateTime? createdAt,
@@ -27,8 +27,8 @@ class FavoriteModel {
       userId: json['userId'],
       sourceText: json['sourceText'],
       translatedText: json['translatedText'],
-      sourceLanguage: json['sourceLanguage'],
-      targetLanguage: json['targetLanguage'],
+      sourceLanguageId: json['sourceLanguage'],
+      targetLanguageId: json['targetLanguage'],
       createdAt: DateTime.parse(json['createdAt']),
       isFlashcard: json['isFlashcard'] ?? false,
       addedToFlashcardsDate: json['addedToFlashcardsDate'] != null
@@ -43,8 +43,8 @@ class FavoriteModel {
       'userId': userId,
       'sourceText': sourceText,
       'translatedText': translatedText,
-      'sourceLanguage': sourceLanguage,
-      'targetLanguage': targetLanguage,
+      'sourceLanguage': sourceLanguageId,
+      'targetLanguage': targetLanguageId,
       'createdAt': createdAt.toIso8601String(),
       'isFlashcard': isFlashcard,
       'addedToFlashcardsDate': addedToFlashcardsDate?.toIso8601String(),
@@ -67,8 +67,8 @@ class FavoriteModel {
       userId: userId ?? this.userId,
       sourceText: sourceText ?? this.sourceText,
       translatedText: translatedText ?? this.translatedText,
-      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
-      targetLanguage: targetLanguage ?? this.targetLanguage,
+      sourceLanguageId: sourceLanguage ?? this.sourceLanguageId,
+      targetLanguageId: targetLanguage ?? this.targetLanguageId,
       createdAt: createdAt ?? this.createdAt,
       isFlashcard: isFlashcard ?? this.isFlashcard,
       addedToFlashcardsDate:
@@ -78,6 +78,6 @@ class FavoriteModel {
 
   @override
   String toString() {
-    return 'FavoriteModel(id: $id, userId: $userId, sourceText: $sourceText, translatedText: $translatedText, sourceLanguage: $sourceLanguage, targetLanguage: $targetLanguage, createdAt: $createdAt , isFlashcard: $isFlashcard, addedToFlashcardsDate: $addedToFlashcardsDate)';
+    return 'FavoriteModel(id: $id, userId: $userId, sourceText: $sourceText, translatedText: $translatedText, sourceLanguage: $sourceLanguageId, targetLanguage: $targetLanguageId, createdAt: $createdAt , isFlashcard: $isFlashcard, addedToFlashcardsDate: $addedToFlashcardsDate)';
   }
 }

@@ -225,8 +225,8 @@ class TappableTextState extends ConsumerState<TappableText> {
         sourceText: word,
         translatedText: translationResult!
             .translatedText, 
-        sourceLanguage: currentUser.preferableTranslationLanguage!, 
-        targetLanguage: translationResult
+        sourceLanguageId: currentUser.preferableTranslationLanguage!, 
+        targetLanguageId: translationResult
             .detectedLanguage, 
       );
       await ref.read(favoritesProvider.notifier).addFavorite(newFavorite);

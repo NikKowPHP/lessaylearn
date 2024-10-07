@@ -6,8 +6,8 @@ class ChatModel {
   final DateTime lastMessageTimestamp;
   final String chatTopic;
   final String languageLevel;
-  final String sourceLanguage;
-  final String targetLanguage;
+  final String sourceLanguageId;
+  final String targetLanguageId;
    final bool isAi;
 
   ChatModel({
@@ -18,8 +18,8 @@ class ChatModel {
     required this.lastMessageTimestamp,
     required this.chatTopic,
     required this.languageLevel,
-    required this.sourceLanguage,
-    required this.targetLanguage,
+    required this.sourceLanguageId,
+    required this.targetLanguageId,
       required this.isAi,
   });
 
@@ -34,8 +34,8 @@ class ChatModel {
           : DateTime.now(),
       chatTopic: json['chatTopic'] ?? '',
       languageLevel: json['languageLevel'] ?? '',
-      sourceLanguage: json['sourceLanguage'] ?? '',
-      targetLanguage: json['targetLanguage'] ?? '',
+      sourceLanguageId: json['sourceLanguage'] ?? '',
+      targetLanguageId: json['targetLanguage'] ?? '',
         isAi: json['isAi'] ?? false,
     );
   }
@@ -49,8 +49,8 @@ class ChatModel {
       'lastMessageTimestamp': lastMessageTimestamp.toIso8601String(),
       'chatTopic': chatTopic,
       'languageLevel': languageLevel,
-      'sourceLanguage': sourceLanguage,
-      'targetLanguage': targetLanguage,
+      'sourceLanguage': sourceLanguageId,
+      'targetLanguage': targetLanguageId,
       'isAi': isAi,
     };
   }
@@ -75,8 +75,8 @@ class ChatModel {
       lastMessageTimestamp: lastMessageTimestamp ?? this.lastMessageTimestamp,
       chatTopic: chatTopic ?? this.chatTopic,
       languageLevel: languageLevel ?? this.languageLevel,
-      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
-      targetLanguage: targetLanguage ?? this.targetLanguage,
+      sourceLanguageId: sourceLanguage ?? this.sourceLanguageId,
+      targetLanguageId: targetLanguage ?? this.targetLanguageId,
       isAi: isAi ?? this.isAi,
     );
   }
@@ -93,8 +93,8 @@ class ChatModel {
           lastMessageTimestamp == other.lastMessageTimestamp &&
           chatTopic == other.chatTopic &&
           languageLevel == other.languageLevel &&
-          sourceLanguage == other.sourceLanguage &&
-          targetLanguage == other.targetLanguage &&
+          sourceLanguageId == other.sourceLanguageId &&
+          targetLanguageId == other.targetLanguageId &&
           isAi == other.isAi;
 
   @override
@@ -106,8 +106,8 @@ class ChatModel {
       lastMessageTimestamp.hashCode ^
       chatTopic.hashCode ^
       languageLevel.hashCode ^
-      sourceLanguage.hashCode ^
-      targetLanguage.hashCode ^
+      sourceLanguageId.hashCode ^
+      targetLanguageId.hashCode ^
       isAi.hashCode
       ;
       
@@ -121,8 +121,8 @@ class ChatModel {
       lastMessageTimestamp: $lastMessageTimestamp,
       chatTopic: $chatTopic,
       languageLevel: $languageLevel,
-      sourceLanguage: $sourceLanguage,
-      targetLanguage: $targetLanguage,
+      sourceLanguage: $sourceLanguageId,
+      targetLanguage: $targetLanguageId,
       isAi: $isAi
     )''';
   }

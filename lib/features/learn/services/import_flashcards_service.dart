@@ -100,10 +100,10 @@ class ImportFlashcardsService {
 
     debugPrint(sourceLanguage);
     debugPrint(targetLanguage);
-    debugPrint('deck lagnuages: ${deck.sourceLanguage} - ${deck.targetLanguage}');
+    debugPrint('deck lagnuages: ${deck.sourceLanguageId} - ${deck.targetLanguageId}');
     // Check if languages match the deck
-    if (sourceLanguage != deck.sourceLanguage.toLowerCase().replaceFirst('lang_', '') ||
-        targetLanguage != deck.targetLanguage.toLowerCase().replaceFirst('lang_', '')) {
+    if (sourceLanguage != deck.sourceLanguageId.toLowerCase().replaceFirst('lang_', '') ||
+        targetLanguage != deck.targetLanguageId.toLowerCase().replaceFirst('lang_', '')) {
       debugPrint('Skipping non-matching language pair: $sourceLanguage - $targetLanguage');
       return LanguageChunk([], languagePairIndex + 1);
     }
@@ -126,8 +126,8 @@ class ImportFlashcardsService {
           userId: 'current_user_id', // Replace with actual user ID
           sourceText: row[0].toString(),
           translatedText: row[1].toString(),
-          sourceLanguage: deck.sourceLanguage,
-          targetLanguage: deck.targetLanguage,
+          sourceLanguageId: deck.sourceLanguageId,
+          targetLanguageId: deck.targetLanguageId,
         ));
       }
       currentIndex++;

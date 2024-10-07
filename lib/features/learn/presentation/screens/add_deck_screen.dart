@@ -193,8 +193,8 @@ class _AddDeckScreenState extends ConsumerState<AddDeckScreen> {
         cardCount: selectedFavorites.length,
         lastStudied: DateTime.now(),
         languageLevel: _languageLevel,
-        sourceLanguage: selectedSourceLanguage!,
-        targetLanguage: selectedTargetLanguage!,
+        sourceLanguageId: selectedSourceLanguage!,
+        targetLanguageId: selectedTargetLanguage!,
       );
 
       await deckService.addDeck(newDeck);

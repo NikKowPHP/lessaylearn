@@ -22,7 +22,7 @@ final availableFavoritesCountProvider = FutureProvider.family<int, String>((ref,
   final deck = await deckService.getDeckById(deckId);
   if (deck == null) return 0; // Handle case where deck is not found
   
-  final allFavoritesByLanguage = await favoriteService.getAvailableFavoritesByLanguage(deck.sourceLanguage, deck.targetLanguage);
+  final allFavoritesByLanguage = await favoriteService.getAvailableFavoritesByLanguage(deck.sourceLanguageId, deck.targetLanguageId);
 
   int availableCount = 0;
   for (final favorite in allFavoritesByLanguage) {

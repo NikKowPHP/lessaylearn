@@ -98,8 +98,8 @@ class MockStorageService {
       lastMessageTimestamp: DateTime.now().subtract(Duration(minutes: 5)),
       chatTopic: 'Spanish Conversation',
       languageLevel: 'Intermediate',
-      sourceLanguage: 'English',
-      targetLanguage: 'Spanish',
+      sourceLanguageId: 'lang_en',
+      targetLanguageId: 'lang_es',
       isAi: false,
     ),
     ChatModel(
@@ -110,8 +110,8 @@ class MockStorageService {
       lastMessageTimestamp: DateTime.now().subtract(Duration(hours: 1)),
       chatTopic: 'French Basics',
       languageLevel: 'Beginner',
-      sourceLanguage: 'English',
-      targetLanguage: 'French',
+      sourceLanguageId: 'lang_en',
+      targetLanguageId: 'lang_fr',
        isAi: false,
     ),
     ChatModel(
@@ -122,8 +122,8 @@ class MockStorageService {
       lastMessageTimestamp: DateTime.now().subtract(Duration(minutes: 5)),
       chatTopic: 'Spanish Conversation',
       languageLevel: 'Intermediate',
-      sourceLanguage: 'English',
-      targetLanguage: 'Spanish',
+      sourceLanguageId: 'lang_en',
+      targetLanguageId: 'lang_es',
        isAi: true,
     ),
   ];
@@ -136,8 +136,8 @@ class MockStorageService {
       cardCount: 2,
       lastStudied: DateTime.now().subtract(Duration(days: 1)),
       languageLevel: 'Beginner',
-      sourceLanguage: 'English',
-      targetLanguage: 'Spanish',
+      sourceLanguageId: 'lang_en',
+      targetLanguageId: 'lang_es',
     ),
     DeckModel(
       id: 'deck2',
@@ -146,8 +146,8 @@ class MockStorageService {
       cardCount: 2,
       lastStudied: DateTime.now().subtract(Duration(days: 3)),
       languageLevel: 'Intermediate',
-      sourceLanguage: 'English',
-      targetLanguage: 'French',
+      sourceLanguageId: 'lang_en',
+      targetLanguageId: 'lang_fr',
     ),
   ];
 
@@ -357,24 +357,24 @@ class MockStorageService {
       userId: 'user1',
       sourceText: 'Hello',
       translatedText: 'Hola',
-      sourceLanguage: 'lang_en', // Updated to 'lang_en'
-      targetLanguage: 'lang_es',
+      sourceLanguageId: 'lang_en', // Updated to 'lang_en'
+      targetLanguageId: 'lang_es',
     ),
     FavoriteModel(
       id: 'fav2',
       userId: 'user2',
       sourceText: 'Goodbye',
       translatedText: 'Adiós',
-         sourceLanguage: 'lang_es', // Updated to 'lang_en'
-      targetLanguage: 'lang_en',
+         sourceLanguageId: 'lang_es', // Updated to 'lang_en'
+      targetLanguageId: 'lang_en',
     ),
     FavoriteModel(
       id: 'fav3',
       userId: 'user1',
       sourceText: 'Thank you',
       translatedText: 'Merci',
-      sourceLanguage: 'lang_es', // Updated to 'lang_en'
-      targetLanguage: 'lang_en',
+      sourceLanguageId: 'lang_es', // Updated to 'lang_en'
+      targetLanguageId: 'lang_en',
     ),
   ];
 

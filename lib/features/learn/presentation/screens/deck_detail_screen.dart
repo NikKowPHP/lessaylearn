@@ -77,8 +77,8 @@ class DeckDetailScreen extends ConsumerWidget {
                           context,
                           CupertinoPageRoute(
                             builder: (context) => FavoriteListScreen(
-                              sourceLanguageId: deck.sourceLanguage,
-                              targetLanguageId: deck.targetLanguage,
+                              sourceLanguageId: deck.sourceLanguageId,
+                              targetLanguageId: deck.targetLanguageId,
                             ),
                           ),
                         );
@@ -161,8 +161,8 @@ Widget _buildDeckInfo(BuildContext context, WidgetRef ref, DeckModel deck) {
           context,
           CupertinoPageRoute(
             builder: (context) => FavoriteListScreen(
-              sourceLanguageId: deck.sourceLanguage,
-              targetLanguageId: deck.targetLanguage,
+              sourceLanguageId: deck.sourceLanguageId,
+              targetLanguageId: deck.targetLanguageId,
             ),
           ),
         );

@@ -451,8 +451,8 @@ void _showBottomSheet(BuildContext context, String title,
         lastMessageTimestamp: DateTime.now(),
         chatTopic: aiData.chatTopic,
         languageLevel: _languageLevel,
-        sourceLanguage: _sourceLanguage,
-        targetLanguage: _targetLanguage,
+        sourceLanguageId: _sourceLanguage,
+        targetLanguageId: _targetLanguage,
         isAi: true,
       );
 

@@ -26,8 +26,8 @@ class FavoriteService {
         // Assuming your FavoriteModel has sourceLanguage and targetLanguage properties
         final allFavorites = await _localStorageService.getFavorites();
         return allFavorites.where((favorite) =>
-            favorite.sourceLanguage == sourceLanguage &&
-            favorite.targetLanguage == targetLanguage).toList();
+            favorite.sourceLanguageId == sourceLanguage &&
+            favorite.targetLanguageId == targetLanguage).toList();
         
     }
 

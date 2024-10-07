@@ -137,23 +137,23 @@ class DeckService {
     final allFavorites = await _storageService.getFavorites();
     return allFavorites
         .where((favorite) =>
-            favorite.sourceLanguage == sourceLanguageId &&
-            favorite.targetLanguage == targetLanguageId &&
+            favorite.sourceLanguageId == sourceLanguageId &&
+            favorite.targetLanguageId == targetLanguageId &&
             !favorite.isFlashcard)
         .toList();
   }
 
   Future<List<String>> getAvailableSourceLanguages() async {
     final allFavorites = await _storageService.getFavorites();
-    return allFavorites.map((f) => f.sourceLanguage).toSet().toList();
+    return allFavorites.map((f) => f.sourceLanguageId).toSet().toList();
   }
 
   Future<List<String>> getAvailableTargetLanguages(
       String sourceLanguage) async {
     final allFavorites = await _storageService.getFavorites();
     return allFavorites
-        .where((f) => f.sourceLanguage == sourceLanguage)
-        .map((f) => f.targetLanguage)
+        .where((f) => f.sourceLanguageId == sourceLanguage)
+        .map((f) => f.targetLanguageId)
         .toSet()
         .toList();
   }

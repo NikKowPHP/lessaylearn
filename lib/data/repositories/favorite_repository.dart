@@ -15,6 +15,6 @@ class FavoriteRepository {
   Future<void> deleteFavorite(String favoriteId) => _storage.delete(favoriteId);
 
   Future<List<FavoriteModel>> getFavoritesByUserAndLanguage(String userId, String languageId) {
-    return _storage.query((fav) => fav.userId == userId && fav.targetLanguage == languageId);
+    return _storage.query((fav) => fav.userId == userId && fav.targetLanguageId == languageId);
   }
 }

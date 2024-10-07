@@ -263,7 +263,7 @@ class LocalStorageService implements ILocalStorageService {
 
     // Step 3: Apply languageId filter
     final filteredFavorites = userFavorites
-        .where((favorite) => favorite.targetLanguage == languageId)
+        .where((favorite) => favorite.targetLanguageId == languageId)
         .toList();
 
     // Debug print for favorites filtered by userId and languageId

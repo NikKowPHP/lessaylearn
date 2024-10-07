@@ -8,8 +8,8 @@ class DeckModel extends Equatable {
   final int cardCount;
   final DateTime lastStudied;
   final String languageLevel;
-  final String sourceLanguage;
-  final String targetLanguage;
+  final String sourceLanguageId;
+  final String targetLanguageId;
 
   const DeckModel({
     required this.id,
@@ -18,8 +18,8 @@ class DeckModel extends Equatable {
     required this.cardCount,
     required this.lastStudied,
     required this.languageLevel,
-    required this.sourceLanguage,
-    required this.targetLanguage,
+    required this.sourceLanguageId,
+    required this.targetLanguageId,
   });
 
   factory DeckModel.fromJson(Map<String, dynamic> json) {
@@ -32,8 +32,8 @@ class DeckModel extends Equatable {
           ? DateTime.parse(json['lastStudied'])
           : DateTime.now(),
       languageLevel: json['languageLevel'] ?? '',
-      sourceLanguage: json['sourceLanguage'] ?? '',
-      targetLanguage: json['targetLanguage'] ?? '',
+      sourceLanguageId: json['sourceLanguage'] ?? '',
+      targetLanguageId: json['targetLanguage'] ?? '',
     );
   }
 
@@ -48,8 +48,8 @@ String toString() {
     cardCount: $cardCount,
     lastStudied: $lastStudied,
     languageLevel: $languageLevel,
-    sourceLanguage: $sourceLanguage,
-    targetLanguage: $targetLanguage
+    sourceLanguage: $sourceLanguageId,
+    targetLanguage: $targetLanguageId
   )''';
 }
 
@@ -61,8 +61,8 @@ String toString() {
       'cardCount': cardCount,
       'lastStudied': lastStudied.toIso8601String(),
       'languageLevel': languageLevel,
-      'sourceLanguage': sourceLanguage,
-      'targetLanguage': targetLanguage,
+      'sourceLanguage': sourceLanguageId,
+      'targetLanguage': targetLanguageId,
     };
   }
    DeckModel copyWith({
@@ -82,11 +82,11 @@ String toString() {
       cardCount: cardCount ?? this.cardCount,
       lastStudied: lastStudied ?? this.lastStudied,
       languageLevel: languageLevel ?? this.languageLevel,
-      sourceLanguage: sourceLanguage ?? this.sourceLanguage,
-      targetLanguage: targetLanguage ?? this.targetLanguage,
+      sourceLanguageId: sourceLanguage ?? this.sourceLanguageId,
+      targetLanguageId: targetLanguage ?? this.targetLanguageId,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, description, cardCount, lastStudied, languageLevel, sourceLanguage, targetLanguage];
+  List<Object?> get props => [id, name, description, cardCount, lastStudied, languageLevel, sourceLanguageId, targetLanguageId];
 }
