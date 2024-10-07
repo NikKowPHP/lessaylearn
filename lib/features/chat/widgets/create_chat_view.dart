@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:lessay_learn/core/providers/language_provider.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
@@ -32,9 +32,9 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
   String _generatedBio = '';
   String _generatedLocation = ''; // New variable
   String _generatedEducation = ''; // New variable
-  LanguageModel? _preferredLanguage;
-  LanguageModel? _studyLanguage;
-  List<LanguageModel> _availableLanguages = [];
+  UserLanguage? _preferredLanguage;
+  UserLanguage? _studyLanguage;
+  List<UserLanguage> _availableLanguages = [];
 
   final List<String> _languageLevels = [
     'Beginner',
@@ -95,7 +95,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
         if (currentUser == null) {
           return Center(child: Text('User not found'));
         }
-        return FutureBuilder<List<LanguageModel>>(
+        return FutureBuilder<List<UserLanguage>>(
           future: _fetchUserLanguages(currentUser),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -151,7 +151,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     );
   }
 
-  Future<List<LanguageModel>> _fetchUserLanguages(UserModel user) async {
+  Future<List<UserLanguage>> _fetchUserLanguages(UserModel user) async {
     final sourceLanguageFutures = user.sourceLanguageIds
         .map((id) => ref.read(languageByIdProvider(id).future));
     final targetLanguageFutures = user.targetLanguageIds
@@ -165,7 +165,7 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     final languages = await Future.wait(allLanguageFutures);
     debugPrint('languages $languages');
 
-    return languages.whereType<LanguageModel>().toList();
+    return languages.whereType<UserLanguage>().toList();
   }
 
   // New method to build the generated profile section

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 
 import 'package:lessay_learn/core/providers/language_provider.dart';
 
@@ -74,7 +74,7 @@ class _RecordingScreenState extends ConsumerState<RecordingScreen> {
     );
   }
 
-  Widget _buildLanguageSelector(AsyncValue<List<LanguageModel>> languagesAsync) {
+  Widget _buildLanguageSelector(AsyncValue<List<UserLanguage>> languagesAsync) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: languagesAsync.when(

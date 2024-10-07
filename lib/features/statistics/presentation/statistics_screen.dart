@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
 // import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';

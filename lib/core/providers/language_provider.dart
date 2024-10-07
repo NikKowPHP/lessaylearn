@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/features/voicer/services/recording_service.dart';
 import 'package:lessay_learn/services/i_language_service.dart';
 import 'package:lessay_learn/services/i_local_storage_service.dart';
@@ -15,16 +15,16 @@ final languageServiceProvider = Provider<ILanguageService>((ref) {
   return LanguageService(localStorage);
 });
 
-final languagesProvider = FutureProvider.family<List<LanguageModel>, String>((ref, userId) {
+final languagesProvider = FutureProvider.family<List<UserLanguage>, String>((ref, userId) {
   final languageService = ref.watch(languageServiceProvider);
   return languageService.fetchLanguages(userId);
 });
 
-final languageByIdProvider = FutureProvider.family<LanguageModel?, String>((ref, languageId) {
+final languageByIdProvider = FutureProvider.family<UserLanguage?, String>((ref, languageId) {
   final languageService = ref.watch(languageServiceProvider);
   return languageService.fetchLanguageById(languageId);
 });
-final allLanguagesProvider = FutureProvider<List<LanguageModel>>((ref) async {
+final allLanguagesProvider = FutureProvider<List<UserLanguage>>((ref) async {
   final localStorageService = ref.watch(localStorageServiceProvider);
   return await localStorageService.getLanguages();
 });
@@ -44,9 +44,9 @@ final recordingServiceProvider = Provider<RecordingService>((ref) {
   final localStorage = ref.watch(localStorageServiceProvider);
   return RecordingService(localStorage);
 });
-final languageModelsByIdsProvider = FutureProvider.family<List<LanguageModel>, List<String>>((ref, languageIds) async {
+final languageModelsByIdsProvider = FutureProvider.family<List<UserLanguage>, List<String>>((ref, languageIds) async {
   final languageService = ref.watch(languageServiceProvider);
   final futures = languageIds.map((id) => languageService.fetchLanguageById(id));
   final languages = await Future.wait(futures);
-  return languages.whereType<LanguageModel>().toList();
+  return languages.whereType<UserLanguage>().toList();
 });

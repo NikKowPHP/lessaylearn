@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/SRSA/engine/srsa_algoritm.dart';
 import 'package:lessay_learn/core/models/favorite_model.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/local_storage_provider.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';

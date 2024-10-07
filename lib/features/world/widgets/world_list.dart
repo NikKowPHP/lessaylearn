@@ -4,7 +4,7 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/profile/widgets/avatar_widget.dart';
 import 'package:lessay_learn/features/world/services/world_service.dart';
 import 'package:lessay_learn/core/providers/language_provider.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:go_router/go_router.dart';
 
 class WorldList extends ConsumerWidget {
@@ -79,7 +79,7 @@ class WorldList extends ConsumerWidget {
   }
 
   Widget _buildLanguageTags(WidgetRef ref, UserModel user) {
-    return FutureBuilder<List<LanguageModel?>>(
+    return FutureBuilder<List<UserLanguage?>>(
       future: Future.wait(user.sourceLanguageIds.map((id) => 
         ref.read(languageByIdProvider(id).future))),
       builder: (context, snapshot) {
@@ -89,7 +89,7 @@ class WorldList extends ConsumerWidget {
         if (snapshot.hasError || !snapshot.hasData) {
           return Text('Error loading languages');
         }
-        final languages = snapshot.data!.whereType<LanguageModel>().toList();
+        final languages = snapshot.data!.whereType<UserLanguage>().toList();
         if (languages.isEmpty) {
           return Text('No languages');
         }

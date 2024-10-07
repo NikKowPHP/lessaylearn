@@ -1,5 +1,5 @@
 import 'package:lessay_learn/core/models/comment_model.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
@@ -23,7 +23,7 @@ abstract class IUserService {
   Future<ProfilePictureModel?> getProfilePictureById(String pictureId);
   Future<List<LikeModel>> getUserLikes(String userId);
   Future<List<CommentModel>> getUserComments(String userId);
-  Future<List<LanguageModel>> getUserLanguages(String userId);
+  Future<List<UserLanguage>> getUserLanguages(String userId);
 
   // chart operations 
  // Chart operations

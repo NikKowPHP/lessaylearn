@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/language_provider.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -183,7 +183,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildLanguageBubble(String languageId, WidgetRef ref) {
-    return FutureBuilder<LanguageModel?>(
+    return FutureBuilder<UserLanguage?>(
       future: ref.read(languageByIdProvider(languageId).future),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -224,7 +224,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildLearningLanguageChart(String languageId, WidgetRef ref) {
-    return FutureBuilder<LanguageModel?>(
+    return FutureBuilder<UserLanguage?>(
       future: ref.read(languageByIdProvider(languageId).future),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

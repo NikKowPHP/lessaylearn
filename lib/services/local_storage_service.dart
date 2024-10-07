@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 import 'package:lessay_learn/core/models/comment_model.dart';
 import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
-import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/message_model.dart';
@@ -68,12 +68,12 @@ abstract class ILocalStorageService {
   Future<void> updateFavorite(FavoriteModel favorite);
 
   // Language methods
-  Future<void> saveLanguage(LanguageModel language);
-  Future<List<LanguageModel>> getLanguagesByUserId(String userId);
-  Future<LanguageModel?> getLanguageById(String languageId);
-  Future<void> updateLanguage(LanguageModel language);
+  Future<void> saveLanguage(UserLanguage language);
+  Future<List<UserLanguage>> getLanguagesByUserId(String userId);
+  Future<UserLanguage?> getLanguageById(String languageId);
+  Future<void> updateLanguage(UserLanguage language);
   Future<void> deleteLanguage(String languageId);
-  Future<List<LanguageModel>> getLanguages();
+  Future<List<UserLanguage>> getLanguages();
 // Profile Picture methods
   Future<void> saveProfilePicture(ProfilePictureModel picture);
   Future<List<ProfilePictureModel>> getProfilePicturesForUser(String userId);
@@ -373,32 +373,32 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<void> saveLanguage(LanguageModel language) async {
+  Future<void> saveLanguage(UserLanguage language) async {
     final box = await _openLanguagesBox();
     await box.put(language.id, language.toJson());
   }
 
   @override
-  Future<List<LanguageModel>> getLanguagesByUserId(String userId) async {
+  Future<List<UserLanguage>> getLanguagesByUserId(String userId) async {
     final box = await _openLanguagesBox();
     final languages = box.values
-        .map((json) => LanguageModel.fromJson(Map<String, dynamic>.from(json)))
+        .map((json) => UserLanguage.fromJson(Map<String, dynamic>.from(json)))
         .where((language) => language.userId == userId)
         .toList();
     return languages;
   }
 
   @override
-  Future<LanguageModel?> getLanguageById(String languageId) async {
+  Future<UserLanguage?> getLanguageById(String languageId) async {
     final box = await _openLanguagesBox();
     final languageJson = box.get(languageId);
     return languageJson != null
-        ? LanguageModel.fromJson(Map<String, dynamic>.from(languageJson))
+        ? UserLanguage.fromJson(Map<String, dynamic>.from(languageJson))
         : null;
   }
 
   @override
-  Future<void> updateLanguage(LanguageModel language) async {
+  Future<void> updateLanguage(UserLanguage language) async {
     final box = await _openLanguagesBox();
     if (box.containsKey(language.id)) {
       await box.put(language.id, language.toJson());
@@ -468,11 +468,11 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<List<LanguageModel>> getLanguages() async {
+  Future<List<UserLanguage>> getLanguages() async {
     final box = await _openLanguagesBox();
 
     return box.values
-        .map((json) => LanguageModel.fromJson(Map<String, dynamic>.from(json)))
+        .map((json) => UserLanguage.fromJson(Map<String, dynamic>.from(json)))
         .toList();
   }
 
