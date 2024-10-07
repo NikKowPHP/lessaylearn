@@ -166,11 +166,17 @@ class LanguageSelectorSheet extends ConsumerStatefulWidget {
 
 class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
   late List<String> _selectedLanguages;
-
+  final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
     _selectedLanguages = List.from(widget.selectedLanguages);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -190,7 +196,9 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
           Expanded(
             child: allLanguagesAsyncValue.when(
               data: (languages) => CupertinoScrollbar(
+                controller: _scrollController,
                 child: ListView.builder(
+                  controller: _scrollController,
                   itemCount: languages.length,
                   itemBuilder: (context, index) {
                     final language = languages[index];
