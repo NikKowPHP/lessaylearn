@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/auth/providers/sign_up_provider.dart';
+import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/providers/language_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 
 class SignUpFormsScreen extends ConsumerStatefulWidget {
@@ -26,6 +28,19 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
     if (_formKey.currentState!.validate()) {
       ref.read(signUpProvider.notifier).completeSignUp(_user);
     }
+  }
+
+  void _showLanguageSelector(String title, List<String> selectedLanguages, Function(List<String>) onSelect) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return LanguageSelectorSheet(
+          title: title,
+          selectedLanguages: selectedLanguages,
+          onSelect: onSelect,
+        );
+      },
+    );
   }
 
   @override
@@ -63,8 +78,30 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
                 initialValue: _user.bio,
                 onChanged: (value) => _user = _user.copyWith(bio: value),
               ),
-              // Add more fields as needed
-
+              CupertinoButton(
+                child: Text('Native Languages (${_user.sourceLanguageIds.length})'),
+                onPressed: () => _showLanguageSelector(
+                  'Select Native Languages',
+                  _user.sourceLanguageIds,
+                  (languages) => setState(() => _user = _user.copyWith(sourceLanguageIds: languages)),
+                ),
+              ),
+              CupertinoButton(
+                child: Text('Spoken Languages (${_user.spokenLanguageIds.length})'),
+                onPressed: () => _showLanguageSelector(
+                  'Select Spoken Languages',
+                  _user.spokenLanguageIds,
+                  (languages) => setState(() => _user = _user.copyWith(spokenLanguageIds: languages)),
+                ),
+              ),
+              CupertinoButton(
+                child: Text('Target Languages (${_user.targetLanguageIds.length})'),
+                onPressed: () => _showLanguageSelector(
+                  'Select Target Languages',
+                  _user.targetLanguageIds,
+                  (languages) => setState(() => _user = _user.copyWith(targetLanguageIds: languages)),
+                ),
+              ),
               const SizedBox(height: 20),
               CupertinoButton.filled(
                 child: const Text('Complete Sign Up'),
@@ -73,6 +110,74 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class LanguageSelectorSheet extends ConsumerWidget {
+  final String title;
+  final List<String> selectedLanguages;
+  final Function(List<String>) onSelect;
+
+  const LanguageSelectorSheet({
+    Key? key,
+    required this.title,
+    required this.selectedLanguages,
+    required this.onSelect,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final allLanguagesAsyncValue = ref.watch(allLanguagesProvider);
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.6,
+      color: CupertinoColors.systemBackground.resolveFrom(context),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(title, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
+          ),
+          Expanded(
+            child: allLanguagesAsyncValue.when(
+              data: (languages) => CupertinoScrollbar(
+                child: ListView.builder(
+                  itemCount: languages.length,
+                  itemBuilder: (context, index) {
+                    final language = languages[index];
+                    final isSelected = selectedLanguages.contains(language.id);
+                    return CupertinoButton(
+                      onPressed: () {
+                        final updatedSelection = List<String>.from(selectedLanguages);
+                        if (isSelected) {
+                          updatedSelection.remove(language.id);
+                        } else {
+                          updatedSelection.add(language.id);
+                        }
+                        onSelect(updatedSelection);
+                      },
+                      child: Row(
+                        children: [
+                          Text('${language.emoji} ${language.name}'),
+                          const Spacer(),
+                          if (isSelected) const Icon(CupertinoIcons.check_mark, color: CupertinoColors.activeBlue),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              loading: () => const Center(child: CupertinoActivityIndicator()),
+              error: (error, _) => Center(child: Text('Error: $error')),
+            ),
+          ),
+          CupertinoButton(
+            child: const Text('Done'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
       ),
     );
   }
