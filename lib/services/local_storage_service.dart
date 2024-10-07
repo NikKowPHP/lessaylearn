@@ -1010,12 +1010,14 @@ class LocalStorageService implements ILocalStorageService {
       }
     }
 
+
     if (userLanguagesBox.isEmpty) {
       final mockLanguages = MockStorageService.getLanguages();
       for (var language in mockLanguages) {
         await saveUserLanguage(language);
       }
     }
+      // await languages.clear();
      if (languages.isEmpty) {
       final mockLanguages = MockStorageService.getGenericLanguages();
       for (var language in mockLanguages) {
@@ -1141,13 +1143,14 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<void> saveLanguage(Language language) async {
-    final box = await _openUserLanguagesBox();
+    final box = await _openLanguagesBox();
     await box.put(language.id, language.toJson());
   }
 
   @override
   Future<List<Language>> getLanguages() async {
-    final box = await _openUserLanguagesBox();
+    await initializeDatabase();
+    final box = await _openLanguagesBox();
     return box.values
         .map((json) => Language.fromJson(Map<String, dynamic>.from(json)))
         .toList();
@@ -1155,7 +1158,7 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<Language?> getLanguageById(String languageId) async {
-    final box = await _openUserLanguagesBox();
+    final box = await _openLanguagesBox();
     final languageJson = box.get(languageId);
     return languageJson != null
         ? Language.fromJson(Map<String, dynamic>.from(languageJson))
@@ -1164,7 +1167,7 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<void> updateLanguage(Language language) async {
-    final box = await _openUserLanguagesBox();
+    final box = await _openLanguagesBox();
     if (box.containsKey(language.id)) {
       await box.put(language.id, language.toJson());
     } else {
@@ -1174,13 +1177,13 @@ class LocalStorageService implements ILocalStorageService {
 
   @override
   Future<void> deleteLanguage(String languageId) async {
-    final box = await _openUserLanguagesBox();
+    final box = await _openLanguagesBox();
     await box.delete(languageId);
   }
 
   // Ensure mock languages are saved if there are no existing languages
   Future<void> ensureMockLanguages() async {
-    final box = await _openUserLanguagesBox();
+    final box = await _openLanguagesBox();
     if (box.isEmpty) {
       final mockLanguages = MockStorageService
           .getLanguages(); // Assuming you have a method to get mock languages
