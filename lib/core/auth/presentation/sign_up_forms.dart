@@ -8,7 +8,8 @@ import 'package:lessay_learn/features/chat/models/user_model.dart';
 class SignUpFormsScreen extends ConsumerStatefulWidget {
   final UserModel initialUser;
 
-  const SignUpFormsScreen({Key? key, required this.initialUser}) : super(key: key);
+  const SignUpFormsScreen({Key? key, required this.initialUser})
+      : super(key: key);
 
   @override
   _SignUpFormsScreenState createState() => _SignUpFormsScreenState();
@@ -30,7 +31,8 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
     }
   }
 
-  void _showLanguageSelector(String title, List<String> selectedLanguages, Function(List<String>) onSelect) {
+  void _showLanguageSelector(String title, List<String> selectedLanguages,
+      Function(List<String>) onSelect) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
@@ -59,14 +61,17 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
                 prefix: const Text('Name'),
                 initialValue: _user.name,
                 onChanged: (value) => _user = _user.copyWith(name: value),
-                validator: (value) => value!.isEmpty ? 'Name is required' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Name is required' : null,
               ),
               CupertinoTextFormFieldRow(
                 prefix: const Text('Age'),
                 initialValue: _user.age.toString(),
                 keyboardType: TextInputType.number,
-                onChanged: (value) => _user = _user.copyWith(age: int.tryParse(value) ?? 0),
-                validator: (value) => int.tryParse(value!) == null ? 'Invalid age' : null,
+                onChanged: (value) =>
+                    _user = _user.copyWith(age: int.tryParse(value) ?? 0),
+                validator: (value) =>
+                    int.tryParse(value!) == null ? 'Invalid age' : null,
               ),
               CupertinoTextFormFieldRow(
                 prefix: const Text('Location'),
@@ -78,30 +83,7 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
                 initialValue: _user.bio,
                 onChanged: (value) => _user = _user.copyWith(bio: value),
               ),
-              CupertinoButton(
-                child: Text('Native Languages (${_user.sourceLanguageIds.length})'),
-                onPressed: () => _showLanguageSelector(
-                  'Select Native Languages',
-                  _user.sourceLanguageIds,
-                  (languages) => setState(() => _user = _user.copyWith(sourceLanguageIds: languages)),
-                ),
-              ),
-              CupertinoButton(
-                child: Text('Spoken Languages (${_user.spokenLanguageIds.length})'),
-                onPressed: () => _showLanguageSelector(
-                  'Select Spoken Languages',
-                  _user.spokenLanguageIds,
-                  (languages) => setState(() => _user = _user.copyWith(spokenLanguageIds: languages)),
-                ),
-              ),
-              CupertinoButton(
-                child: Text('Target Languages (${_user.targetLanguageIds.length})'),
-                onPressed: () => _showLanguageSelector(
-                  'Select Target Languages',
-                  _user.targetLanguageIds,
-                  (languages) => setState(() => _user = _user.copyWith(targetLanguageIds: languages)),
-                ),
-              ),
+              _buildLanguageBottomBar(),
               const SizedBox(height: 20),
               CupertinoButton.filled(
                 child: const Text('Complete Sign Up'),
@@ -110,6 +92,53 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageBottomBar() {
+    return Container(
+      height: 60,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground,
+        border: Border(top: BorderSide(color: CupertinoColors.systemGrey4)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildLanguageButton('Native', _user.sourceLanguageIds),
+          _buildLanguageButton('Spoken', _user.spokenLanguageIds),
+          _buildLanguageButton('Target', _user.targetLanguageIds),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageButton(String title, List<String> languageIds) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(title),
+          Text('${languageIds.length}',
+              style:
+                  TextStyle(fontSize: 12, color: CupertinoColors.systemGrey)),
+        ],
+      ),
+      onPressed: () => _showLanguageSelector(
+        'Select $title Languages',
+        languageIds,
+        (languages) => setState(() {
+          if (title == 'Native') {
+            _user = _user.copyWith(sourceLanguageIds: languages);
+          } else if (title == 'Spoken') {
+            _user = _user.copyWith(spokenLanguageIds: languages);
+          } else if (title == 'Target') {
+            _user = _user.copyWith(targetLanguageIds: languages);
+          }
+        }),
       ),
     );
   }
@@ -138,7 +167,8 @@ class LanguageSelectorSheet extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(title, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
+            child: Text(title,
+                style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
           ),
           Expanded(
             child: allLanguagesAsyncValue.when(
@@ -150,7 +180,8 @@ class LanguageSelectorSheet extends ConsumerWidget {
                     final isSelected = selectedLanguages.contains(language.id);
                     return CupertinoButton(
                       onPressed: () {
-                        final updatedSelection = List<String>.from(selectedLanguages);
+                        final updatedSelection =
+                            List<String>.from(selectedLanguages);
                         if (isSelected) {
                           updatedSelection.remove(language.id);
                         } else {
@@ -162,7 +193,9 @@ class LanguageSelectorSheet extends ConsumerWidget {
                         children: [
                           Text('${language.emoji} ${language.name}'),
                           const Spacer(),
-                          if (isSelected) const Icon(CupertinoIcons.check_mark, color: CupertinoColors.activeBlue),
+                          if (isSelected)
+                            const Icon(CupertinoIcons.check_mark,
+                                color: CupertinoColors.activeBlue),
                         ],
                       ),
                     );
