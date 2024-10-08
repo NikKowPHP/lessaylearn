@@ -1,4 +1,6 @@
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:lessay_learn/core/data/data_sources/storage/firebase_service.dart';
 import 'package:lessay_learn/core/models/comment_model.dart';
 import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/models/like_model.dart';
@@ -37,24 +39,25 @@ abstract class IUserService {
   Future<void> updateUserChart(ChartModel chart);
   Future<void> deleteUserChart(String chartId);
   Future<List<ChartModel>> getUserCharts(String userId);
-
+Future<void> createUserIfNotExists(UserModel user); 
   Future<void> createUser(UserModel user);
 }
 
 class UserService implements IUserService {
   final ILocalStorageService _localStorageService;
   UserModel? _cachedCurrentUser;
+final FirebaseService _firestoreService;
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  UserService(this._localStorageService);
+  UserService(this._localStorageService) : _firestoreService = FirebaseService();
+
 
   @override
  Future<void> createUser(UserModel user) async {
     try {
      
       // Save user data to Firestore
-      await _firestore.collection('users').doc(user.id).set(user.toJson());
+      await _firestoreService.addDocument('users', user.toJson());
 
       // Save user locally
       await _localStorageService.addUser(user);
@@ -62,6 +65,23 @@ class UserService implements IUserService {
 
     } catch (e) {
       print('Error creating user: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> createUserIfNotExists(UserModel user) async {
+    try {
+      // Check if the user exists in Firestore
+      Map<String, dynamic>? userDoc = await _firestoreService.getDocument('users', user.id);
+      if (userDoc == null) {
+        // If the user does not exist, create a new user
+        await createUser(user);
+      } else {
+        print('User already exists: ${user.id}');
+      }
+    } catch (e) {
+      print('Error checking user existence: $e');
       rethrow;
     }
   }
@@ -81,8 +101,7 @@ class UserService implements IUserService {
   Future<void> updateUser(UserModel user) async {
     try {
       // Update user in Firestore
-      await _firestore.collection('users').doc(user.id).update(user.toJson());
-
+       await _firestoreService.updateDocument('users', user.id, user.toJson());
       // Update user locally
       await _localStorageService.saveUser(user);
 
@@ -93,6 +112,7 @@ class UserService implements IUserService {
       rethrow;
     }
   }
+
 
   @override
   Future<void> saveUserChart(ChartModel chart) async {

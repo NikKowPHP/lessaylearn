@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/core/auth/providers/auth_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/onboarding/providers/onboarding_provider.dart';
 
@@ -61,6 +62,11 @@ class _BasicInfoStepState extends ConsumerState<BasicInfoStep> {
     widget.onUpdate(updatedUser);
   }
 
+    Future<void> _logout() async {
+    final authProvider = ref.read(authServiceProvider);
+    await authProvider.signOut(); // Call the signOut method from AuthService
+  }
+
   @override
  Widget build(BuildContext context) {
     return ListView(
@@ -90,6 +96,12 @@ class _BasicInfoStepState extends ConsumerState<BasicInfoStep> {
         CupertinoButton(
           child: Text('Get Current Location'),
          onPressed: () => _getUserLocation(ref),
+        ),
+          const SizedBox(height: 16),
+        CupertinoButton(
+          child: Text('Logout'),
+          onPressed: _logout, // Call the logout method
+          color: CupertinoColors.destructiveRed, // Optional: make it red to indicate danger
         ),
       ],
     );

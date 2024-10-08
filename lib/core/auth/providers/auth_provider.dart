@@ -8,14 +8,20 @@ import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:lessay_learn/services/user_service.dart';
 
 final firebaseServiceProvider = Provider<FirebaseService>((ref) => FirebaseService());
-final mockFirebaseServiceProvider = Provider<IFirebaseService>((ref) => MockFirebaseService());
+
+final userServiceProvider = Provider<IUserService>((ref) {
+  final localStorageService = ref.watch(localStorageServiceProvider);
+  return UserService(localStorageService);
+});
+// final mockFirebaseServiceProvider = Provider<IFirebaseService>((ref) => MockFirebaseService());
 final authServiceProvider = Provider<AuthService>((ref) {
   final firebaseService = ref.watch(firebaseServiceProvider);
-    // final firebaseService = ref.watch(mockFirebaseServiceProvider);
   final localStorageService = ref.watch(localStorageServiceProvider);
-  return AuthService(firebaseService, localStorageService);
+  final userService = ref.watch(userServiceProvider); // Add user service
+  return AuthService(firebaseService, localStorageService, userService); // Pass user service to AuthService
 });
 
 final authStateProvider = StreamProvider<UserModel?>((ref) {

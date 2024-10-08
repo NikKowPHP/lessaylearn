@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -8,11 +9,18 @@ abstract class IFirebaseService {
   Future<void> signOut();
   User? getCurrentUser();
   Stream<User?> get onAuthStateChanged;
+
+   Future<void> addDocument(String collectionPath, Map<String, dynamic> data);
+  Future<void> updateDocument(String collectionPath, String documentId, Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> getDocument(String collectionPath, String documentId);
+  Future<void> deleteDocument(String collectionPath, String documentId);
+
 }
 
 class FirebaseService implements IFirebaseService{
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<User?> signInWithEmailAndPassword(String email, String password) async {
     try {
@@ -72,4 +80,48 @@ class FirebaseService implements IFirebaseService{
   }
 
   Stream<User?> get onAuthStateChanged => _auth.authStateChanges();
+
+
+
+  // Firestore methods implementation
+
+  @override
+  Future<void> addDocument(String collectionPath, Map<String, dynamic> data) async {
+    try {
+      await _firestore.collection(collectionPath).add(data);
+    } catch (e) {
+      print('Error adding document: $e');
+    }
+  }
+
+  @override
+  Future<void> updateDocument(String collectionPath, String documentId, Map<String, dynamic> data) async {
+    try {
+      await _firestore.collection(collectionPath).doc(documentId).update(data);
+    } catch (e) {
+      print('Error updating document: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getDocument(String collectionPath, String documentId) async {
+    try {
+      DocumentSnapshot doc = await _firestore.collection(collectionPath).doc(documentId).get();
+      if (doc.exists) {
+        return doc.data() as Map<String, dynamic>;
+      }
+    } catch (e) {
+      print('Error getting document: $e');
+    }
+    return null;
+  }
+
+  @override
+  Future<void> deleteDocument(String collectionPath, String documentId) async {
+    try {
+      await _firestore.collection(collectionPath).doc(documentId).delete();
+    } catch (e) {
+      print('Error deleting document: $e');
+    }
+  }
 }
