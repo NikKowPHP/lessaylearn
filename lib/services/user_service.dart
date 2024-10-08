@@ -1,3 +1,4 @@
+
 import 'package:lessay_learn/core/models/comment_model.dart';
 import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/models/like_model.dart';
@@ -6,6 +7,7 @@ import 'package:lessay_learn/features/profile/models/profile_picture_model.dart'
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 import 'package:lessay_learn/services/i_user_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // import 'package:lessay_learn/services/i_local_storage_service.dart';
 abstract class IUserService {
@@ -42,11 +44,26 @@ abstract class IUserService {
 class UserService implements IUserService {
   final ILocalStorageService _localStorageService;
   UserModel? _cachedCurrentUser;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   UserService(this._localStorageService);
 
   @override
-  Future<void> createUser(UserModel user) async {
-    await _localStorageService.addUser(user);
+ Future<void> createUser(UserModel user) async {
+    try {
+     
+      // Save user data to Firestore
+      await _firestore.collection('users').doc(user.id).set(user.toJson());
+
+      // Save user locally
+      await _localStorageService.addUser(user);
+
+
+    } catch (e) {
+      print('Error creating user: $e');
+      rethrow;
+    }
   }
 
   @override
@@ -62,7 +79,19 @@ class UserService implements IUserService {
 
   @override
   Future<void> updateUser(UserModel user) async {
-    await _localStorageService.saveUser(user);
+    try {
+      // Update user in Firestore
+      await _firestore.collection('users').doc(user.id).update(user.toJson());
+
+      // Update user locally
+      await _localStorageService.saveUser(user);
+
+      // Update cached current user
+      _cachedCurrentUser = user;
+    } catch (e) {
+      print('Error updating user: $e');
+      rethrow;
+    }
   }
 
   @override
