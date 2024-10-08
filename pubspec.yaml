@@ -41,6 +41,9 @@ dependencies:
   translator: ^1.0.0
   firebase_data_connect: ^0.1.2
   image_picker: ^1.0.0
+  flutter_image_compress: ^2.3.0
+  path_provider: ^2.1.4
+  
   
 
   # Optional Packages (Uncomment as needed)
