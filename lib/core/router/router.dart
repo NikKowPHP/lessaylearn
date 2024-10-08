@@ -5,6 +5,7 @@ import 'package:lessay_learn/core/auth/presentation/sign_up_forms.dart';
 import 'package:lessay_learn/core/auth/providers/auth_provider.dart';
 import 'package:lessay_learn/core/auth/providers/sign_up_provider.dart';
 import 'package:lessay_learn/core/providers/chat_provider.dart';
+import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/core/widgets/cupertino_bottom_nav_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -28,6 +29,7 @@ import 'package:lessay_learn/features/statistics/presentation/statistics_screen.
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
   final signUpState = ref.watch(signUpProvider);
+  final currentUserAsyncValue = ref.watch(currentUserProvider);
 
   return GoRouter(
     initialLocation: '/',
@@ -56,16 +58,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
          GoRoute(
         path: '/onboarding',
-        pageBuilder: (context, state) => CupertinoPage(
-          child: OnboardingScreen(
-            initialUser: UserModel(
-              id: '', // You might want to generate or obtain this ID
-              name: '',
-              email: '', // You should pass the email from the auth process
-            
+        pageBuilder: (context, state) {
+          // Check the current user state
+          final currentUser = currentUserAsyncValue.value;
+          return CupertinoPage(
+            child: OnboardingScreen(
+              initialUser: currentUser ?? UserModel(
+                id: '', // Default ID if user is null
+                name: '',
+                email: '', // Default email if user is null
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
       ShellRoute(
         builder: (context, state, child) {

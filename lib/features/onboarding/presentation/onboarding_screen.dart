@@ -31,6 +31,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.initState();
     _pageController = PageController();
     _user = widget.initialUser;
+    print('this is a init user $_user');
   }
 
   @override

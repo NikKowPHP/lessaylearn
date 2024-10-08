@@ -35,6 +35,7 @@ abstract class IUserService {
   // chart operations
   // Chart operations
   Future<void> saveUserChart(ChartModel chart);
+  Future<void> saveCurrentUser(UserModel user);
   Future<List<ChartModel>> getUserChart(String userId);
   Future<void> updateUserChart(ChartModel chart);
   Future<void> deleteUserChart(String chartId);
@@ -95,6 +96,11 @@ final FirebaseService _firestoreService;
     UserModel? user = await _localStorageService.getCurrentUser();
     _cachedCurrentUser = user;
     return user;
+  }
+
+    Future<void> saveCurrentUser(UserModel user) async {
+    _cachedCurrentUser = user; // Update the cached current user
+    await _localStorageService.saveCurrentUser(user); // Save to local storage
   }
 
   @override

@@ -66,7 +66,7 @@ abstract class ILocalStorageService {
   Future<void> deleteFavorite(String favoriteId);
   Future<FavoriteModel?> getFavoriteById(String favoriteId);
   Future<void> updateFavorite(FavoriteModel favorite);
-
+  Future<void> saveCurrentUser(UserModel user);
   // Language methods
   Future<void> saveUserLanguage(UserLanguage language);
   Future<List<UserLanguage>> getUserLanguagesByUserId(String userId);
@@ -442,17 +442,10 @@ class LocalStorageService implements ILocalStorageService {
       return UserModel.fromJson(Map<String, dynamic>.from(userJson));
     }
 
-    // If there's no current user, add the first user from mock data
-    final mockUsers = MockStorageService.getUsers();
-    if (mockUsers.isNotEmpty) {
-      final firstUser = mockUsers.first;
-      await saveCurrentUser(firstUser);
-      return firstUser;
-    }
-
     return null;
   }
 
+@override
   Future<void> saveCurrentUser(UserModel user) async {
     final box = await _openUsersBox();
     await box.put(_currentUserKey, user.toJson());

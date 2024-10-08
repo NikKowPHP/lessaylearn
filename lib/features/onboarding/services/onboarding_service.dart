@@ -45,8 +45,10 @@ class OnboardingService {
         throw Exception('No current user found');
       }
 
+print('current user ${user.id}');
       // Update the user with new data
       final updatedUser = currentUser.copyWith(
+        id: currentUser.id,
         name: user.name,
         avatarUrl: user.avatarUrl,
         sourceLanguageIds: user.sourceLanguageIds,
@@ -62,7 +64,7 @@ class OnboardingService {
       );
 
       // Save the updated user
-      await _userService.updateUser(updatedUser);
+      // await _userService.updateUser(updatedUser);
 
       print('Registration completed for user: ${updatedUser.id}');
     } catch (e) {
