@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
@@ -8,6 +9,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/features/onboarding/providers/onboarding_provider.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
+
 
 
 class AvatarSelectionStep extends ConsumerStatefulWidget {
@@ -38,17 +41,39 @@ void initState() {
         allowMultiple: false,
       );
 
-      if (result != null) {
+       if (result != null) {
         Uint8List fileBytes = result.files.first.bytes!;
-        pickedImage = 'data:image/png;base64,${base64Encode(fileBytes)}';
+        // Compress the image
+        Uint8List compressedBytes = await FlutterImageCompress.compressWithList(
+          fileBytes,
+          minHeight: 500,
+          minWidth: 500,
+          quality: 85,
+        );
+        pickedImage = 'data:image/png;base64,${base64Encode(compressedBytes)}';
       }
-    } else {
+     } else {
       // Mobile implementation
-      final ImagePicker _picker = ImagePicker();
+       final ImagePicker _picker = ImagePicker();
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
       if (image != null) {
-        pickedImage = File(image.path);
+        final dir = await path_provider.getTemporaryDirectory();
+        final targetPath = '${dir.absolute.path}/temp_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final file = File(image.path);
+
+        final compressedFile = await FlutterImageCompress.compressAndGetFile(
+          file.path,
+          targetPath,
+          minHeight: 500,
+          minWidth: 500,
+          quality: 85,
+        );
+
+        if (compressedFile != null) {
+          final compressedBytes = await compressedFile.readAsBytes();
+          pickedImage = 'data:image/jpeg;base64,${base64Encode(compressedBytes)}'; // Encode to base64
+        }
       }
     }
 

@@ -922,6 +922,13 @@ class LocalStorageService implements ILocalStorageService {
         .toList();
   }
 
+  Future<String> saveAvatar(String userId, String base64Avatar) async {
+        final box = await _openProfilePicturesBox();
+        final avatar = ProfilePictureModel(id: userId, userId: userId, base64Image: base64Avatar);
+        await box.put(userId, avatar.toJson());
+        return userId; // Return the user ID as a placeholder for the avatar path
+    }
+
   Future<void> initializeDatabase() async {
     final usersBox = await _openUsersBox();
     final chatsBox = await _openChatsBox();
