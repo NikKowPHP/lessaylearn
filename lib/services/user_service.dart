@@ -6,7 +6,38 @@ import 'package:lessay_learn/features/profile/models/profile_picture_model.dart'
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 import 'package:lessay_learn/services/i_user_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
+
 // import 'package:lessay_learn/services/i_local_storage_service.dart';
+abstract class IUserService {
+  Future<UserModel?> getCurrentUser();
+  Future<void> updateUser(UserModel user);
+  Future<UserModel?> getUserById(String userId);
+  Future<List<ProfilePictureModel>> getUserProfilePictures(String userId);
+  Future<void> addProfilePicture(ProfilePictureModel picture);
+  Future<void> removeProfilePicture(String pictureId);
+  Future<void> addLike(LikeModel like);
+  Future<void> removeLike(String likeId);
+  Future<void> addComment(CommentModel comment);
+  Future<void> removeComment(String commentId);
+  Future<List<LikeModel>> getLikesForPicture(String pictureId);
+  Future<List<CommentModel>> getCommentsForPicture(String pictureId);
+
+  // New methods
+  Future<ProfilePictureModel?> getProfilePictureById(String pictureId);
+  Future<List<LikeModel>> getUserLikes(String userId);
+  Future<List<CommentModel>> getUserComments(String userId);
+  Future<List<UserLanguage>> getUserLanguages(String userId);
+
+  // chart operations
+  // Chart operations
+  Future<void> saveUserChart(ChartModel chart);
+  Future<List<ChartModel>> getUserChart(String userId);
+  Future<void> updateUserChart(ChartModel chart);
+  Future<void> deleteUserChart(String chartId);
+  Future<List<ChartModel>> getUserCharts(String userId);
+
+  Future<void> createUser(UserModel user);
+}
 
 class UserService implements IUserService {
   final ILocalStorageService _localStorageService;
@@ -19,44 +50,22 @@ class UserService implements IUserService {
   }
 
   @override
-  Future<UserModel> getCurrentUser() async {
+  Future<UserModel?> getCurrentUser() async {
     if (_cachedCurrentUser != null) {
       return _cachedCurrentUser!;
     }
 
     UserModel? user = await _localStorageService.getCurrentUser();
-    
-    if (user == null) {
-      user = UserModel(
-        id: 'user1',
-        name: 'John Doe',
-        email: 'test@gmail.com',
-        avatarUrl: 'assets/avatar-1.png',
-        languageLevel: 'Intermediate',
-        sourceLanguageIds: ['lang_en'],
-        targetLanguageIds: ['lang_es'],
-        spokenLanguageIds: ['lang_en', 'lang_es'],
-        location: 'New York',
-        age: 28,
-        bio: 'Language enthusiast',
-        interests: ['Reading', 'Traveling'],
-        occupation: 'Software Developer',
-        education: 'Bachelor in Computer Science',
-        languageIds: ['lang_en', 'lang_es'],
-      );
-      await _localStorageService.saveUser(user);
-    }
-
     _cachedCurrentUser = user;
     return user;
   }
+
   @override
   Future<void> updateUser(UserModel user) async {
     await _localStorageService.saveUser(user);
   }
-  
 
-@override
+  @override
   Future<void> saveUserChart(ChartModel chart) async {
     await _localStorageService.saveChart(chart);
   }
@@ -81,8 +90,9 @@ class UserService implements IUserService {
     return _localStorageService.getUserById(userId);
   }
 
-   @override
-  Future<List<ProfilePictureModel>> getUserProfilePictures(String userId) async {
+  @override
+  Future<List<ProfilePictureModel>> getUserProfilePictures(
+      String userId) async {
     return await _localStorageService.getProfilePicturesForUser(userId);
   }
 
@@ -143,7 +153,7 @@ class UserService implements IUserService {
     return allComments.where((comment) => comment.userId == userId).toList();
   }
 
-@override
+  @override
   Future<List<UserLanguage>> getUserLanguages(String userId) async {
     // Fetch the user by ID
     UserModel? user = await getUserById(userId);
@@ -153,12 +163,9 @@ class UserService implements IUserService {
     }
     return []; // Return an empty list if user is not found
   }
-   @override
+
+  @override
   Future<List<ChartModel>> getUserCharts(String userId) async {
     return await _localStorageService.getUserCharts(userId);
   }
-
-
-  
-  
 }

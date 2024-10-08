@@ -85,15 +85,20 @@ class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel>> {
     _loadUser();
   }
 
-  Future<void> _loadUser() async {
-    state = AsyncValue.loading();
-    try {
-      final user = await _userService.getCurrentUser();
-      state = AsyncValue.data(user);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
+Future<void> _loadUser() async {
+  state = AsyncValue.loading();
+  try {
+    final user = await _userService.getCurrentUser();
+    if (user == null) {
+      // Handle the case where the user is null
+       state = AsyncValue<UserModel>.data(UserModel.empty()); // Set state to data with null user
+    } else {
+      state = AsyncValue.data(user); // Set state to data with the user
     }
+  } catch (e, stack) {
+    state = AsyncValue.error(e, stack);
   }
+}
 
   Future<void> updateUser(UserModel updatedUser) async {
     state = AsyncValue.loading();
