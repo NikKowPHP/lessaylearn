@@ -6,7 +6,7 @@ class LanguageService {
 
   LanguageService(this._storageService);
 
-  Future<List<Language>> getAllLanguages() async {
+  Future<List<LanguageModel>> getAllLanguages() async {
     return await _storageService.getLanguages();
   }
 }

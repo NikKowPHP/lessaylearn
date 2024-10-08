@@ -108,10 +108,10 @@ abstract class ILocalStorageService {
       String userId, String languageId);
   Future<void> deleteRecording(String recordingId);
   Future<void> updateRecording(RecordingModel recording);
-  Future<void> saveLanguage(Language language);
-  Future<List<Language>> getLanguages();
-  Future<Language?> getLanguageById(String languageId);
-  Future<void> updateLanguage(Language language);
+  Future<void> saveLanguage(LanguageModel language);
+  Future<List<LanguageModel>> getLanguages();
+  Future<LanguageModel?> getLanguageById(String languageId);
+  Future<void> updateLanguage(LanguageModel language);
   Future<void> deleteLanguage(String languageId);
   Future<void> ensureMockLanguages();
 }
@@ -1142,31 +1142,31 @@ class LocalStorageService implements ILocalStorageService {
   }
 
   @override
-  Future<void> saveLanguage(Language language) async {
+  Future<void> saveLanguage(LanguageModel language) async {
     final box = await _openLanguagesBox();
     await box.put(language.id, language.toJson());
   }
 
   @override
-  Future<List<Language>> getLanguages() async {
+  Future<List<LanguageModel>> getLanguages() async {
     await initializeDatabase();
     final box = await _openLanguagesBox();
     return box.values
-        .map((json) => Language.fromJson(Map<String, dynamic>.from(json)))
+        .map((json) => LanguageModel.fromJson(Map<String, dynamic>.from(json)))
         .toList();
   }
 
   @override
-  Future<Language?> getLanguageById(String languageId) async {
+  Future<LanguageModel?> getLanguageById(String languageId) async {
     final box = await _openLanguagesBox();
     final languageJson = box.get(languageId);
     return languageJson != null
-        ? Language.fromJson(Map<String, dynamic>.from(languageJson))
+        ? LanguageModel.fromJson(Map<String, dynamic>.from(languageJson))
         : null;
   }
 
   @override
-  Future<void> updateLanguage(Language language) async {
+  Future<void> updateLanguage(LanguageModel language) async {
     final box = await _openLanguagesBox();
     if (box.containsKey(language.id)) {
       await box.put(language.id, language.toJson());

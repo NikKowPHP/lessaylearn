@@ -9,7 +9,7 @@ final languageServiceProvider = Provider<LanguageService>((ref) {
   return LanguageService(storageService);
 });
 
-final allLanguagesProvider = FutureProvider<List<Language>>((ref) async {
+final allLanguagesProvider = FutureProvider<List<LanguageModel>>((ref) async {
   final languageService = ref.watch(languageServiceProvider);
   return await languageService.getAllLanguages();
 });

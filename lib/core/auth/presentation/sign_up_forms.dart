@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/auth/providers/sign_up_provider.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
+
 import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/language_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -19,20 +20,67 @@ class SignUpFormsScreen extends ConsumerStatefulWidget {
 class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
   late UserModel _user;
   final _formKey = GlobalKey<FormState>();
+  List<UserLanguage> _selectedNativeLanguages = [];
+  List<UserLanguage> _selectedSpokenLanguages = [];
+  List<UserLanguage> _selectedTargetLanguages = [];
 
   @override
   void initState() {
     super.initState();
     _user = widget.initialUser;
+    _initializeLanguages();
+  }
+
+  void _initializeLanguages() {
+    final allLanguagesAsyncValue = ref.read(allLanguagesProvider);
+    allLanguagesAsyncValue.whenData((languages) {
+      setState(() {
+        _selectedNativeLanguages =
+            _createUserLanguages(_user.sourceLanguageIds, languages);
+        _selectedSpokenLanguages =
+            _createUserLanguages(_user.spokenLanguageIds, languages);
+        _selectedTargetLanguages =
+            _createUserLanguages(_user.targetLanguageIds, languages);
+      });
+    });
+  }
+
+  List<UserLanguage> _createUserLanguages(
+      List<String> languageIds, List<LanguageModel> allLanguages) {
+    return languageIds.map((id) {
+      final language = allLanguages.firstWhere((lang) => lang.id == id,
+          orElse: () => LanguageModel(
+              id: id, name: '', shortcut: '', emoji: '', asciiShortcut: ''));
+      return UserLanguage(
+        id: '',
+        userId: _user.id,
+        languageId: id,
+        name: language.name,
+        shortcut: language.shortcut,
+        timestamp: DateTime.now(),
+        level: 'Beginner',
+        score: 0,
+      );
+    }).toList();
   }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      _user = _user.copyWith(
+        sourceLanguageIds:
+            _selectedNativeLanguages.map((l) => l.languageId).toList(),
+        spokenLanguageIds:
+            _selectedSpokenLanguages.map((l) => l.languageId).toList(),
+        targetLanguageIds:
+            _selectedTargetLanguages.map((l) => l.languageId).toList(),
+      );
+
       ref.read(signUpProvider.notifier).completeSignUp(_user);
     }
   }
 
-  void _showLanguageSelector(String title, List<UserLanguage> selectedLanguages, bool isTargetLanguage, Function(List<UserLanguage>) onSelect) {
+  void _showLanguageSelector(String title, List<UserLanguage> selectedLanguages,
+      bool isTargetLanguage, Function(List<UserLanguage>) onSelect) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
@@ -44,6 +92,7 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
               onSelect(updatedLanguages);
             });
           },
+          isTargetLanguage: isTargetLanguage,
         );
       },
     );
@@ -88,6 +137,7 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
                 onChanged: (value) => _user = _user.copyWith(bio: value),
               ),
               _buildLanguageBottomBar(),
+              _buildTargetLanguageLevels(),
               const SizedBox(height: 20),
               CupertinoButton.filled(
                 child: const Text('Complete Sign Up'),
@@ -97,6 +147,34 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTargetLanguageLevels() {
+    return Column(
+      children: _selectedTargetLanguages.map((language) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(language.name),
+            CupertinoSegmentedControl<String>(
+              children: {
+                'Beginner': Text('Beginner'),
+                'Intermediate': Text('Intermediate'),
+                'Advanced': Text('Advanced'),
+              },
+              groupValue: language.level,
+              onValueChanged: (String value) {
+                setState(() {
+                  final index = _selectedTargetLanguages.indexOf(language);
+                  _selectedTargetLanguages[index] =
+                      language.copyWith(level: value);
+                });
+              },
+            ),
+          ],
+        );
+      }).toList(),
     );
   }
 
@@ -111,51 +189,42 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildLanguageButton('Native', _user.sourceLanguageIds, false),
-          _buildLanguageButton('Spoken', _user.spokenLanguageIds, false),
-          _buildLanguageButton('Target', _user.targetLanguageIds, true),
+          _buildLanguageButton('Native', _selectedNativeLanguages, false),
+          _buildLanguageButton('Spoken', _selectedSpokenLanguages, false),
+          _buildLanguageButton('Target', _selectedTargetLanguages, true),
         ],
       ),
     );
   }
 
-   Widget _buildLanguageButton(String title, List<String> languageIds, bool isTargetLanguage) {
+  Widget _buildLanguageButton(
+      String title, List<UserLanguage> languages, bool isTargetLanguage) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(title),
-          Text('${languageIds.length}', style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey)),
+          Text('${languages.length}',
+              style:
+                  TextStyle(fontSize: 12, color: CupertinoColors.systemGrey)),
         ],
       ),
       onPressed: () {
-        // Fetch the UserLanguage objects based on the selected language IDs
-        List<UserLanguage> selectedLanguages = languageIds.map((id) {
-          return UserLanguage(
-            id: '', // This will be generated when saving to the database
-            userId: '', // This will be set when saving to the database
-            languageId: id,
-            name: '', // This will be set when we have the language data
-            shortcut: '', // This will be set when we have the language data
-            timestamp: DateTime.now(),
-            level: 'Beginner', // Default level
-            score: 0,
-          );
-        }).toList();
-
         _showLanguageSelector(
           'Select $title Languages',
-          selectedLanguages,
+          languages,
           isTargetLanguage,
           (updatedLanguages) {
-            if (title == 'Native') {
-              _user = _user.copyWith(sourceLanguageIds: updatedLanguages.map((l) => l.languageId).toList());
-            } else if (title == 'Spoken') {
-              _user = _user.copyWith(spokenLanguageIds: updatedLanguages.map((l) => l.languageId).toList());
-            } else if (title == 'Target') {
-              _user = _user.copyWith(targetLanguageIds: updatedLanguages.map((l) => l.languageId).toList());
-            }
+            setState(() {
+              if (title == 'Native') {
+                _selectedNativeLanguages = updatedLanguages;
+              } else if (title == 'Spoken') {
+                _selectedSpokenLanguages = updatedLanguages;
+              } else if (title == 'Target') {
+                _selectedTargetLanguages = updatedLanguages;
+              }
+            });
           },
         );
       },
@@ -163,18 +232,19 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
   }
 }
 
+
 class LanguageSelectorSheet extends ConsumerStatefulWidget {
   final String title;
   final List<UserLanguage> selectedLanguages;
- final Function(List<UserLanguage>) onSelect;
- final bool isTargetLanguage;
+  final Function(List<UserLanguage>) onSelect;
+  final bool isTargetLanguage;
 
   const LanguageSelectorSheet({
     Key? key,
     required this.title,
     required this.selectedLanguages,
     required this.onSelect,
-        this.isTargetLanguage = false,
+    this.isTargetLanguage = false,
   }) : super(key: key);
 
   @override
@@ -184,19 +254,20 @@ class LanguageSelectorSheet extends ConsumerStatefulWidget {
 class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
   late List<UserLanguage> _selectedLanguages;
   final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    // Initialize _selectedLanguages with the selectedLanguages passed from the parent
     _selectedLanguages = List.from(widget.selectedLanguages);
   }
+
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     final allLanguagesAsyncValue = ref.watch(allLanguagesProvider);
 
@@ -207,7 +278,8 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(widget.title, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
+            child: Text(widget.title,
+                style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
           ),
           Expanded(
             child: allLanguagesAsyncValue.when(
@@ -218,7 +290,8 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
                   itemCount: languages.length,
                   itemBuilder: (context, index) {
                     final language = languages[index];
-                    final isSelected = _selectedLanguages.any((l) => l.languageId == language.id);
+                    final isSelected = _selectedLanguages
+                        .any((l) => l.languageId == language.id);
 
                     return Column(
                       children: [
@@ -229,24 +302,29 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
                             children: [
                               Text('${language.emoji} ${language.name}'),
                               Icon(
-                                isSelected ? CupertinoIcons.minus_circle : CupertinoIcons.plus_circle,
-                                color: isSelected ? CupertinoColors.destructiveRed : CupertinoColors.activeBlue,
+                                isSelected
+                                    ? CupertinoIcons.minus_circle
+                                    : CupertinoIcons.plus_circle,
+                                color: isSelected
+                                    ? CupertinoColors.destructiveRed
+                                    : CupertinoColors.activeBlue,
                               ),
                             ],
                           ),
                           onPressed: () {
                             setState(() {
                               if (isSelected) {
-                                _selectedLanguages.removeWhere((l) => l.languageId == language.id);
+                                _selectedLanguages.removeWhere(
+                                    (l) => l.languageId == language.id);
                               } else {
                                 _selectedLanguages.add(UserLanguage(
-                                  id: '', // This will be generated when saving to the database
-                                  userId: '', // This will be set when saving to the database
+                                  id: '',
+                                  userId: '',
                                   languageId: language.id,
                                   name: language.name,
                                   shortcut: language.shortcut,
                                   timestamp: DateTime.now(),
-                                  level: 'Beginner', // Default level
+                                  level: 'Beginner',
                                   score: 0,
                                 ));
                               }
@@ -261,11 +339,16 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
                               'Intermediate': Text('Intermediate'),
                               'Advanced': Text('Advanced'),
                             },
-                            groupValue: _selectedLanguages.firstWhere((l) => l.languageId == language.id).level,
+                            groupValue: _selectedLanguages
+                                .firstWhere((l) => l.languageId == language.id)
+                                .level,
                             onValueChanged: (String value) {
                               setState(() {
-                                final index = _selectedLanguages.indexWhere((l) => l.languageId == language.id);
-                                _selectedLanguages[index] = _selectedLanguages[index].copyWith(level: value);
+                                final index = _selectedLanguages.indexWhere(
+                                    (l) => l.languageId == language.id);
+                                _selectedLanguages[index] =
+                                    _selectedLanguages[index]
+                                        .copyWith(level: value);
                               });
                               widget.onSelect(_selectedLanguages);
                             },
@@ -282,7 +365,7 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
           CupertinoButton(
             child: const Text('Done'),
             onPressed: () {
-              widget.onSelect(_selectedLanguages); // Ensure to call onSelect with the final selected languages
+              widget.onSelect(_selectedLanguages);
               Navigator.of(context).pop();
             },
           ),
