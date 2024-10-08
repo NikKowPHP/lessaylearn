@@ -24,6 +24,8 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
   List<UserLanguage> _selectedSpokenLanguages = [];
   List<UserLanguage> _selectedTargetLanguages = [];
 
+  final TextEditingController _interestsController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -67,18 +69,16 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _user = _user.copyWith(
-        sourceLanguageIds:
-            _selectedNativeLanguages.map((l) => l.languageId).toList(),
-        spokenLanguageIds:
-            _selectedSpokenLanguages.map((l) => l.languageId).toList(),
-        targetLanguageIds:
-            _selectedTargetLanguages.map((l) => l.languageId).toList(),
+        sourceLanguageIds: _selectedNativeLanguages.map((l) => l.languageId).toList(),
+        spokenLanguageIds: _selectedSpokenLanguages.map((l) => l.languageId).toList(),
+        targetLanguageIds: _selectedTargetLanguages.map((l) => l.languageId).toList(),
+        interests: _interestsController.text.split(',').map((e) => e.trim()).toList(),
       );
 
       ref.read(signUpProvider.notifier).completeSignUp(_user);
     }
   }
-
+  
   void _showLanguageSelector(String title, List<UserLanguage> selectedLanguages,
       bool isTargetLanguage, Function(List<UserLanguage>) onSelect) {
     showCupertinoModalPopup(
@@ -117,6 +117,7 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
                 validator: (value) =>
                     value!.isEmpty ? 'Name is required' : null,
               ),
+             
               CupertinoTextFormFieldRow(
                 prefix: const Text('Age'),
                 initialValue: _user.age.toString(),
@@ -135,6 +136,21 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
                 prefix: const Text('Bio'),
                 initialValue: _user.bio,
                 onChanged: (value) => _user = _user.copyWith(bio: value),
+              ),
+              CupertinoTextFormFieldRow(
+                prefix: const Text('Interests'),
+                controller: _interestsController,
+                placeholder: 'Enter interests separated by commas',
+              ),
+              CupertinoTextFormFieldRow(
+                prefix: const Text('Occupation'),
+                initialValue: _user.occupation,
+                onChanged: (value) => _user = _user.copyWith(occupation: value),
+              ),
+              CupertinoTextFormFieldRow(
+                prefix: const Text('Education'),
+                initialValue: _user.education,
+                onChanged: (value) => _user = _user.copyWith(education: value),
               ),
               _buildLanguageBottomBar(),
               _buildTargetLanguageLevels(),
@@ -231,7 +247,6 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
     );
   }
 }
-
 
 class LanguageSelectorSheet extends ConsumerStatefulWidget {
   final String title;
