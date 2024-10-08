@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:uuid/uuid.dart';
 
 class ProfilePictureModel {
@@ -30,6 +33,14 @@ class ProfilePictureModel {
       commentIds: List<String>.from(json['commentIds'] ?? []),
       createdAt: DateTime.parse(json['createdAt']),
     );
+  }
+   // Method to convert base64 image to Uint8List
+  Uint8List getImageBytes() {
+    // return base64Decode(base64Image);
+
+     final String base64String = base64Image.split(',').last;
+      return  base64Decode(base64String);
+      
   }
 
   Map<String, dynamic> toJson() {
