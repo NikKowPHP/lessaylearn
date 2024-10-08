@@ -37,6 +37,29 @@ class UserModel {
     this.preferableTranslationLanguage,
   });
 
+// Define the empty method
+  static UserModel empty() {
+    return UserModel(
+      id: '',
+      name: '',
+      email: '',
+      avatarUrl: '',
+      languageLevel: '',
+      sourceLanguageIds: [],
+      targetLanguageIds: [],
+      spokenLanguageIds: [],
+      location: '',
+      age: 0,
+      bio: null,
+      interests: [],
+      occupation: null,
+      education: null,
+      languageIds: [],
+      profilePictureIds: [],
+      preferableTranslationLanguage: null,
+    );
+  }
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'],

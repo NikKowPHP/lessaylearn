@@ -1,7 +1,4 @@
-// lib/features/onboarding/presentation/steps/avatar_selection_step.dart
-
 import 'dart:typed_data';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
@@ -9,30 +6,31 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:html' as html;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/features/onboarding/providers/onboarding_provider.dart';
 
-class AvatarSelectionStep extends StatefulWidget {
+
+class AvatarSelectionStep extends ConsumerStatefulWidget {
   final UserModel user;
   final Function(UserModel) onUpdate;
 
-  const AvatarSelectionStep(
-      {Key? key, required this.user, required this.onUpdate})
+  const AvatarSelectionStep({Key? key, required this.user, required this.onUpdate})
       : super(key: key);
 
   @override
   _AvatarSelectionStepState createState() => _AvatarSelectionStepState();
 }
 
-class _AvatarSelectionStepState extends State<AvatarSelectionStep> {
+class _AvatarSelectionStepState extends ConsumerState<AvatarSelectionStep>{
   String? _avatarUrl;
 
-  @override
-  void initState() {
+void initState() {
     super.initState();
-    _avatarUrl = widget.user.avatarUrl;
+    _avatarUrl = ref.read(onboardingUserProvider).avatarUrl;
   }
 
-   Future<void> _pickImage() async {
+  Future<void> _pickImage() async {
+    dynamic pickedImage;
     if (kIsWeb) {
       // Web implementation using file_picker
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -42,11 +40,7 @@ class _AvatarSelectionStepState extends State<AvatarSelectionStep> {
 
       if (result != null) {
         Uint8List fileBytes = result.files.first.bytes!;
-        String base64Image = base64Encode(fileBytes);
-        setState(() {
-          _avatarUrl = 'data:image/png;base64,$base64Image';
-        });
-        _updateUser();
+        pickedImage = 'data:image/png;base64,${base64Encode(fileBytes)}';
       }
     } else {
       // Mobile implementation
@@ -54,11 +48,18 @@ class _AvatarSelectionStepState extends State<AvatarSelectionStep> {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
       if (image != null) {
-        setState(() {
-          _avatarUrl = image.path;
-        });
-        _updateUser();
+        pickedImage = File(image.path);
       }
+    }
+
+    if (pickedImage != null) {
+      final onboardingService = ref.read(onboardingServiceProvider);
+      final avatarUrl = await onboardingService.saveAvatarLocally(pickedImage);
+      setState(() {
+        _avatarUrl = avatarUrl;
+      });
+      ref.read(onboardingUserProvider.notifier).updateAvatar(avatarUrl);
+      _updateUser();
     }
   }
 
@@ -108,7 +109,7 @@ class _AvatarSelectionStepState extends State<AvatarSelectionStep> {
   }
 
   ImageProvider _getImageProvider() {
-    if (_avatarUrl!.startsWith('data:image')) {
+    if (kIsWeb) {
       // For web (base64 image)
       return MemoryImage(base64Decode(_avatarUrl!.split(',').last));
     } else {
