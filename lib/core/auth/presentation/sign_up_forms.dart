@@ -187,22 +187,15 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
   @override
   void initState() {
     super.initState();
-    _selectedLanguages = widget.selectedLanguages.map((userLanguage) => UserLanguage(
-      id: '', // This will be generated when saving to the database
-      userId: '', // This will be set when saving to the database
-      languageId: userLanguage.id,
-      name: '', // This will be set when we have the language data
-      shortcut: '', // This will be set when we have the language data
-      timestamp: DateTime.now(),
-      level: 'Beginner',
-      score: 0,
-    )).toList();
+    // Initialize _selectedLanguages with the selectedLanguages passed from the parent
+    _selectedLanguages = List.from(widget.selectedLanguages);
   }
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
+
  @override
   Widget build(BuildContext context) {
     final allLanguagesAsyncValue = ref.watch(allLanguagesProvider);
@@ -225,19 +218,6 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
                   itemCount: languages.length,
                   itemBuilder: (context, index) {
                     final language = languages[index];
-                    final selectedLanguage = _selectedLanguages.firstWhere(
-                      (l) => l.languageId == language.id,
-                      orElse: () => UserLanguage(
-                        id: '',
-                        userId: '',
-                        languageId: language.id,
-                        name: language.name,
-                        shortcut: language.shortcut,
-                        timestamp: DateTime.now(),
-                        level: 'Beginner',
-                        score: 0,
-                      ),
-                    );
                     final isSelected = _selectedLanguages.any((l) => l.languageId == language.id);
 
                     return Column(
@@ -259,7 +239,16 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
                               if (isSelected) {
                                 _selectedLanguages.removeWhere((l) => l.languageId == language.id);
                               } else {
-                                _selectedLanguages.add(selectedLanguage);
+                                _selectedLanguages.add(UserLanguage(
+                                  id: '', // This will be generated when saving to the database
+                                  userId: '', // This will be set when saving to the database
+                                  languageId: language.id,
+                                  name: language.name,
+                                  shortcut: language.shortcut,
+                                  timestamp: DateTime.now(),
+                                  level: 'Beginner', // Default level
+                                  score: 0,
+                                ));
                               }
                             });
                             widget.onSelect(_selectedLanguages);
@@ -272,7 +261,7 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
                               'Intermediate': Text('Intermediate'),
                               'Advanced': Text('Advanced'),
                             },
-                            groupValue: selectedLanguage.level,
+                            groupValue: _selectedLanguages.firstWhere((l) => l.languageId == language.id).level,
                             onValueChanged: (String value) {
                               setState(() {
                                 final index = _selectedLanguages.indexWhere((l) => l.languageId == language.id);
@@ -292,7 +281,10 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
           ),
           CupertinoButton(
             child: const Text('Done'),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              widget.onSelect(_selectedLanguages); // Ensure to call onSelect with the final selected languages
+              Navigator.of(context).pop();
+            },
           ),
         ],
       ),
