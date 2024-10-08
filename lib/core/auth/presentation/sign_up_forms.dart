@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/auth/providers/sign_up_provider.dart';
 import 'package:lessay_learn/core/models/language_model.dart';
+import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/language_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 
@@ -31,8 +32,7 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
     }
   }
 
-  void _showLanguageSelector(String title, List<String> selectedLanguages,
-      Function(List<String>) onSelect) {
+  void _showLanguageSelector(String title, List<UserLanguage> selectedLanguages, bool isTargetLanguage, Function(List<UserLanguage>) onSelect) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
@@ -111,53 +111,70 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildLanguageButton('Native', _user.sourceLanguageIds),
-          _buildLanguageButton('Spoken', _user.spokenLanguageIds),
-          _buildLanguageButton('Target', _user.targetLanguageIds),
+          _buildLanguageButton('Native', _user.sourceLanguageIds, false),
+          _buildLanguageButton('Spoken', _user.spokenLanguageIds, false),
+          _buildLanguageButton('Target', _user.targetLanguageIds, true),
         ],
       ),
     );
   }
 
-  Widget _buildLanguageButton(String title, List<String> languageIds) {
+   Widget _buildLanguageButton(String title, List<String> languageIds, bool isTargetLanguage) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(title),
-          Text('${languageIds.length}',
-              style:
-                  TextStyle(fontSize: 12, color: CupertinoColors.systemGrey)),
+          Text('${languageIds.length}', style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey)),
         ],
       ),
-      onPressed: () => _showLanguageSelector(
-        'Select $title Languages',
-        languageIds,
-        (languages) => setState(() {
-          if (title == 'Native') {
-            _user = _user.copyWith(sourceLanguageIds: languages);
-          } else if (title == 'Spoken') {
-            _user = _user.copyWith(spokenLanguageIds: languages);
-          } else if (title == 'Target') {
-            _user = _user.copyWith(targetLanguageIds: languages);
-          }
-        }),
-      ),
+      onPressed: () {
+        // Fetch the UserLanguage objects based on the selected language IDs
+        List<UserLanguage> selectedLanguages = languageIds.map((id) {
+          return UserLanguage(
+            id: '', // This will be generated when saving to the database
+            userId: '', // This will be set when saving to the database
+            languageId: id,
+            name: '', // This will be set when we have the language data
+            shortcut: '', // This will be set when we have the language data
+            timestamp: DateTime.now(),
+            level: 'Beginner', // Default level
+            score: 0,
+          );
+        }).toList();
+
+        _showLanguageSelector(
+          'Select $title Languages',
+          selectedLanguages,
+          isTargetLanguage,
+          (updatedLanguages) {
+            if (title == 'Native') {
+              _user = _user.copyWith(sourceLanguageIds: updatedLanguages.map((l) => l.languageId).toList());
+            } else if (title == 'Spoken') {
+              _user = _user.copyWith(spokenLanguageIds: updatedLanguages.map((l) => l.languageId).toList());
+            } else if (title == 'Target') {
+              _user = _user.copyWith(targetLanguageIds: updatedLanguages.map((l) => l.languageId).toList());
+            }
+          },
+        );
+      },
     );
   }
 }
 
 class LanguageSelectorSheet extends ConsumerStatefulWidget {
   final String title;
-  final List<String> selectedLanguages;
-  final Function(List<String>) onSelect;
+  final List<UserLanguage> selectedLanguages;
+ final Function(List<UserLanguage>) onSelect;
+ final bool isTargetLanguage;
 
   const LanguageSelectorSheet({
     Key? key,
     required this.title,
     required this.selectedLanguages,
     required this.onSelect,
+        this.isTargetLanguage = false,
   }) : super(key: key);
 
   @override
@@ -165,21 +182,28 @@ class LanguageSelectorSheet extends ConsumerStatefulWidget {
 }
 
 class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
-  late List<String> _selectedLanguages;
+  late List<UserLanguage> _selectedLanguages;
   final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
-    _selectedLanguages = List.from(widget.selectedLanguages);
+    _selectedLanguages = widget.selectedLanguages.map((userLanguage) => UserLanguage(
+      id: '', // This will be generated when saving to the database
+      userId: '', // This will be set when saving to the database
+      languageId: userLanguage.id,
+      name: '', // This will be set when we have the language data
+      shortcut: '', // This will be set when we have the language data
+      timestamp: DateTime.now(),
+      level: 'Beginner',
+      score: 0,
+    )).toList();
   }
-
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
-
-  @override
+ @override
   Widget build(BuildContext context) {
     final allLanguagesAsyncValue = ref.watch(allLanguagesProvider);
 
@@ -190,8 +214,7 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(widget.title,
-                style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
+            child: Text(widget.title, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
           ),
           Expanded(
             child: allLanguagesAsyncValue.when(
@@ -202,33 +225,63 @@ class _LanguageSelectorSheetState extends ConsumerState<LanguageSelectorSheet> {
                   itemCount: languages.length,
                   itemBuilder: (context, index) {
                     final language = languages[index];
-                    final isSelected = _selectedLanguages.contains(language.id);
-                    return CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('${language.emoji} ${language.name}'),
-                          Icon(
-                            isSelected
-                                ? CupertinoIcons.minus_circle
-                                : CupertinoIcons.plus_circle,
-                            color: isSelected
-                                ? CupertinoColors.destructiveRed
-                                : CupertinoColors.activeBlue,
-                          ),
-                        ],
+                    final selectedLanguage = _selectedLanguages.firstWhere(
+                      (l) => l.languageId == language.id,
+                      orElse: () => UserLanguage(
+                        id: '',
+                        userId: '',
+                        languageId: language.id,
+                        name: language.name,
+                        shortcut: language.shortcut,
+                        timestamp: DateTime.now(),
+                        level: 'Beginner',
+                        score: 0,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          if (isSelected) {
-                            _selectedLanguages.remove(language.id);
-                          } else {
-                            _selectedLanguages.add(language.id);
-                          }
-                        });
-                        widget.onSelect(_selectedLanguages);
-                      },
+                    );
+                    final isSelected = _selectedLanguages.any((l) => l.languageId == language.id);
+
+                    return Column(
+                      children: [
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('${language.emoji} ${language.name}'),
+                              Icon(
+                                isSelected ? CupertinoIcons.minus_circle : CupertinoIcons.plus_circle,
+                                color: isSelected ? CupertinoColors.destructiveRed : CupertinoColors.activeBlue,
+                              ),
+                            ],
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              if (isSelected) {
+                                _selectedLanguages.removeWhere((l) => l.languageId == language.id);
+                              } else {
+                                _selectedLanguages.add(selectedLanguage);
+                              }
+                            });
+                            widget.onSelect(_selectedLanguages);
+                          },
+                        ),
+                        if (isSelected && widget.isTargetLanguage)
+                          CupertinoSegmentedControl<String>(
+                            children: {
+                              'Beginner': Text('Beginner'),
+                              'Intermediate': Text('Intermediate'),
+                              'Advanced': Text('Advanced'),
+                            },
+                            groupValue: selectedLanguage.level,
+                            onValueChanged: (String value) {
+                              setState(() {
+                                final index = _selectedLanguages.indexWhere((l) => l.languageId == language.id);
+                                _selectedLanguages[index] = _selectedLanguages[index].copyWith(level: value);
+                              });
+                              widget.onSelect(_selectedLanguages);
+                            },
+                          ),
+                      ],
                     );
                   },
                 ),
