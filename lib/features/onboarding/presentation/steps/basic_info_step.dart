@@ -1,9 +1,11 @@
 // lib/features/onboarding/presentation/steps/basic_info_step.dart
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
+import 'package:lessay_learn/features/onboarding/providers/onboarding_provider.dart';
 
-class BasicInfoStep extends StatefulWidget {
+class BasicInfoStep extends ConsumerStatefulWidget {
   final UserModel user;
   final Function(UserModel) onUpdate;
 
@@ -13,7 +15,7 @@ class BasicInfoStep extends StatefulWidget {
   _BasicInfoStepState createState() => _BasicInfoStepState();
 }
 
-class _BasicInfoStepState extends State<BasicInfoStep> {
+class _BasicInfoStepState extends ConsumerState<BasicInfoStep> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _ageController;
@@ -26,6 +28,18 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
     _emailController = TextEditingController(text: widget.user.email);
     _ageController = TextEditingController(text: widget.user.age.toString());
     _locationController = TextEditingController(text: widget.user.location);
+  
+  }
+
+  Future<void> _getUserLocation(WidgetRef ref) async {
+    final onboardingService = ref.read(onboardingServiceProvider);
+    final city = await onboardingService.getUserCity();
+    if (city != null && mounted) {
+      setState(() {
+        _locationController.text = city;
+      });
+      _updateUser();
+    }
   }
 
   @override
@@ -48,7 +62,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
   }
 
   @override
-  Widget build(BuildContext context) {
+ Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
@@ -71,6 +85,11 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
           controller: _locationController,
           placeholder: 'Location',
           onChanged: (_) => _updateUser(),
+        ),
+          const SizedBox(height: 8),
+        CupertinoButton(
+          child: Text('Get Current Location'),
+         onPressed: () => _getUserLocation(ref),
         ),
       ],
     );

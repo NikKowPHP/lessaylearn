@@ -43,5 +43,7 @@
 	<string>This app needs access to the local network to connect to Firebase.</string>
 	<key>NSNetworkUsageDescription</key>
 	<string>This app needs internet access to function correctly.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open to auto-fill your city.</string>
 </dict>
 </plist>
