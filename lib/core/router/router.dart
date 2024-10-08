@@ -18,6 +18,7 @@ import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/presentation/screens/deck_detail_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/screens/learn_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/screens/study_session_screen.dart';
+import 'package:lessay_learn/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:lessay_learn/features/profile/presentation/profile_screen.dart';
 import 'package:lessay_learn/features/profile/presentation/user_gallery_screen.dart';
 import 'package:lessay_learn/features/voicer/presentation/recording_screen.dart';
@@ -33,17 +34,17 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final isLoggedIn = authState.value != null;
       final isAuthRoute = state.path == '/auth';
-      final isSignUpFormsRoute = state.path == '/sign-up-forms';
+      final isSignUpFormsRoute = state.path == '/onboarding';
 
       if (!isLoggedIn && !isAuthRoute) return '/auth';
       if (isLoggedIn && isAuthRoute) {
         if (signUpState is AsyncLoading) {
-          return '/sign-up-forms';
+          return '/onboarding';
         }
         return '/';
       }
       if (isLoggedIn && signUpState is AsyncLoading && !isSignUpFormsRoute) {
-        return '/sign-up-forms';
+        return '/onboarding';
       }
 
       return null;
@@ -54,9 +55,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AuthScreen(),
       ),
          GoRoute(
-        path: '/sign-up-forms',
+        path: '/onboarding',
         pageBuilder: (context, state) => CupertinoPage(
-          child: SignUpFormsScreen(
+          child: OnboardingScreen(
             initialUser: UserModel(
               id: '', // You might want to generate or obtain this ID
               name: '',
