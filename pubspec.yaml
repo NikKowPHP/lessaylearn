@@ -40,6 +40,7 @@ dependencies:
   google_sign_in: 
   translator: ^1.0.0
   firebase_data_connect: ^0.1.2
+  image_picker: ^1.0.0
   
 
   # Optional Packages (Uncomment as needed)
