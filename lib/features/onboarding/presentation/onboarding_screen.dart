@@ -72,9 +72,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     ref.read(onboardingUserProvider.notifier).updateUser(updatedUser);
   }
 
-  void _completeSignUp() {
-    ref.read(signUpProvider.notifier).completeSignUp(_user);
-    // Navigate to the main app screen or show a completion message
+ void _completeSignUp() async {
+    final onboardingService = ref.read(onboardingServiceProvider);
+    try {
+      await onboardingService.completeRegistration(_user);
+      ref.read(signUpProvider.notifier).completeSignUp(_user);
+      // Navigate to the main app screen or show a completion message
+    } catch (e) {
+      // Handle error (e.g., show an error message)
+      print('Error completing sign up: $e');
+    }
   }
 
   @override

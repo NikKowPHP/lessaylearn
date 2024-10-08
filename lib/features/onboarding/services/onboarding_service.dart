@@ -38,39 +38,69 @@ class OnboardingService {
   }
 
   Future<void> completeRegistration(UserModel user) async {
-    // This method will be implemented later to save data to Firebase
-    // For now, it's just a placeholder
-    print('Registration completed for user: ${user.id}');
+    try {
+      // Fetch the current user
+      final currentUser = await _userService.getCurrentUser();
+      if (currentUser == null) {
+        throw Exception('No current user found');
+      }
+
+      // Update the user with new data
+      final updatedUser = currentUser.copyWith(
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+        sourceLanguageIds: user.sourceLanguageIds,
+        targetLanguageIds: user.targetLanguageIds,
+        spokenLanguageIds: user.spokenLanguageIds,
+        interests: user.interests,
+        location: user.location,
+        age: user.age,
+        bio: user.bio,
+        occupation: user.occupation,
+        education: user.education,
+        languageIds: user.languageIds,
+      );
+
+      // Save the updated user
+      await _userService.updateUser(updatedUser);
+
+      print('Registration completed for user: ${updatedUser.id}');
+    } catch (e) {
+      print('Error completing registration: $e');
+      rethrow;
+    }
   }
 
   Future<String?> getUserCity() async {
     if (kIsWeb) {
       try {
-      final geolocation = html.window.navigator.geolocation;
-      final position = await geolocation.getCurrentPosition();
-      final latitude = position.coords!.latitude!.toDouble();
-      final longitude = position.coords!.longitude!.toDouble();
+        final geolocation = html.window.navigator.geolocation;
+        final position = await geolocation.getCurrentPosition();
+        final latitude = position.coords!.latitude!.toDouble();
+        final longitude = position.coords!.longitude!.toDouble();
 
-      try {
-        List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+        try {
+          List<Placemark> placemarks =
+              await placemarkFromCoordinates(latitude, longitude);
 
-        if (placemarks.isNotEmpty) {
-          Placemark place = placemarks[0];
-          final city = place.locality ?? place.subLocality ?? place.administrativeArea;
-          return city;
-        } else {
-          print('No placemarks found for coordinates.');
+          if (placemarks.isNotEmpty) {
+            Placemark place = placemarks[0];
+            final city =
+                place.locality ?? place.subLocality ?? place.administrativeArea;
+            return city;
+          } else {
+            print('No placemarks found for coordinates.');
+          }
+        } catch (e) {
+          // TODO: IMPLEMENT THE GEO FOR WEB
+          print('Error in placemarkFromCoordinates: $e');
+          // Fallback: Use an alternative geocoding service (e.g., Google Maps)
+          return null;
         }
       } catch (e) {
-        // TODO: IMPLEMENT THE GEO FOR WEB 
-        print('Error in placemarkFromCoordinates: $e');
-        // Fallback: Use an alternative geocoding service (e.g., Google Maps)
-    return null;
+        print('Error getting user location on web: $e');
+        return null;
       }
-    } catch (e) {
-      print('Error getting user location on web: $e');
-      return null;
-    }
     } else {
       // Handle mobile location access using geolocator
       try {
