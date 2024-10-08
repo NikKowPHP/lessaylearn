@@ -89,7 +89,7 @@ class _UserGalleryScreenState extends ConsumerState<UserGalleryScreen> {
       children: [
         Expanded(
           child: buildGalleryImage(
-            imageUrl: picture.imageUrl,
+            imageUrl: picture.base64Image,
             isNetworkImage: false,
             fit: BoxFit.contain,
             width: double.infinity,
@@ -207,7 +207,7 @@ class _UserGalleryScreenState extends ConsumerState<UserGalleryScreen> {
       itemBuilder: (context, index) {
         final picture = pictures[index];
         return buildGalleryImage(
-          imageUrl: picture.imageUrl,
+          imageUrl: picture.base64Image,
           isNetworkImage: false, // Assuming all profile pictures are network images
           width: double.infinity,
           height: double.infinity,

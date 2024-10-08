@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 class ProfilePictureModel {
   final String id;
   final String userId;
-  final String imageUrl;
+  final String base64Image;
   final List<String> likeIds;
   final List<String> commentIds;
   final DateTime createdAt;
@@ -11,7 +11,7 @@ class ProfilePictureModel {
   ProfilePictureModel({
     String? id,
     required this.userId,
-    required this.imageUrl,
+    required this.base64Image,
     List<String>? likeIds,
     List<String>? commentIds,
     DateTime? createdAt,
@@ -25,7 +25,7 @@ class ProfilePictureModel {
     return ProfilePictureModel(
       id: json['id'],
       userId: json['userId'],
-      imageUrl: json['imageUrl'],
+      base64Image: json['base64Image'],
       likeIds: List<String>.from(json['likeIds'] ?? []),
       commentIds: List<String>.from(json['commentIds'] ?? []),
       createdAt: DateTime.parse(json['createdAt']),
@@ -36,7 +36,7 @@ class ProfilePictureModel {
     return {
       'id': id,
       'userId': userId,
-      'imageUrl': imageUrl,
+      'base64Image': base64Image,
       'likeIds': likeIds,
       'commentIds': commentIds,
       'createdAt': createdAt.toIso8601String(),
@@ -46,7 +46,7 @@ class ProfilePictureModel {
   ProfilePictureModel copyWith({
     String? id,
     String? userId,
-    String? imageUrl,
+    String? base64Image,
     List<String>? likeIds,
     List<String>? commentIds,
     DateTime? createdAt,
@@ -54,7 +54,7 @@ class ProfilePictureModel {
     return ProfilePictureModel(
       id: id ?? this.id,
       userId: userId ?? this.userId,
-      imageUrl: imageUrl ?? this.imageUrl,
+      base64Image: base64Image ?? this.base64Image,
       likeIds: likeIds ?? this.likeIds,
       commentIds: commentIds ?? this.commentIds,
       createdAt: createdAt ?? this.createdAt,

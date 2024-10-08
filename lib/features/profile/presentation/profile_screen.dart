@@ -134,7 +134,7 @@ class ProfileScreen extends ConsumerWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         
-                        child: AvatarWidget(imageUrl: pictures[index].imageUrl, isNetworkImage: false,size: 150,)
+                        child: AvatarWidget(imageUrl: pictures[index].base64Image, isNetworkImage: false,size: 150,)
                       ),
                     ),
                   );
