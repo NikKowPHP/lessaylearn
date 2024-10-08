@@ -45,6 +45,7 @@ dependencies:
   path_provider: ^2.1.4
   geolocator: ^13.0.1
   geocoding: ^3.0.0
+  cloud_firestore: ^5.4.4
   
   
 
