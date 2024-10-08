@@ -9,6 +9,7 @@ import 'package:lessay_learn/features/onboarding/presentation/steps/avatar_selec
 import 'package:lessay_learn/features/onboarding/presentation/steps/review_step.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/core/auth/providers/sign_up_provider.dart';
+import 'package:lessay_learn/features/onboarding/providers/onboarding_provider.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   final UserModel initialUser;
@@ -68,6 +69,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() {
       _user = updatedUser;
     });
+    ref.read(onboardingUserProvider.notifier).updateUser(updatedUser);
   }
 
   void _completeSignUp() {

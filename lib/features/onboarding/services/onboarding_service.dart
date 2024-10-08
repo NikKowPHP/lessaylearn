@@ -13,7 +13,8 @@ class OnboardingService {
 
   OnboardingService(
       this._userService, this._localStorageService); // Constructor
-  Future<String> saveAvatarLocally(dynamic avatarData) async {
+
+   Future<ProfilePictureModel> saveAvatarLocally(dynamic avatarData) async {
     String base64Image;
     if (kIsWeb) {
       base64Image = avatarData as String;
@@ -30,7 +31,7 @@ class OnboardingService {
       base64Image: base64Image,
     );
     await _localStorageService.saveProfilePicture(profilePicture);
-    return profilePicture.id;
+    return profilePicture;
   }
 
   Future<void> completeRegistration(UserModel user) async {
