@@ -29,7 +29,7 @@ import 'package:lessay_learn/features/statistics/presentation/statistics_screen.
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
   final signUpState = ref.watch(signUpProvider);
-  final currentUserAsyncValue = ref.watch(currentUserProvider);
+
 
   return GoRouter(
     initialLocation: '/',
@@ -59,15 +59,9 @@ final routerProvider = Provider<GoRouter>((ref) {
          GoRoute(
         path: '/onboarding',
         pageBuilder: (context, state) {
-          // Check the current user state
-          final currentUser = currentUserAsyncValue.value;
           return CupertinoPage(
             child: OnboardingScreen(
-              initialUser: currentUser ?? UserModel(
-                id: '', // Default ID if user is null
-                name: '',
-                email: '', // Default email if user is null
-              ),
+             
             ),
           );
         },

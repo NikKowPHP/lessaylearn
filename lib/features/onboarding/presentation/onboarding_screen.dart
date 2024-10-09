@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/onboarding/presentation/steps/basic_info_step.dart';
 import 'package:lessay_learn/features/onboarding/presentation/steps/language_selection_step.dart';
 import 'package:lessay_learn/features/onboarding/presentation/steps/interests_step.dart';
@@ -12,9 +13,9 @@ import 'package:lessay_learn/core/auth/providers/sign_up_provider.dart';
 import 'package:lessay_learn/features/onboarding/providers/onboarding_provider.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
-  final UserModel initialUser;
+  
 
-  const OnboardingScreen({Key? key, required this.initialUser}) : super(key: key);
+  const OnboardingScreen({Key? key}) : super(key: key);
 
   @override
   _OnboardingScreenState createState() => _OnboardingScreenState();
@@ -22,7 +23,7 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   late PageController _pageController;
-  late UserModel _user;
+  late UserModel? _user;
   int _currentStep = 0;
   final int _totalSteps = 5;
 
@@ -30,8 +31,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
-    _user = widget.initialUser;
-    print('this is a init user $_user');
+    // _user = ref.read(currentUserProvider).value ?? UserModel.empty();
+
   }
 
   @override
@@ -76,8 +77,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
  void _completeSignUp() async {
     final onboardingService = ref.read(onboardingServiceProvider);
     try {
-      await onboardingService.completeRegistration(_user);
-      ref.read(signUpProvider.notifier).completeSignUp(_user);
+      await onboardingService.completeRegistration(_user!);
+      ref.read(signUpProvider.notifier).completeSignUp(_user!);
       // Navigate to the main app screen or show a completion message
     } catch (e) {
       // Handle error (e.g., show an error message)
@@ -86,44 +87,53 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Step ${_currentStep + 1} of $_totalSteps'),
-        leading: _currentStep > 0
-            ? CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: const Icon(CupertinoIcons.back),
-                onPressed: _previousStep,
-              )
-            : null,
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  BasicInfoStep(user: _user, onUpdate: _updateUser),
-                  LanguageSelectionStep(user: _user, onUpdate: _updateUser),
-                  InterestsStep(user: _user, onUpdate: _updateUser),
-                  AvatarSelectionStep(user: _user, onUpdate: _updateUser),
-                  ReviewStep(user: _user),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: CupertinoButton.filled(
-                child: Text(_currentStep == _totalSteps - 1 ? 'Complete' : 'Next'),
-                onPressed: _nextStep,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+       Widget build(BuildContext context) {
+           final currentUserAsyncValue = ref.watch(currentUserProvider);
+
+           return currentUserAsyncValue.when(
+               data: (user) {
+                   _user = user; // Assign the user here
+                   return CupertinoPageScaffold(
+                       navigationBar: CupertinoNavigationBar(
+                           middle: Text('Step ${_currentStep + 1} of $_totalSteps'),
+                           leading: _currentStep > 0
+                               ? CupertinoButton(
+                                   padding: EdgeInsets.zero,
+                                   child: const Icon(CupertinoIcons.back),
+                                   onPressed: _previousStep,
+                               )
+                               : null,
+                       ),
+                       child: SafeArea(
+                           child: Column(
+                               children: [
+                                   Expanded(
+                                       child: PageView(
+                                           controller: _pageController,
+                                           physics: const NeverScrollableScrollPhysics(),
+                                           children: [
+                                               BasicInfoStep(user: _user!, onUpdate: _updateUser),
+                                               LanguageSelectionStep(user: _user!, onUpdate: _updateUser),
+                                               InterestsStep(user: _user!, onUpdate: _updateUser),
+                                               AvatarSelectionStep(user: _user!, onUpdate: _updateUser),
+                                               ReviewStep(user: _user!),
+                                           ],
+                                       ),
+                                   ),
+                                   Padding(
+                                       padding: const EdgeInsets.all(16.0),
+                                       child: CupertinoButton.filled(
+                                           child: Text(_currentStep == _totalSteps - 1 ? 'Complete' : 'Next'),
+                                           onPressed: _nextStep,
+                                       ),
+                                   ),
+                               ],
+                           ),
+                       ),
+                   );
+               },
+               loading: () => const Center(child: CupertinoActivityIndicator()),
+               error: (error, stack) => Center(child: Text('Error: $error')),
+           );
+       }
 }

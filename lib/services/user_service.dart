@@ -99,7 +99,9 @@ final FirebaseService _firestoreService;
   }
 
     Future<void> saveCurrentUser(UserModel user) async {
+
     _cachedCurrentUser = user; // Update the cached current user
+    print('current user $_cachedCurrentUser');
     await _localStorageService.saveCurrentUser(user); // Save to local storage
   }
 
