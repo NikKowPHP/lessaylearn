@@ -5,13 +5,11 @@ import 'package:lessay_learn/core/models/language_model.dart';
 
 import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/language_provider.dart';
+import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 
 class SignUpFormsScreen extends ConsumerStatefulWidget {
-  final UserModel initialUser;
-
-  const SignUpFormsScreen({Key? key, required this.initialUser})
-      : super(key: key);
+  const SignUpFormsScreen({Key? key}) : super(key: key);
 
   @override
   _SignUpFormsScreenState createState() => _SignUpFormsScreenState();
@@ -27,10 +25,19 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
   final TextEditingController _interestsController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _user = widget.initialUser;
-    _initializeLanguages();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeUser(); // Safe to call here
+    _initializeLanguages(); // Safe to call here
+  }
+
+  void _initializeUser() {
+    final currentUserAsyncValue = ref.watch(currentUserProvider);
+    currentUserAsyncValue.whenData((user) {
+      setState(() {
+        _user = user; // Assign the current user
+      });
+    });
   }
 
   void _initializeLanguages() {
@@ -69,16 +76,20 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _user = _user.copyWith(
-        sourceLanguageIds: _selectedNativeLanguages.map((l) => l.languageId).toList(),
-        spokenLanguageIds: _selectedSpokenLanguages.map((l) => l.languageId).toList(),
-        targetLanguageIds: _selectedTargetLanguages.map((l) => l.languageId).toList(),
-        interests: _interestsController.text.split(',').map((e) => e.trim()).toList(),
+        sourceLanguageIds:
+            _selectedNativeLanguages.map((l) => l.languageId).toList(),
+        spokenLanguageIds:
+            _selectedSpokenLanguages.map((l) => l.languageId).toList(),
+        targetLanguageIds:
+            _selectedTargetLanguages.map((l) => l.languageId).toList(),
+        interests:
+            _interestsController.text.split(',').map((e) => e.trim()).toList(),
       );
 
       ref.read(signUpProvider.notifier).completeSignUp(_user);
     }
   }
-  
+
   void _showLanguageSelector(String title, List<UserLanguage> selectedLanguages,
       bool isTargetLanguage, Function(List<UserLanguage>) onSelect) {
     showCupertinoModalPopup(
@@ -100,70 +111,81 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Complete Your Profile'),
-      ),
-      child: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(16.0),
-            children: [
-              CupertinoTextFormFieldRow(
-                prefix: const Text('Name'),
-                initialValue: _user.name,
-                onChanged: (value) => _user = _user.copyWith(name: value),
-                validator: (value) =>
-                    value!.isEmpty ? 'Name is required' : null,
+    final currentUserAsyncValue = ref.watch(currentUserProvider);
+
+    return currentUserAsyncValue.when(
+        loading: () => const Center(child: CupertinoActivityIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
+        data: (user) {
+          _user = user; // Safely assign the user here once data is available
+
+          return CupertinoPageScaffold(
+            navigationBar: const CupertinoNavigationBar(
+              middle: Text('Complete Your Profile'),
+            ),
+            child: SafeArea(
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(16.0),
+                  children: [
+                    CupertinoTextFormFieldRow(
+                      prefix: const Text('Name'),
+                      initialValue: _user.name,
+                      onChanged: (value) => _user = _user.copyWith(name: value),
+                      validator: (value) =>
+                          value!.isEmpty ? 'Name is required' : null,
+                    ),
+                    CupertinoTextFormFieldRow(
+                      prefix: const Text('Age'),
+                      initialValue: _user.age.toString(),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) =>
+                          _user = _user.copyWith(age: int.tryParse(value) ?? 0),
+                      validator: (value) =>
+                          int.tryParse(value!) == null ? 'Invalid age' : null,
+                    ),
+                    CupertinoTextFormFieldRow(
+                      prefix: const Text('Location'),
+                      initialValue: _user.location,
+                      onChanged: (value) =>
+                          _user = _user.copyWith(location: value),
+                    ),
+                    CupertinoTextFormFieldRow(
+                      prefix: const Text('Bio'),
+                      initialValue: _user.bio,
+                      onChanged: (value) => _user = _user.copyWith(bio: value),
+                    ),
+                    CupertinoTextFormFieldRow(
+                      prefix: const Text('Interests'),
+                      controller: _interestsController,
+                      placeholder: 'Enter interests separated by commas',
+                    ),
+                    CupertinoTextFormFieldRow(
+                      prefix: const Text('Occupation'),
+                      initialValue: _user.occupation,
+                      onChanged: (value) =>
+                          _user = _user.copyWith(occupation: value),
+                    ),
+                    CupertinoTextFormFieldRow(
+                      prefix: const Text('Education'),
+                      initialValue: _user.education,
+                      onChanged: (value) =>
+                          _user = _user.copyWith(education: value),
+                    ),
+                    _buildLanguageBottomBar(),
+                    _buildTargetLanguageLevels(),
+                    const SizedBox(height: 20),
+                    CupertinoButton.filled(
+                      child: const Text('Complete Sign Up'),
+                      onPressed: _submitForm,
+                    ),
+                  ],
+                ),
               ),
-             
-              CupertinoTextFormFieldRow(
-                prefix: const Text('Age'),
-                initialValue: _user.age.toString(),
-                keyboardType: TextInputType.number,
-                onChanged: (value) =>
-                    _user = _user.copyWith(age: int.tryParse(value) ?? 0),
-                validator: (value) =>
-                    int.tryParse(value!) == null ? 'Invalid age' : null,
-              ),
-              CupertinoTextFormFieldRow(
-                prefix: const Text('Location'),
-                initialValue: _user.location,
-                onChanged: (value) => _user = _user.copyWith(location: value),
-              ),
-              CupertinoTextFormFieldRow(
-                prefix: const Text('Bio'),
-                initialValue: _user.bio,
-                onChanged: (value) => _user = _user.copyWith(bio: value),
-              ),
-              CupertinoTextFormFieldRow(
-                prefix: const Text('Interests'),
-                controller: _interestsController,
-                placeholder: 'Enter interests separated by commas',
-              ),
-              CupertinoTextFormFieldRow(
-                prefix: const Text('Occupation'),
-                initialValue: _user.occupation,
-                onChanged: (value) => _user = _user.copyWith(occupation: value),
-              ),
-              CupertinoTextFormFieldRow(
-                prefix: const Text('Education'),
-                initialValue: _user.education,
-                onChanged: (value) => _user = _user.copyWith(education: value),
-              ),
-              _buildLanguageBottomBar(),
-              _buildTargetLanguageLevels(),
-              const SizedBox(height: 20),
-              CupertinoButton.filled(
-                child: const Text('Complete Sign Up'),
-                onPressed: _submitForm,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
+        });
   }
 
   Widget _buildTargetLanguageLevels() {

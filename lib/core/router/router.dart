@@ -60,9 +60,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/onboarding',
         pageBuilder: (context, state) {
           return CupertinoPage(
-            child: OnboardingScreen(
-             
-            ),
+            child: SignUpFormsScreen(),
           );
         },
       ),
