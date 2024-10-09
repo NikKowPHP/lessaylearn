@@ -1,10 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lessay_learn/core/data/data_sources/storage/firebase_service.dart';
-import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
-import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lessay_learn/services/user_service.dart';
 
 class AuthService {

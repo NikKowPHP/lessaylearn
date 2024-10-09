@@ -6,7 +6,6 @@ import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/services/favorite_service.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/services/deck_service.dart';
-import 'package:lessay_learn/services/i_user_service.dart';
 import 'package:lessay_learn/services/user_service.dart';
 import 'package:uuid/uuid.dart';
 

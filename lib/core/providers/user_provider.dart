@@ -5,9 +5,7 @@ import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/core/providers/local_storage_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
-import 'package:lessay_learn/services/i_user_service.dart';
 import 'package:lessay_learn/services/user_service.dart';
-import 'package:lessay_learn/services/local_storage_service.dart';
 
 final updateUserProvider = Provider<Future<void> Function(UserModel)>((ref) {
   final userService = ref.watch(userServiceProvider);

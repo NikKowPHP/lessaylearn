@@ -5,12 +5,12 @@ import 'package:lessay_learn/core/models/favorite_model.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
 import 'package:lessay_learn/core/providers/favorite_provider.dart';
 import 'package:lessay_learn/core/providers/known_word_provider.dart';
-import 'package:lessay_learn/core/providers/user_language_provider.dart' as languageProvider;
+import 'package:lessay_learn/core/providers/user_language_provider.dart'
+    as languageProvider;
 import 'package:lessay_learn/core/providers/chat_provider.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:lessay_learn/core/services/translate_service.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
-
 
 class TappableText extends ConsumerStatefulWidget {
   final String text;
@@ -101,7 +101,6 @@ class TappableTextState extends ConsumerState<TappableText> {
 
     return GestureDetector(
       onTap: () {
-        
         if (currentUser?.preferableTranslationLanguage == null) {
           _showLanguageSelectionSheet(context, word);
         } else {
@@ -111,8 +110,7 @@ class TappableTextState extends ConsumerState<TappableText> {
               TranslationTrigger(
             messageId: '${widget.text}_$index',
             text: word,
-            targetLanguage:
-                currentUser!.preferableTranslationLanguage!,
+            targetLanguage: currentUser!.preferableTranslationLanguage!,
           );
         }
         if (!isKnown) {
@@ -163,7 +161,7 @@ class TappableTextState extends ConsumerState<TappableText> {
           : CupertinoColors.systemBlue
               .withOpacity(0.3); // Slight blue for other user's favorites
     } else {
-      return CupertinoColors.transparent;
+      return Colors.transparent; // Use Colors.transparent instead
     }
   }
 
@@ -223,11 +221,9 @@ class TappableTextState extends ConsumerState<TappableText> {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: currentUser.id,
         sourceText: word,
-        translatedText: translationResult!
-            .translatedText, 
-        sourceLanguageId: currentUser.preferableTranslationLanguage!, 
-        targetLanguageId: translationResult
-            .detectedLanguage, 
+        translatedText: translationResult!.translatedText,
+        sourceLanguageId: currentUser.preferableTranslationLanguage!,
+        targetLanguageId: translationResult.detectedLanguage,
       );
       await ref.read(favoritesProvider.notifier).addFavorite(newFavorite);
     }
@@ -248,11 +244,12 @@ class TappableTextState extends ConsumerState<TappableText> {
     }
   }
 
- Future<void> _setPreferredLanguage(String languageCode) async {
+  Future<void> _setPreferredLanguage(String languageCode) async {
     final currentUserAsync = ref.read(currentUserProvider);
-    
+
     currentUserAsync.whenData((currentUser) async {
-      final updatedUser = currentUser.copyWith(preferableTranslationLanguage: languageCode);
+      final updatedUser =
+          currentUser.copyWith(preferableTranslationLanguage: languageCode);
       await ref.read(currentUserProvider.notifier).updateUser(updatedUser);
     });
   }
@@ -267,8 +264,8 @@ class TappableTextState extends ConsumerState<TappableText> {
     final currentUser = ref.read(currentUserProvider).value;
     if (currentUser == null) return;
 
-    final languageModels =
-        await ref.read(languageProvider.userLanguagesProvider(currentUser.id).future);
+    final languageModels = await ref
+        .read(languageProvider.userLanguagesProvider(currentUser.id).future);
 
     await showCupertinoModalPopup<void>(
       context: context,

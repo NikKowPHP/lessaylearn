@@ -169,7 +169,7 @@ class ChatService implements IChatService {
     final reply = MessageModel(
       id: UniqueKey().toString(),
       chatId: chatId,
-      senderId: partner!.id,
+      senderId: partner.id,
       receiverId: senderId,
       content: 'This is a simulated reply from ${partner.name}',
       timestamp: DateTime.now(),

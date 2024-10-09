@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lessay_learn/app.dart';
 import 'package:lessay_learn/core/widgets/cupertino_bottom_nav_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:lessay_learn/core/dependency_injection.dart';

@@ -1,13 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/models/known_word_model.dart';
-import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
 // import 'package:lessay_learn/features/home/providers/current_user_provider.dart';
-import 'package:lessay_learn/features/statistics/models/chart_model.dart';
 import 'package:lessay_learn/features/statistics/providers/chart_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart' show LinearProgressIndicator;
 import 'package:lessay_learn/core/providers/known_word_provider.dart';
 import 'package:lessay_learn/core/providers/favorite_provider.dart';
 import 'package:word_cloud/word_cloud.dart';

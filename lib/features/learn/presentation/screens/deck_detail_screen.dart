@@ -2,13 +2,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:lessay_learn/core/SRSA/engine/srsa_algoritm.dart';
-import 'package:lessay_learn/core/providers/favorite_provider.dart';
-import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/learn/models/deck_model.dart';
 import 'package:lessay_learn/features/learn/models/flashcard_model.dart';
 import 'package:lessay_learn/features/learn/presentation/screens/favorite_list_screen.dart';
-import 'package:lessay_learn/features/learn/presentation/screens/study_session_screen.dart';
 import 'package:lessay_learn/features/learn/presentation/widgets/flashcard_list_item.dart';
 import 'package:lessay_learn/features/learn/providers/deck_provider.dart';
 import 'package:lessay_learn/features/learn/providers/flashcard_provider.dart';
@@ -224,9 +220,6 @@ Widget _buildDeckInfo(BuildContext context, WidgetRef ref, DeckModel deck) {
     return Expanded(
       child: flashcardsAsyncValue.when(
         data: (flashcards) {
-          if (flashcards == null) {
-            return Center(child: Text('No flashcards available'));
-          }
           final flashcardStatusAsyncValue = ref.watch(
               deckWithFlashcardsStatusProvider(flashcards)); // Use the provider
           return flashcardStatusAsyncValue.when(

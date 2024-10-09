@@ -128,5 +128,6 @@ print('current user ${user.id}');
       }
       return null;
     }
+    return null;
   }
 }

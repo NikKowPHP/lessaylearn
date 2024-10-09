@@ -7,7 +7,6 @@ import 'package:lessay_learn/core/providers/user_language_provider.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/chat_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
-import 'package:lessay_learn/features/chat/services/chat_service.dart';
 
 class CreateChatView extends ConsumerStatefulWidget {
   CreateChatView({Key? key}) : super(key: key);
@@ -92,9 +91,6 @@ class _CreateChatViewState extends ConsumerState<CreateChatView> {
     final currentUserAsync = ref.watch(currentUserProvider);
     return currentUserAsync.when(
       data: (currentUser) {
-        if (currentUser == null) {
-          return Center(child: Text('User not found'));
-        }
         return FutureBuilder<List<UserLanguage>>(
           future: _fetchUserLanguages(currentUser),
           builder: (context, snapshot) {

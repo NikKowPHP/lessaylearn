@@ -1,5 +1,4 @@
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:lessay_learn/core/data/data_sources/storage/firebase_service.dart';
 import 'package:lessay_learn/core/models/comment_model.dart';
 import 'package:lessay_learn/core/models/user_language_model.dart';
@@ -7,9 +6,7 @@ import 'package:lessay_learn/core/models/like_model.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
 import 'package:lessay_learn/features/statistics/models/chart_model.dart';
-import 'package:lessay_learn/services/i_user_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 // import 'package:lessay_learn/services/i_local_storage_service.dart';
 abstract class IUserService {

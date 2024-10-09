@@ -1,5 +1,4 @@
 import 'package:lessay_learn/core/models/known_word_model.dart';
-import 'package:lessay_learn/services/i_local_storage_service.dart';
 import 'package:lessay_learn/services/local_storage_service.dart';
 
 class KnownWordService {
