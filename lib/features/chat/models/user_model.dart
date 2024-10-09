@@ -16,6 +16,7 @@ class UserModel {
   final List<String> languageIds;
   final List<String> profilePictureIds;
   final String? preferableTranslationLanguage;
+  final bool onboardingComplete; // New field
 
   UserModel({
     required this.id,
@@ -35,9 +36,10 @@ class UserModel {
     this.languageIds = const [],
     this.profilePictureIds = const [],
     this.preferableTranslationLanguage,
+    this.onboardingComplete = false, // Default value
   });
 
-// Define the empty method
+  // Define the empty method
   static UserModel empty() {
     return UserModel(
       id: '',
@@ -57,6 +59,7 @@ class UserModel {
       languageIds: [],
       profilePictureIds: [],
       preferableTranslationLanguage: null,
+      onboardingComplete: false, // Default value
     );
   }
 
@@ -79,6 +82,7 @@ class UserModel {
       languageIds: List<String>.from(json['languageIds'] ?? []),
       profilePictureIds: List<String>.from(json['profilePictureIds'] ?? []),
       preferableTranslationLanguage: json['preferableTranslationLanguage'],
+      onboardingComplete: json['onboardingComplete'] ?? false, // Handle new field
     );
   }
 
@@ -101,6 +105,7 @@ class UserModel {
       'languageIds': languageIds,
       'profilePictureIds': profilePictureIds,
       'preferableTranslationLanguage': preferableTranslationLanguage,
+      'onboardingComplete': onboardingComplete, // Include new field
     };
   }
 
@@ -122,6 +127,7 @@ class UserModel {
     List<String>? languageIds,
     List<String>? profilePictureIds,
     String? preferableTranslationLanguage,
+    bool? onboardingComplete, // Allow changes to new field
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -142,6 +148,7 @@ class UserModel {
       profilePictureIds: profilePictureIds ?? this.profilePictureIds,
       preferableTranslationLanguage:
           preferableTranslationLanguage ?? this.preferableTranslationLanguage,
+      onboardingComplete: onboardingComplete ?? this.onboardingComplete, // Handle new field
     );
   }
 
@@ -164,7 +171,8 @@ class UserModel {
       education: $education,
       languageIds: $languageIds,
       profilePictureIds: $profilePictureIds,
-      preferableTranslationLanguage: $preferableTranslationLanguage 
+      preferableTranslationLanguage: $preferableTranslationLanguage,
+      onboardingComplete: $onboardingComplete // Include new field
     )''';
   }
 }
