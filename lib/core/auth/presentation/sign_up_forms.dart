@@ -31,14 +31,24 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
     _initializeLanguages(); // Safe to call here
   }
 
-  void _initializeUser() {
-    final currentUserAsyncValue = ref.watch(currentUserProvider);
-    currentUserAsyncValue.whenData((user) {
+void _initializeUser() {
+  final currentUserAsyncValue = ref.watch(currentUserProvider);
+  currentUserAsyncValue.when(
+    loading: () {
+      // Optionally show a loading indicator
+    },
+    error: (err, stack) {
+      // Handle error (e.g., show a message)
+      debugPrint('Error fetching user: $err');
+    },
+    data: (user) {
       setState(() {
         _user = user; // Assign the current user
+        debugPrint('User initialized in sign up forms: $_user');
       });
-    });
-  }
+    },
+  );
+}
 
   void _initializeLanguages() {
     final allLanguagesAsyncValue = ref.read(allLanguagesProvider);
@@ -75,17 +85,19 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      _user = _user.copyWith(
-        sourceLanguageIds:
-            _selectedNativeLanguages.map((l) => l.languageId).toList(),
-        spokenLanguageIds:
-            _selectedSpokenLanguages.map((l) => l.languageId).toList(),
-        targetLanguageIds:
-            _selectedTargetLanguages.map((l) => l.languageId).toList(),
-        interests:
-            _interestsController.text.split(',').map((e) => e.trim()).toList(),
-        onboardingComplete: true
-      );
+         _user = _user.copyWith(
+      sourceLanguageIds: _selectedNativeLanguages.map((l) => l.languageId).toList(),
+      spokenLanguageIds: _selectedSpokenLanguages.map((l) => l.languageId).toList(),
+      targetLanguageIds: _selectedTargetLanguages.map((l) => l.languageId).toList(),
+      interests: _interestsController.text.split(',').map((e) => e.trim()).toList(),
+      onboardingComplete: true,
+      // Include additional fields
+      bio: _user.bio, // Ensure bio is captured
+      location: _user.location, // Ensure location is captured
+      age: _user.age, // Ensure age is captured
+      occupation: _user.occupation, // Ensure occupation is captured
+      education: _user.education, // Ensure education is captured
+    );
 
       ref.read(signUpProvider.notifier).completeSignUp(_user);
     }
