@@ -20,7 +20,9 @@ final userLanguagesProvider = FutureProvider.family<List<UserLanguage>, String>(
 
 final userLanguageByIdProvider = FutureProvider.family<UserLanguage?, String>((ref, languageId) {
   final languageService = ref.watch(userLanguageServiceProvider);
-  return languageService.fetchLanguageById(languageId);
+   final userLanguage = languageService.fetchLanguageById(languageId);
+   print( 'user lanugage $userLanguage');
+   return userLanguage;
 });
 final allUserLanguagesProvider = FutureProvider<List<UserLanguage>>((ref) async {
   final localStorageService = ref.watch(localStorageServiceProvider);

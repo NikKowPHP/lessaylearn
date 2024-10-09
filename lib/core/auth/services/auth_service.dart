@@ -79,9 +79,20 @@ class AuthService {
       }
     }
   }
-
+ Future<void> fetchAndPrintAllUsers() async {
+    try {
+      List<UserModel> users = await _localStorageService.getAllUsers();
+      for (var user in users) {
+        print(user); // This will call the toString method of UserModel
+      }
+    } catch (e) {
+      print('Error fetching users: $e');
+    }
+  }
   Future<UserModel> _getUserModel(User user) async {
+    print('user from firebase ${user.uid}');
     UserModel? userModel = await _localStorageService.getUserById(user.uid);
+    await fetchAndPrintAllUsers();
     print('logging in user in db ${userModel}');
     if (userModel == null) {
       userModel = UserModel(

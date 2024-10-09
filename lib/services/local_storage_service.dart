@@ -941,7 +941,7 @@ class LocalStorageService implements ILocalStorageService {
 
     // print('chartsBox is empty: ${chartsBox.isEmpty}');
     // print('chartsBox is empty: ${knownWordsBox.isEmpty}');
-    await usersBox.clear();
+   
     if (usersBox.isEmpty) {
       await _populateUsersWithMockData();
     }
