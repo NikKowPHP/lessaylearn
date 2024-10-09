@@ -14,6 +14,7 @@ abstract class IFirebaseService {
   Future<void> updateDocument(String collectionPath, String documentId, Map<String, dynamic> data);
   Future<Map<String, dynamic>?> getDocument(String collectionPath, String documentId);
   Future<void> deleteDocument(String collectionPath, String documentId);
+  Future<void> updateDocumentByField(String collectionPath, String field, String value, Map<String, dynamic> data);
 
 }
 
@@ -102,6 +103,24 @@ class FirebaseService implements IFirebaseService{
       print('Error updating document: $e');
     }
   }
+  @override
+Future<void> updateDocumentByField(String collectionPath, String field, String value, Map<String, dynamic> data) async {
+  try {
+    // Find the document by the specified field
+    final querySnapshot = await _firestore.collection(collectionPath)
+        .where(field, isEqualTo: value)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // Update the first document that matches the query
+      await querySnapshot.docs.first.reference.update(data);
+    } else {
+      print('No document found with $field: $value');
+    }
+  } catch (e) {
+    print('Error updating document: $e');
+  }
+}
 
   @override
   Future<Map<String, dynamic>?> getDocument(String collectionPath, String documentId) async {

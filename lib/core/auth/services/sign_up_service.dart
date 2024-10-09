@@ -1,10 +1,27 @@
+import 'package:lessay_learn/core/data/data_sources/storage/firebase_service.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
 
+import 'package:lessay_learn/services/user_service.dart';
+
+
 class SignUpService {
-  Future<void> completeSignUp(UserModel user) async {
-    // TODO: Implement the API call to save the user data
-    // This is where you would typically make a network request to your backend
-    await Future.delayed(const Duration(seconds: 2)); // Simulating network delay
-    print('User sign up completed: ${user.toString()}');
+  final IUserService _userService;
+  final IFirebaseService _firebaseService;
+
+  SignUpService(this._userService, this._firebaseService);
+
+  Future<UserModel> completeSignUp(UserModel user) async {
+    // Save user to Firebase
+   await _firebaseService.updateDocumentByField(
+      'users',
+      'id', // Assuming 'id' is the field you want to match
+      user.id,
+      user.toJson() // Use toJson to convert UserModel to Map
+    );
+    
+    // Save user locally
+    await _userService.saveCurrentUser(user);
+    
+    return user; // Return the user model after saving
   }
 }
