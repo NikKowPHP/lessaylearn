@@ -29,6 +29,7 @@ import 'package:lessay_learn/features/statistics/presentation/statistics_screen.
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
   final signUpState = ref.watch(signUpProvider);
+    final currentUserAsyncValue = ref.watch(currentUserProvider); // This is AsyncValue<UserModel>
 
 
   return GoRouter(
@@ -45,10 +46,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         }
         return '/';
       }
-      if (isLoggedIn && signUpState is AsyncLoading && !isSignUpFormsRoute) {
-        return '/onboarding';
+         // Check if onboarding is complete
+      if (isLoggedIn && currentUserAsyncValue is AsyncData<UserModel>) {
+        final currentUser = currentUserAsyncValue.value; // Access the UserModel
+        if (!currentUser.onboardingComplete) {
+          return '/onboarding'; // Redirect to onboarding if not complete
+        }
       }
-
       return null;
     },
     routes: [
