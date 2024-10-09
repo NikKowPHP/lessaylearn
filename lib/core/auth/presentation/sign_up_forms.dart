@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/auth/providers/sign_up_provider.dart';
@@ -7,6 +9,15 @@ import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/language_provider.dart';
 import 'package:lessay_learn/core/providers/user_provider.dart';
 import 'package:lessay_learn/features/chat/models/user_model.dart';
+import 'package:lessay_learn/features/profile/models/profile_picture_model.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 
 class SignUpFormsScreen extends ConsumerStatefulWidget {
   const SignUpFormsScreen({Key? key}) : super(key: key);
@@ -16,6 +27,7 @@ class SignUpFormsScreen extends ConsumerStatefulWidget {
 }
 
 class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
+  ProfilePictureModel? _profilePicture;
   late UserModel _user;
   final _formKey = GlobalKey<FormState>();
   List<UserLanguage> _selectedNativeLanguages = [];
@@ -31,24 +43,72 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
     _initializeLanguages(); // Safe to call here
   }
 
-void _initializeUser() {
-  final currentUserAsyncValue = ref.watch(currentUserProvider);
-  currentUserAsyncValue.when(
-    loading: () {
-      // Optionally show a loading indicator
-    },
-    error: (err, stack) {
-      // Handle error (e.g., show a message)
-      debugPrint('Error fetching user: $err');
-    },
-    data: (user) {
+  void _initializeUser() {
+    final currentUserAsyncValue = ref.watch(currentUserProvider);
+    currentUserAsyncValue.when(
+      loading: () {
+        // Optionally show a loading indicator
+      },
+      error: (err, stack) {
+        // Handle error (e.g., show a message)
+        debugPrint('Error fetching user: $err');
+      },
+      data: (user) {
+        setState(() {
+          _user = user; // Assign the current user
+          debugPrint('User initialized in sign up forms: $_user');
+        });
+      },
+    );
+  }
+
+  Future<void> _pickImage() async {
+    dynamic pickedImage;
+    if (kIsWeb) {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
+
+      if (result != null) {
+        Uint8List fileBytes = result.files.first.bytes!;
+        pickedImage = 'data:image/png;base64,${base64Encode(fileBytes)}';
+      }
+    } else {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        final dir = await path_provider.getTemporaryDirectory();
+        final targetPath =
+            '${dir.absolute.path}/temp_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final file = File(image.path);
+
+        final compressedFile = await FlutterImageCompress.compressAndGetFile(
+          file.path,
+          targetPath,
+          minHeight: 500,
+          minWidth: 500,
+          quality: 85,
+        );
+
+        if (compressedFile != null) {
+          final compressedBytes = await compressedFile.readAsBytes();
+          pickedImage =
+              'data:image/jpeg;base64,${base64Encode(compressedBytes)}';
+        }
+      }
+    }
+
+    if (pickedImage != null) {
       setState(() {
-        _user = user; // Assign the current user
-        debugPrint('User initialized in sign up forms: $_user');
+        _profilePicture = ProfilePictureModel(
+          userId: _user.id,
+          base64Image: pickedImage,
+        );
       });
-    },
-  );
-}
+    }
+  }
 
   void _initializeLanguages() {
     final allLanguagesAsyncValue = ref.read(allLanguagesProvider);
@@ -85,19 +145,23 @@ void _initializeUser() {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-         _user = _user.copyWith(
-      sourceLanguageIds: _selectedNativeLanguages.map((l) => l.languageId).toList(),
-      spokenLanguageIds: _selectedSpokenLanguages.map((l) => l.languageId).toList(),
-      targetLanguageIds: _selectedTargetLanguages.map((l) => l.languageId).toList(),
-      interests: _interestsController.text.split(',').map((e) => e.trim()).toList(),
-      onboardingComplete: true,
-      // Include additional fields
-      bio: _user.bio, // Ensure bio is captured
-      location: _user.location, // Ensure location is captured
-      age: _user.age, // Ensure age is captured
-      occupation: _user.occupation, // Ensure occupation is captured
-      education: _user.education, // Ensure education is captured
-    );
+      _user = _user.copyWith(
+        sourceLanguageIds:
+            _selectedNativeLanguages.map((l) => l.languageId).toList(),
+        spokenLanguageIds:
+            _selectedSpokenLanguages.map((l) => l.languageId).toList(),
+        targetLanguageIds:
+            _selectedTargetLanguages.map((l) => l.languageId).toList(),
+        interests:
+            _interestsController.text.split(',').map((e) => e.trim()).toList(),
+        onboardingComplete: true,
+        // Include additional fields
+        bio: _user.bio, // Ensure bio is captured
+        location: _user.location, // Ensure location is captured
+        age: _user.age, // Ensure age is captured
+        occupation: _user.occupation, // Ensure occupation is captured
+        education: _user.education, // Ensure education is captured
+      );
 
       ref.read(signUpProvider.notifier).completeSignUp(_user);
     }
@@ -126,6 +190,30 @@ void _initializeUser() {
   Widget build(BuildContext context) {
     final currentUserAsyncValue = ref.watch(currentUserProvider);
 
+    Widget _buildAvatarSelection() {
+      return GestureDetector(
+        onTap: _pickImage,
+        child: Container(
+          width: 150,
+          height: 150,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: CupertinoColors.systemGrey5,
+            image: _profilePicture != null
+                ? DecorationImage(
+                    image: MemoryImage(_profilePicture!.getImageBytes()),
+                    fit: BoxFit.cover,
+                  )
+                : null,
+          ),
+          child: _profilePicture == null
+              ? const Icon(CupertinoIcons.person_add,
+                  size: 50, color: CupertinoColors.systemGrey)
+              : null,
+        ),
+      );
+    }
+
     return currentUserAsyncValue.when(
         loading: () => const Center(child: CupertinoActivityIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
@@ -142,6 +230,8 @@ void _initializeUser() {
                 child: ListView(
                   padding: const EdgeInsets.all(16.0),
                   children: [
+                    _buildAvatarSelection(), // Add this line
+                    const SizedBox(height: 20),
                     CupertinoTextFormFieldRow(
                       prefix: const Text('Name'),
                       initialValue: _user.name,
