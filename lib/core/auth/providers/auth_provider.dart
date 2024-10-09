@@ -12,10 +12,7 @@ import 'package:lessay_learn/services/user_service.dart';
 
 final firebaseServiceProvider = Provider<FirebaseService>((ref) => FirebaseService());
 
-final userServiceProvider = Provider<IUserService>((ref) {
-  final localStorageService = ref.watch(localStorageServiceProvider);
-  return UserService(localStorageService);
-});
+
 // final mockFirebaseServiceProvider = Provider<IFirebaseService>((ref) => MockFirebaseService());
 final authServiceProvider = Provider<AuthService>((ref) {
   final firebaseService = ref.watch(firebaseServiceProvider);

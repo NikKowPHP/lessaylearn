@@ -84,6 +84,7 @@ class _SignUpFormsScreenState extends ConsumerState<SignUpFormsScreen> {
             _selectedTargetLanguages.map((l) => l.languageId).toList(),
         interests:
             _interestsController.text.split(',').map((e) => e.trim()).toList(),
+        onboardingComplete: true
       );
 
       ref.read(signUpProvider.notifier).completeSignUp(_user);
