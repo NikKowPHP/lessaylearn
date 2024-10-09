@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lessay_learn/core/models/user_language_model.dart';
 import 'package:lessay_learn/core/providers/user_language_provider.dart';
@@ -45,20 +46,45 @@ class ProfileScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   SizedBox(height: 30),
-                  // Avatar
-                  GestureDetector(
-                    onTap: () => context.push('/user-gallery/$userId'),
-                    child: Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: AssetImage(user.avatarUrl),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
+
+
+
+                   profilePicturesAsync.when(
+                    data: (pictures) {
+                      if (pictures.isNotEmpty) {
+                        final firstPicture = pictures.first;
+                        debugPrint('$firstPicture');
+                        return GestureDetector(
+                          onTap: () => context.push('/user-gallery/$userId'),
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: MemoryImage(firstPicture.getImageBytes()),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        // Fallback to default avatar if no profile picture is found
+                        return Container(
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AssetImage(user.avatarUrl), // Or a placeholder image
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    loading: () => CircularProgressIndicator(),
+                    error: (error, stackTrace) => Text('Error loading image: $error'),
                   ),
                   SizedBox(height: 20),
                   // User Name
